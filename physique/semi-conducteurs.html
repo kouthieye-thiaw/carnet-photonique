@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>semi-conducteurs & jonction PN · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="physique/semi-conducteurs">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>semi-conducteurs &amp; jonction PN</h1>
+    <span class="hand">une seule jonction, deux métiers : émettre et détecter</span>
+    <p class="lead">La diode laser de ton banc et la photodiode qui la mesure sont la <mark>même structure physique</mark>, utilisée dans deux sens. Comprendre la jonction PN, c'est comprendre les deux.</p>
+    <span class="sticker" data-s="eclair" style="--r:-12deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>expliquer bandes de valence et de conduction, gap direct et indirect ;</li>
+          <li>prévoir la longueur d'onde d'émission d'un matériau ;</li>
+          <li>décrire la jonction PN en direct (LED, laser) et en inverse (photodiode) ;</li>
+          <li>expliquer ce que la double hétérostructure et les puits quantiques apportent à la diode laser ;</li>
+          <li>estimer l'effet de la température sur λ et sur le courant de seuil.</li>
+        </ul>
+      </div>
+      <p class="small">Complément de ton cours de semi-conducteurs du S5 (physique appliquée), orienté optoélectronique.</p>
+
+      <h2><span class="n">1</span>bandes d'énergie &amp; gap</h2>
+      <p>Dans un cristal, les niveaux des atomes se regroupent en <strong>bandes</strong>. La bande de valence (électrons liés) est séparée de la bande de conduction (électrons libres) par la <dfn data-g="gap">bande interdite</dfn> d'énergie \(E_g\). Un électron qui retombe de la conduction vers la valence (il « se recombine » avec un trou) peut émettre un photon d'énergie ≈ \(E_g\) :</p>
+      <div class="formule">
+        <span class="f-name">longueur d'onde d'émission (ou de coupure en détection)</span>
+        <div class="f-eq">\[ \lambda\,[\text{nm}] \approx \frac{1240}{E_g\,[\text{eV}]} \]</div>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>matériau</th><th class="num">E<sub>g</sub> (eV)</th><th class="num">λ (nm)</th><th>usage</th></tr></thead>
+        <tbody>
+          <tr><td>GaN / InGaN</td><td class="num">3,4 / 2,6–3,0</td><td class="num">365 / 405–480</td><td>LED blanches, diodes bleues et violettes</td></tr>
+          <tr><td>AlGaInP</td><td class="num">≈ 1,9</td><td class="num">630–670</td><td>diodes rouges (ton laser de test)</td></tr>
+          <tr><td>AlGaAs / GaAs</td><td class="num">1,42–1,9</td><td class="num">650–870</td><td>780, 808, 850 nm, VCSEL</td></tr>
+          <tr><td>InGaAs (puits sur GaAs)</td><td class="num">≈ 1,27</td><td class="num">915–1100</td><td>pompes 915/976 nm</td></tr>
+          <tr><td>InGaAsP / InP</td><td class="num">0,8–0,95</td><td class="num">1300–1600</td><td>lasers télécoms DFB</td></tr>
+          <tr><td>Si (gap <em>indirect</em>)</td><td class="num">1,12</td><td class="num">≈ 1100</td><td>photodiodes visibles/proche IR, pas de laser</td></tr>
+          <tr><td>InGaAs (sur InP)</td><td class="num">0,75</td><td class="num">≈ 1650</td><td>photodiodes 900–1700 nm</td></tr>
+        </tbody>
+      </table></div>
+      <p><strong>Gap direct ou indirect ?</strong> Dans GaAs ou InP, le bas de la bande de conduction est « juste au-dessus » du haut de la valence : la recombinaison émet un photon efficacement (gap direct). Dans le silicium, ils sont décalés en quantité de mouvement : il faut l'aide d'une vibration du réseau, la recombinaison produit surtout de la chaleur. D'où : <em>pas de laser en silicium</em> (ou alors hybride), mais d'excellentes photodiodes.</p>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>gap et longueur d'onde</h4></div>
+        <p>a) GaAs, E<sub>g</sub> = 1,42 eV : longueur d'onde d'émission, en nm ?</p>
+        <div class="check-row" data-answer="873" data-tol="0.01" data-hint="1240 / 1,42">
+          <input type="text" inputmode="decimal" placeholder="nm" aria-label="longueur d'onde en nm"><span>nm</span><button class="pill small" type="button">vérifier</button>
+        </div>
+        <p>b) Pourquoi une photodiode silicium ne voit-elle rien à 1550 nm ?</p>
+        <details class="reveal hint"><summary>réponse</summary><div class="reveal-body"><p>Un photon de 1550 nm n'a que 0,8 eV, moins que le gap du silicium (1,12 eV) : il ne peut pas créer de paire électron-trou. Le silicium est transparent à 1550 nm. Il faut un matériau de plus petit gap : InGaAs (0,75 eV) ou germanium.</p></div></details>
+      </div>
+
+      <h2><span class="n">2</span>dopage et jonction PN</h2>
+      <p>On dope un semi-conducteur avec des atomes qui donnent un électron (dopage <strong>N</strong>) ou en captent un (dopage <strong>P</strong>, porteurs = « trous »). Au contact d'une zone P et d'une zone N, les porteurs diffusent et se recombinent près de l'interface, laissant une <strong>zone de charge d'espace</strong> vide de porteurs et un champ électrique interne (tension de diffusion ≈ quelques dixièmes de volt à ~1 V selon le matériau). C'est la <dfn data-g="jonction-pn">jonction PN</dfn>.</p>
+      <div class="formule">
+        <span class="f-name">caractéristique d'une diode (Shockley)</span>
+        <div class="f-eq">\[ I = I_s\left(\mathrm{e}^{qV/(nk_BT)} - 1\right) \]</div>
+        <div class="f-where"><b>I<sub>s</sub></b> courant de saturation (minuscule) · <b>n</b> facteur d'idéalité (1 à 2). En direct, le courant explose au-delà d'une tension de coude ≈ E<sub>g</sub>/q ; en inverse, il ne passe que I<sub>s</sub> + le photocourant si on éclaire.</div>
+      </div>
+      <div class="lab" data-widget="jonction">
+        <div class="lab-head"><h4>dans la jonction</h4><span class="tag green">animation</span></div>
+        <p class="small">En direct : électrons (points bleus) et trous (cercles orange) sont injectés et se recombinent en émettant des photons de la couleur du gap. En inverse : la jonction bloque… sauf si tu l'éclaires. Essaie aussi le silicium.</p>
+      </div>
+      <div class="two-col">
+        <div class="mini-card"><h5>polarisation directe → émetteur</h5><p>LED : émission spontanée, spectre large (20–40 nm), faisceau très ouvert. Diode laser : au-delà du seuil, émission stimulée entre deux facettes-miroirs : spectre étroit, faisceau directif.</p></div>
+        <div class="mini-card"><h5>polarisation inverse → détecteur</h5><p>Photodiode : chaque photon absorbé dans la zone de charge d'espace crée une paire électron-trou, séparée par le champ : photocourant proportionnel à la puissance. Détails dans <a href="../electronique/photodetection.html">photodétection</a>.</p></div>
+      </div>
+
+      <h2><span class="n">3</span>de la LED à la diode laser</h2>
+      <ul>
+        <li><strong>Double <dfn data-g="heterostructure">hétérostructure</dfn></strong> : une fine couche active (petit gap) entre deux couches de plus grand gap et de plus faible indice. Les porteurs sont confinés (ils se recombinent là où il faut) et la lumière aussi (guide d'onde). Seuils divisés par 100 : prix Nobel 2000.</li>
+        <li><strong><dfn data-g="puits-quantique">Puits quantiques</dfn></strong> : couches actives de quelques nanomètres ; encore moins de courant de seuil, et la longueur d'onde se règle par l'épaisseur.</li>
+        <li><strong>Facettes clivées</strong> : le cristal est cassé selon un plan atomique ; l'interface semi-conducteur/air réfléchit ≈ 30 %. On ajoute un traitement HR à l'arrière et AR (partiel) à l'avant.</li>
+        <li><strong>Ruban</strong> : un guide latéral de quelques µm assure le fonctionnement monomode transverse (sinon : diodes « larges » multimodes, plus puissantes).</li>
+      </ul>
+      <div class="table-wrap"><table>
+        <thead><tr><th></th><th>LED</th><th>diode laser</th></tr></thead>
+        <tbody>
+          <tr><td>émission</td><td>spontanée</td><td>stimulée (au-dessus du seuil)</td></tr>
+          <tr><td>largeur spectrale</td><td>20–40 nm</td><td>&lt; 1 nm (FP), &lt; 1 pm (DFB)</td></tr>
+          <tr><td>faisceau</td><td>lambertien (très ouvert)</td><td>directif, elliptique (≈ 10° × 30°)</td></tr>
+          <tr><td>caractéristique P(I)</td><td>quasi linéaire dès 0</td><td>seuil puis droite</td></tr>
+          <tr><td>bande de modulation</td><td>~ 10–100 MHz</td><td>GHz à dizaines de GHz</td></tr>
+          <tr><td>sensibilité aux ESD / retours</td><td>faible</td><td>très forte</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2><span class="n">4</span>la température change tout</h2>
+      <p>Quand la jonction chauffe, le gap diminue : la longueur d'onde augmente (≈ 0,25–0,3 nm/K pour une diode Fabry-Pérot, ≈ 0,1 nm/K pour une DFB dont la longueur d'onde suit l'indice du réseau). Les porteurs s'échappent plus facilement de la zone active : le seuil grimpe exponentiellement, caractérisé par la température caractéristique \(T_0\) :</p>
+      <div class="formule">
+        <span class="f-name">dépendance du seuil en température</span>
+        <div class="f-eq">\[ I_{\text{seuil}}(T) = I_{\text{seuil}}(T_{\text{réf}})\,\exp\!\left(\frac{T - T_{\text{réf}}}{T_0}\right) \]</div>
+        <div class="f-where"><b>T₀</b> ≈ 50–80 K pour InGaAsP (1550 nm), 100–200 K pour GaAs/AlGaAs. Plus T₀ est grand, moins la diode est sensible à la chaleur.</div>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>seuil à chaud</h4></div>
+        <p>Une diode a un seuil de 20 mA à 25 °C et T₀ = 60 K. Seuil à 45 °C, en mA ?</p>
+        <div class="check-row" data-answer="27.9" data-tol="0.01" data-hint="20 × exp(20/60)">
+          <input type="text" inputmode="decimal" placeholder="mA" aria-label="seuil en mA"><span>mA</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+      <div class="box terrain">
+        <p class="box-title">sur le terrain</p>
+        <ul>
+          <li>Une diode dont la puissance baisse « toute seule » en régulation de courant : suspecte la température (Peltier, pâte thermique, ventilateur) avant le vieillissement.</li>
+          <li>Tension directe anormalement basse ou courbe V-I « molle » : jonction dégradée (souvent après une ESD). Tension trop haute : mauvais contact, soudure froide.</li>
+          <li>Les fiches techniques donnent λ, seuil et pente à 25 °C : pour comparer, régule ta monture à 25 °C.</li>
+        </ul>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>λ(nm) ≈ 1240/E<sub>g</sub>(eV) ; gap direct (GaAs, InP) → émetteurs ; Si indirect → détecteurs.</li>
+          <li>Jonction PN directe : recombinaison = lumière ; inverse : photon absorbé = photocourant.</li>
+          <li>Diode laser = double hétérostructure + puits quantiques + facettes clivées.</li>
+          <li>Chaleur : λ ↑ (≈ 0,3 nm/K FP), seuil ↑ exponentiellement (T₀).</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="physique-sc">
+        <header><h3>quiz éclair</h3><span class="tag">4 questions</span></header>
+        <div class="q" data-a="b"><p>1. Pourquoi n'y a-t-il pas de diodes laser en silicium pur ?</p><div class="opts">
+          <label><input type="radio" value="a"> son gap est trop grand</label><label><input type="radio" value="b"> son gap est indirect</label><label><input type="radio" value="c"> il ne se dope pas</label></div>
+          <p class="explain">Les recombinaisons y sont non radiatives : chaleur au lieu de lumière.</p></div>
+        <div class="q" data-a="a"><p>2. Une photodiode est utilisée…</p><div class="opts">
+          <label><input type="radio" value="a"> en inverse (ou sans tension)</label><label><input type="radio" value="b"> en direct au-dessus du coude</label><label><input type="radio" value="c"> uniquement en alternatif</label></div>
+          <p class="explain">En inverse, le champ interne sépare les paires créées par la lumière.</p></div>
+        <div class="q" data-a="c"><p>3. Une diode chauffe de 10 °C. Sa longueur d'onde (Fabry-Pérot)…</p><div class="opts">
+          <label><input type="radio" value="a"> baisse de 3 nm</label><label><input type="radio" value="b"> ne bouge pas</label><label><input type="radio" value="c"> augmente d'environ 3 nm</label></div>
+          <p class="explain">≈ 0,3 nm/K : le gap diminue quand la température augmente.</p></div>
+        <div class="q" data-a="b"><p>4. À quoi servent les couches de grand gap autour de la zone active ?</p><div class="opts">
+          <label><input type="radio" value="a"> à refroidir la puce</label><label><input type="radio" value="b"> à confiner porteurs et lumière dans la zone active</label><label><input type="radio" value="c"> à polariser la lumière</label></div>
+          <p class="explain">C'est la double hétérostructure : barrière pour les porteurs, gaine d'indice plus faible pour la lumière.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

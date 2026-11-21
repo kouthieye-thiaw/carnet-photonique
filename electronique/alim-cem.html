@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>alimentations, masses & CEM · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="electronique/alim-cem">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>alimentations, masses &amp; CEM</h1>
+    <span class="hand">le bruit vient souvent de là où on ne regarde pas</span>
+    <p class="lead">Une mesure de puissance qui ondule, une diode qui « bruite », un TIA qui capte la PWM du Peltier : la plupart des soucis de banc viennent de l'<mark>alimentation et des masses</mark>. Les bonnes pratiques, appliquées au laser — en lien avec ton cours de CEM.</p>
+    <span class="sticker" data-s="eclair" style="--r:9deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>choisir entre régulateur linéaire et alimentation à découpage ;</li>
+          <li>découpler correctement chaque circuit intégré ;</li>
+          <li>organiser les masses et éviter les boucles de masse ;</li>
+          <li>identifier les chemins de couplage CEM et leurs remèdes ;</li>
+          <li>établir le bilan d'alimentation du banc.</li>
+        </ul>
+      </div>
+      <p class="small">Ton cours complet de <a href="../but3/cem/index.html">CEM (S5)</a> est intégré au carnet : ici on applique.</p>
+
+      <h2><span class="n">1</span>linéaire ou découpage ?</h2>
+      <div class="two-col">
+        <div class="mini-card"><h5>régulateur linéaire (LDO)</h5><p>Très faible bruit, excellente réjection, simple. Mais il dissipe toute la différence : \(P = (V_{in} - V_{out})\,I\). Idéal pour les circuits sensibles (TIA, référence, driver de diode).</p></div>
+        <div class="mini-card"><h5>alimentation à découpage</h5><p>Rendement 85–95 %, peu de chaleur. Mais elle découpe à 100 kHz–2 MHz : ondulation et harmoniques jusqu'à des dizaines de MHz. Idéale pour la puissance (Peltier, moteur, Raspberry Pi).</p></div>
+      </div>
+      <p>Solution classique : un découpage pour la puissance, suivi d'un filtre et d'un LDO pour l'analogique sensible.</p>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>chaleur d'un LDO</h4></div>
+        <p>Entrée 5 V, sortie 3,3 V, 200 mA. Puissance dissipée, en W ?</p>
+        <div class="check-row" data-answer="0.34" data-tol="0.01" data-hint="(5 − 3,3) × 0,2">
+          <input type="text" inputmode="decimal" placeholder="W" aria-label="dissipation en W"><span>W</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">2</span>filtrer l'ondulation</h2>
+      <div class="lab" data-widget="filtre-lc">
+        <div class="lab-head"><h4>filtre LC contre le découpage</h4><span class="tag green">simulation</span></div>
+        <p class="small">Réponse d'un filtre LC chargé (10 Ω) ou d'un RC. Place la coupure bien en dessous de la fréquence de découpage, et regarde ce qui se passe autour de f₀.</p>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>fréquence de coupure</h4></div>
+        <p>L = 10 µH, C = 100 µF. Fréquence de coupure f₀ = 1/(2π√LC), en kHz ?</p>
+        <div class="check-row" data-answer="5.03" data-tol="0.01" data-hint="√(10⁻⁵ × 10⁻⁴) = 3,16·10⁻⁵ s">
+          <input type="text" inputmode="decimal" placeholder="kHz" aria-label="coupure en kHz"><span>kHz</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">3</span>le découplage</h2>
+      <p>Chaque circuit intégré appelle des pointes de courant très brèves. Les pistes ont une inductance : sans réserve locale, la tension s'effondre un instant et le bruit se propage. D'où, sur <strong>chaque</strong> broche d'alimentation, un <dfn data-g="decouplage">condensateur de découplage</dfn> céramique de 100 nF au plus près (quelques mm), plus un condensateur de quelques µF par circuit ou par zone. La boucle « broche → condensateur → masse » doit être la plus petite possible.</p>
+
+      <h2><span class="n">4</span>les masses</h2>
+      <ul>
+        <li><strong>Masse en étoile</strong> : les retours de courant de puissance (Peltier, moteur) ne doivent pas traverser la masse des mesures. On ramène chaque bloc séparément vers un point commun, près de l'alimentation.</li>
+        <li><strong>Plan de masse</strong> sur circuit imprimé : faible impédance, mais on n'y découpe pas de fentes sous les signaux.</li>
+        <li><strong>Boucle de masse</strong> : deux chemins de masse entre deux appareils (par exemple la Raspberry Pi alimentée par un PC relié à la terre, et un oscilloscope relié à la terre lui aussi) forment une spire qui capte le champ du secteur : raies à 50 Hz dans les mesures. Remèdes : un seul chemin de masse, isolateur USB, mesure différentielle.</li>
+      </ul>
+
+      <h2><span class="n">5</span>CEM : les chemins de couplage</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>couplage</th><th>exemple sur le banc</th><th>remède</th></tr></thead>
+        <tbody>
+          <tr><td>conduit (impédance commune)</td><td>le courant du Peltier dans la masse du TIA</td><td>masses séparées, étoile, alimentations séparées</td></tr>
+          <tr><td>capacitif (champ électrique)</td><td>fil de PWM qui longe l'entrée du TIA</td><td>éloigner, blinder, réduire les surfaces</td></tr>
+          <tr><td>inductif (champ magnétique)</td><td>grande boucle de câblage près du transformateur</td><td>paires torsadées, boucles minimales</td></tr>
+          <tr><td>rayonné</td><td>alimentation à découpage, Wi-Fi de la Pi</td><td>boîtier métallique, filtres, ferrites</td></tr>
+        </tbody>
+      </table></div>
+      <ul>
+        <li><strong>Câbles</strong> : paires torsadées pour le Peltier et le moteur ; câble blindé pour la photodiode, blindage relié à la masse côté mesure (basse fréquence).</li>
+        <li><strong>Ferrites</strong> sur les câbles qui sortent d'un boîtier bruyant.</li>
+        <li><strong>Séparer</strong> physiquement la zone puissance (Peltier, moteur, alimentations) de la zone mesure (TIA, ADC, diode) — c'est ce que fait l'implantation du banc (avant : optique, arrière : électronique, puissance à droite).</li>
+      </ul>
+
+      <h2><span class="n">6</span>le bilan d'alimentation du banc</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>sous-ensemble</th><th>tension</th><th class="num">courant max</th><th>source conseillée</th></tr></thead>
+        <tbody>
+          <tr><td>Raspberry Pi 5 (+ caméra)</td><td>5 V USB-C</td><td class="num">jusqu'à 5 A</td><td>alimentation officielle 27 W</td></tr>
+          <tr><td>driver laser + TIA + ADC/DAC</td><td>5 V (→ LDO 3,3 V)</td><td class="num">≈ 0,15 A</td><td>alimentation linéaire ou découpage + LDO</td></tr>
+          <tr><td>Peltier (via pont en H)</td><td>5–12 V</td><td class="num">1–3 A</td><td>alimentation 12 V à découpage, filtrée</td></tr>
+          <tr><td>moteurs pas à pas</td><td>12 V</td><td class="num">≈ 1 A</td><td>même 12 V, retours séparés</td></tr>
+        </tbody>
+      </table></div>
+      <p>Toutes les masses se rejoignent en <strong>un</strong> point ; les alimentations s'allument dans le bon ordre (la logique et les sécurités d'abord, la puissance ensuite).</p>
+      <div class="box terrain">
+        <p class="box-title">sur le terrain : la chasse au bruit</p>
+        <ol>
+          <li>Mesure le bruit <em>laser éteint</em>, puis Peltier coupé, puis moteur coupé : on isole la source par élimination.</li>
+          <li>Regarde le spectre : 50 Hz (masse), 100 Hz (redressement), kHz (PWM, découpage).</li>
+          <li>Débranche le PC ou l'oscilloscope : si le bruit change, c'est une boucle de masse.</li>
+          <li>Une modification à la fois, et on note tout dans le journal de bord.</li>
+        </ol>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Linéaire = propre mais dissipe (V<sub>in</sub>−V<sub>out</sub>)·I ; découpage = efficace mais bruyant.</li>
+          <li>100 nF au plus près de chaque broche d'alimentation ; filtre LC à f₀ ≪ f<sub>découpage</sub>, amorti.</li>
+          <li>Masse en étoile, un seul chemin entre appareils, paires torsadées, séparation puissance/mesure.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="elec-alim">
+        <header><h3>quiz éclair</h3><span class="tag">4 questions</span></header>
+        <div class="q" data-a="a"><p>1. Pour alimenter le TIA de la photodiode, on préfère…</p><div class="opts">
+          <label><input type="radio" value="a"> un régulateur linéaire bas bruit</label><label><input type="radio" value="b"> directement l'alimentation à découpage du Peltier</label><label><input type="radio" value="c"> l'USB de l'ordinateur</label></div>
+          <p class="explain">Circuit sensible : alimentation propre et séparée.</p></div>
+        <div class="q" data-a="c"><p>2. Raies à 50 Hz dans les mesures, qui disparaissent quand on débranche le câble USB du PC. Diagnostic ?</p><div class="opts">
+          <label><input type="radio" value="a"> le laser est défectueux</label><label><input type="radio" value="b"> l'ADC est mal choisi</label><label><input type="radio" value="c"> une boucle de masse</label></div>
+          <p class="explain">Deux chemins de masse → une spire qui capte le secteur.</p></div>
+        <div class="q" data-a="b"><p>3. Où placer le condensateur de découplage de 100 nF ?</p><div class="opts">
+          <label><input type="radio" value="a"> près de l'alimentation générale</label><label><input type="radio" value="b"> au plus près de la broche d'alimentation du circuit</label><label><input type="radio" value="c"> n'importe où sur la carte</label></div>
+          <p class="explain">C'est la boucle courte qui compte.</p></div>
+        <div class="q" data-a="a"><p>4. Pourquoi torsader les fils d'alimentation du Peltier ?</p><div class="opts">
+          <label><input type="radio" value="a"> pour réduire la surface de boucle et donc le champ magnétique rayonné/capté</label><label><input type="radio" value="b"> pour l'esthétique</label><label><input type="radio" value="c"> pour augmenter le courant</label></div>
+          <p class="explain">Les champs des deux fils se compensent à chaque torsade.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

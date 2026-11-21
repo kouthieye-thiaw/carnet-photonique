@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>préparer la raspberry pi · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="projet/raspberry-setup">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>préparer la Raspberry Pi</h1>
+    <span class="hand">de la carte SD vierge au premier « i2cdetect »</span>
+    <p class="lead">Système, accès à distance, bus I²C, PWM matérielle, caméras, environnement Python et kit du banc : une installation propre, <mark>reproductible et notée</mark>, pour ne jamais se demander « mais comment j'avais fait ? ».</p>
+    <span class="sticker" data-s="framboise" style="--r:9deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette page, tu auras…</h4>
+        <ul>
+          <li>une Raspberry Pi 5 à jour, accessible en SSH depuis ton PC ;</li>
+          <li>I²C, PWM matérielle et caméras activés et vérifiés ;</li>
+          <li>un environnement Python isolé avec le kit <code>banclaser</code> installé ;</li>
+          <li>une méthode de travail : coder sur PC, tester sur simulateur, déployer sur la Pi avec git.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>installer le système</h2>
+      <ol>
+        <li>Avec <strong>Raspberry Pi Imager</strong> sur ton PC : choisis « Raspberry Pi 5 », « Raspberry Pi OS (64-bit) » (la version « Lite » suffit si tu travailles en SSH).</li>
+        <li>Dans les réglages avancés de l'Imager : nom d'hôte (par exemple <code>banc-laser</code>), utilisateur et mot de passe, Wi-Fi, <strong>SSH activé</strong>, fuseau horaire.</li>
+        <li>Insère la carte, branche l'alimentation officielle 27 W (une alimentation trop faible provoque des plantages aléatoires).</li>
+      </ol>
+      <div class="code"><pre data-label="depuis ton PC"><code class="language-bash">ssh kouthieye@banc-laser.local
+sudo apt update && sudo apt full-upgrade -y
+sudo reboot</code></pre></div>
+
+      <h2><span class="n">2</span>activer les interfaces</h2>
+      <div class="code"><pre data-label="sur la Pi"><code class="language-bash"># I²C (et SPI si besoin) : Interface Options
+sudo raspi-config
+# outils de diagnostic I²C
+sudo apt install -y i2c-tools
+i2cdetect -y 1          # doit afficher 48, 49 et 60 une fois la carte branchée</code></pre></div>
+      <p><strong>PWM matérielle</strong> (pont en H du Peltier) : ajoute l'overlay dans <code>/boot/firmware/config.txt</code>, puis redémarre.</p>
+      <div class="code"><pre data-label="/boot/firmware/config.txt (à la fin)"><code class="language-ini"># deux canaux PWM matériels sur GPIO12 et GPIO13
+dtoverlay=pwm-2chan,pin=12,func=4,pin2=13,func2=4</code></pre></div>
+      <p class="small">Sur la Pi 5, la gestion des PWM passe par la puce RP1 : vérifie dans la documentation de la bibliothèque <code>rpi-hardware-pwm</code> le numéro de « chip » à utiliser et teste à l'oscilloscope que les deux sorties fonctionnent à 20 kHz.</p>
+      <p><strong>Caméras</strong> : la Pi 5 a deux connecteurs caméra (22 broches) ; utilise des câbles adaptés. Les caméras officielles sont détectées automatiquement.</p>
+      <div class="code"><pre data-label="tester les caméras"><code class="language-bash">rpicam-hello --list-cameras
+rpicam-still -o essai.jpg --camera 0
+sudo apt install -y python3-picamera2</code></pre></div>
+
+      <h2><span class="n">3</span>Python et le kit du banc</h2>
+      <div class="box attention">
+        <p class="box-title">spécificités de la Raspberry Pi 5</p>
+        <ul>
+          <li><strong>RPi.GPIO ne fonctionne pas</strong> sur la Pi 5 : on utilise <code>gpiozero</code> (avec le pilote <code>lgpio</code>) — c'est ce que fait le kit.</li>
+          <li><code>picamera2</code> s'installe par <code>apt</code> ; pour l'utiliser dans un environnement virtuel, crée-le avec <code>--system-site-packages</code>.</li>
+        </ul>
+      </div>
+      <div class="code"><pre data-label="installation du kit sur la Pi"><code class="language-bash">sudo apt install -y git python3-venv python3-dev
+git clone https://github.com/kouthieye-thiaw/carnet-photonique.git
+cd carnet-photonique/projet-banc
+python3 -m venv --system-site-packages .venv
+source .venv/bin/activate
+pip install -e ".[dev,pi]"
+pytest                     # les tests tournent aussi sur la Pi</code></pre></div>
+      <p>Ajoute ton utilisateur aux groupes <code>i2c</code> et <code>gpio</code> si un accès est refusé (<code>sudo usermod -aG i2c,gpio $USER</code>, puis reconnecte-toi).</p>
+
+      <h2><span class="n">4</span>la méthode de travail</h2>
+      <ol>
+        <li><strong>Sur ton PC</strong> : tu codes une fonction, tu lances <code>pytest</code> sur le simulateur jusqu'au vert.</li>
+        <li><strong>git</strong> : <code>git add</code>, <code>git commit -m "pilote ADS1115"</code>, <code>git push</code>.</li>
+        <li><strong>Sur la Pi</strong> : <code>git pull</code>, puis essai sur le vrai matériel (en commençant par les commandes de lecture, jamais par le laser).</li>
+        <li>VS Code avec l'extension « Remote - SSH » permet aussi d'éditer directement sur la Pi.</li>
+      </ol>
+      <div class="box terrain">
+        <p class="box-title">tiens un journal d'installation</p>
+        <p>Dans ton <a href="../carnet.html">carnet</a> (journal de bord) : version du système, lignes ajoutées à <code>config.txt</code>, paquets installés, problèmes rencontrés et solutions. Une installation documentée se refait en 30 minutes ; une installation « de mémoire » prend une journée.</p>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Raspberry Pi OS 64 bits, SSH, alimentation 27 W.</li>
+          <li>I²C via raspi-config ; PWM via dtoverlay ; caméras via rpicam/picamera2.</li>
+          <li>Pi 5 : gpiozero + lgpio, pas RPi.GPIO ; venv avec --system-site-packages.</li>
+          <li>Coder sur PC + simulateur, déployer avec git.</li>
+        </ul>
+      </div>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>trigo, nombres complexes & phaseurs · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="maths/complexes-trigo">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>trigo, nombres complexes &amp; phaseurs</h1>
+    <span class="hand">tout ce qui tourne et qui ondule</span>
+    <p class="lead">La lumière est une onde, le courant alternatif aussi. Pour les additionner, les déphaser ou les filtrer, un seul langage : <mark>les nombres complexes</mark>, et leur dessin, les phaseurs.</p>
+    <span class="sticker" data-s="photon" style="--r:-8deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>utiliser les radians et les approximations des petits angles (indispensables en alignement) ;</li>
+          <li>écrire une onde sinusoïdale et identifier amplitude, pulsation, phase ;</li>
+          <li>calculer avec les nombres complexes (forme algébrique et exponentielle) ;</li>
+          <li>additionner deux ondes avec des phaseurs et prévoir une interférence ou un battement ;</li>
+          <li>calculer l'impédance d'un condensateur et comprendre un filtre RC.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>radians &amp; petits angles</h2>
+      <p>Un angle en radians est une longueur d'arc divisée par le rayon : un tour complet vaut \(2\pi\) rad, 1 rad ≈ 57,3°. En optique on parle de <strong>milliradians</strong> (mrad) et de <strong>microradians</strong> (µrad), parce qu'ils se convertissent directement en déplacement :</p>
+      <div class="formule">
+        <span class="f-name">approximation des petits angles (θ &lt; 0,1 rad)</span>
+        <div class="f-eq">\[ \sin\theta \approx \tan\theta \approx \theta \qquad \cos\theta \approx 1 - \frac{\theta^2}{2} \qquad \text{écart latéral} \;=\; L\,\theta \]</div>
+        <div class="f-where"><b>Règle d'or de l'aligneur</b> : 1 mrad, c'est 1 mm à 1 m. Un miroir tourné de 0,5 mrad dévie le faisceau de 2 × 0,5 = 1 mrad (la réflexion double l'angle), soit 2 mm à 2 m.</div>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>désalignement</h4></div>
+        <p>Une vis de réglage incline un miroir de 50 µrad. De combien de millimètres le faisceau réfléchi se déplace-t-il sur une cible à 3 m ?</p>
+        <div class="check-row" data-answer="0.3" data-tol="0.02" data-hint="angle du faisceau = 2 × 50 µrad = 100 µrad ; × 3 m">
+          <input type="text" inputmode="decimal" placeholder="mm" aria-label="déplacement en mm"><span>mm</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">2</span>l'onde sinusoïdale</h2>
+      <div class="formule">
+        <span class="f-name">onde progressive</span>
+        <div class="f-eq">\[ E(z,t) = E_0\cos(\omega t - kz + \varphi) \qquad \omega = 2\pi f \qquad k = \frac{2\pi}{\lambda} \]</div>
+        <div class="f-where"><b>E₀</b> amplitude · <b>ω</b> pulsation (rad/s) · <b>k</b> nombre d'onde (rad/m) · <b>φ</b> phase à l'origine. La vitesse de l'onde est ω/k = λf.</div>
+      </div>
+      <p>Pour la lumière, \(f \approx 2\cdot10^{14}\) à \(10^{15}\) Hz : aucun détecteur ne suit le champ électrique. Les photodiodes mesurent l'<strong>intensité</strong>, moyenne du carré du champ : \(I \propto \langle E^2 \rangle\). C'est pourquoi les phases ne « se voient » qu'à travers les interférences.</p>
+
+      <h2><span class="n">3</span>les nombres complexes</h2>
+      <p>Un nombre complexe s'écrit \(z = a + jb\) avec \(j^2 = -1\) (les électroniciens écrivent j pour ne pas confondre avec le courant i). On le représente comme un point (ou une flèche) dans le plan : \(a\) en abscisse, \(b\) en ordonnée.</p>
+      <div class="formule">
+        <span class="f-name">forme exponentielle (formule d'Euler)</span>
+        <div class="f-eq">\[ z = r\,\mathrm{e}^{j\theta} = r(\cos\theta + j\sin\theta) \qquad r = |z| = \sqrt{a^2+b^2} \qquad \theta = \arg z = \operatorname{atan2}(b, a) \]</div>
+        <div class="f-where">Multiplier deux complexes : on <b>multiplie les modules</b> et on <b>additionne les arguments</b>. C'est exactement ce que fait un filtre : il multiplie l'amplitude par |H| et décale la phase de arg H.</div>
+      </div>
+      <h3>impédances : l'électronique en complexes</h3>
+      <div class="formule">
+        <span class="f-name">impédances en régime sinusoïdal</span>
+        <div class="f-eq">\[ Z_R = R \qquad Z_C = \frac{1}{j\omega C} \qquad Z_L = j\omega L \]</div>
+        <div class="f-where">Un condensateur « court-circuite » les hautes fréquences, une bobine les bloque. Filtre RC passe-bas : \(H = \dfrac{1}{1 + j\omega RC}\), coupure à \(f_c = \dfrac{1}{2\pi RC}\) où |H| = 1/√2 (−3 dB) et la phase vaut −45°.</div>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>la capacité d'une photodiode</h4></div>
+        <p>Une photodiode a une capacité de 10 pF. Quel est le module de son impédance à 1 MHz, en kΩ ? (C'est elle qui limite la bande passante d'un TIA.)</p>
+        <div class="check-row" data-answer="15.9" data-tol="0.02" data-hint="|Z| = 1/(2π f C)">
+          <input type="text" inputmode="decimal" placeholder="kΩ" aria-label="impédance en kΩ"><span>kΩ</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">4</span>phaseurs : additionner des ondes</h2>
+      <p>Deux ondes de même fréquence s'additionnent comme deux flèches (leurs phaseurs) : on met la seconde au bout de la première. La flèche résultante donne l'amplitude ; son carré, l'intensité.</p>
+      <div class="formule">
+        <span class="f-name">intensité de deux ondes qui interfèrent</span>
+        <div class="f-eq">\[ I = I_1 + I_2 + 2\sqrt{I_1 I_2}\,\cos\Delta\varphi \]</div>
+        <div class="f-where">Δφ = 0 : constructif (I₁ = I₂ → 4I₁) · Δφ = π : destructif (0 si I₁ = I₂). Contraste (visibilité) \(V = \dfrac{I_{\max}-I_{\min}}{I_{\max}+I_{\min}}\).</div>
+      </div>
+      <div class="lab" data-widget="phaseurs">
+        <div class="lab-head"><h4>phaseurs, interférences, battement</h4><span class="tag green">animation</span></div>
+        <p class="small">À gauche, les deux flèches tournent ensemble (onde 1 en orange, onde 2 en bleu, résultante en noir). Change le déphasage, puis ajoute un petit écart de fréquence : l'intensité se met à battre.</p>
+      </div>
+      <h3>le battement, un outil de mesure</h3>
+      <p>Si deux lasers ont des fréquences légèrement différentes, leur phase relative tourne à la vitesse \(2\pi\Delta f\) : une photodiode voit l'intensité osciller à \(\Delta f\). C'est la <strong>détection hétérodyne</strong> : on mesure avec un simple analyseur de spectre électrique un écart entre deux fréquences optiques de 200 THz, ou la largeur de raie d'un laser.</p>
+      <div class="formule">
+        <span class="f-name">écart de fréquence ↔ écart de longueur d'onde</span>
+        <div class="f-eq">\[ \Delta f = \frac{c\,\Delta\lambda}{\lambda^2} \]</div>
+        <div class="f-where">À 1550 nm : 8 pm ↔ 1 GHz ; 0,8 nm ↔ 100 GHz (le pas de la grille télécom DWDM).</div>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>fréquence de battement</h4></div>
+        <p>Deux lasers à 1550,000 nm et 1550,016 nm. Quelle fréquence de battement, en GHz ?</p>
+        <div class="check-row" data-answer="2.0" data-tol="0.02" data-hint="Δf = c Δλ / λ² avec Δλ = 16 pm">
+          <input type="text" inputmode="decimal" placeholder="GHz" aria-label="battement en GHz"><span>GHz</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <div class="box terrain">
+        <p class="box-title">sur le terrain</p>
+        <ul>
+          <li>Les franges qui « respirent » sur un écran d'alignement : deux réflexions parasites qui interfèrent (lame non traitée, fenêtre). Un léger tilt de l'optique les fait disparaître.</li>
+          <li>Un laser qui « saute » de fréquence se voit immédiatement sur un battement avec un laser de référence : le pic se déplace d'un ISL.</li>
+          <li>Un TIA qui oscille ou dont la bande est trop étroite : c'est souvent une histoire de capacité et de phase — on y revient dans <a href="../electronique/photodetection.html">photodétection</a>.</li>
+        </ul>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>1 mrad = 1 mm à 1 m ; un miroir double l'angle.</li>
+          <li>\(z = r\mathrm{e}^{j\theta}\) : produit → modules × , arguments +.</li>
+          <li>\(Z_C = 1/(j\omega C)\) ; RC passe-bas : \(f_c = 1/(2\pi RC)\).</li>
+          <li>\(I = I_1 + I_2 + 2\sqrt{I_1I_2}\cos\Delta\varphi\) ; battement à Δf = cΔλ/λ².</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="maths-complexes">
+        <header><h3>quiz éclair</h3><span class="tag">5 questions</span></header>
+        <div class="q" data-a="b"><p>1. Combien vaut 1 rad en degrés ?</p><div class="opts">
+          <label><input type="radio" value="a"> 1°</label><label><input type="radio" value="b"> environ 57,3°</label><label><input type="radio" value="c"> 3,14°</label></div>
+          <p class="explain">180°/π ≈ 57,3°.</p></div>
+        <div class="q" data-a="c"><p>2. Le module de \(3 + 4j\) vaut…</p><div class="opts">
+          <label><input type="radio" value="a"> 7</label><label><input type="radio" value="b"> 1</label><label><input type="radio" value="c"> 5</label></div>
+          <p class="explain">√(9 + 16) = 5.</p></div>
+        <div class="q" data-a="a"><p>3. Deux faisceaux de 1 mW en phase parfaite se superposent sur une photodiode. Au centre de la frange brillante, l'intensité équivaut à…</p><div class="opts">
+          <label><input type="radio" value="a"> 4 mW (localement)</label><label><input type="radio" value="b"> 2 mW</label><label><input type="radio" value="c"> 1 mW</label></div>
+          <p class="explain">I = 1 + 1 + 2·√1·cos 0 = 4. L'énergie est conservée : là où c'est 4, ailleurs c'est 0 (frange sombre) ; la moyenne vaut 2.</p></div>
+        <div class="q" data-a="b"><p>4. Un filtre RC a R = 1 kΩ et C = 159 nF. Sa fréquence de coupure est…</p><div class="opts">
+          <label><input type="radio" value="a"> 159 Hz</label><label><input type="radio" value="b"> environ 1 kHz</label><label><input type="radio" value="c"> 6,3 kHz</label></div>
+          <p class="explain">1/(2π × 1000 × 159·10⁻⁹) ≈ 1000 Hz.</p></div>
+        <div class="q" data-a="c"><p>5. Pourquoi ne peut-on pas « voir » directement la phase d'une onde lumineuse ?</p><div class="opts">
+          <label><input type="radio" value="a"> parce qu'elle est toujours nulle</label><label><input type="radio" value="b"> parce que la lumière n'a pas de phase</label><label><input type="radio" value="c"> parce que les détecteurs mesurent la moyenne de E², à ~10¹⁴ Hz trop rapide pour eux</label></div>
+          <p class="explain">On n'accède à la phase qu'en la comparant à une autre onde : interférences, battements.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

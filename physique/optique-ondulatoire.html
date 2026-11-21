@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>interférences, diffraction & cohérence · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="physique/optique-ondulatoire">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>interférences, diffraction &amp; cohérence</h1>
+    <span class="hand">quand la lumière se comporte en onde</span>
+    <p class="lead">Interféromètres, réseaux, cavités Fabry-Pérot, traitements de surface : les instruments les plus précis de la photonique reposent sur un seul principe — <mark>des ondes qui s'additionnent</mark> en phase ou en opposition.</p>
+    <span class="sticker" data-s="photon" style="--r:9deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>calculer un interfrange et expliquer le principe du Michelson ;</li>
+          <li>estimer la limite de diffraction d'une ouverture et la taille d'une tache focalisée ;</li>
+          <li>utiliser la formule des réseaux (base de ton spectromètre) ;</li>
+          <li>décrire une cavité Fabry-Pérot : ISL, finesse, largeur des pics ;</li>
+          <li>comprendre les traitements antireflet et les miroirs de Bragg.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>interférences</h2>
+      <p>Deux ondes cohérentes qui se superposent donnent une intensité \(I_1 + I_2 + 2\sqrt{I_1I_2}\cos\Delta\varphi\) (voir <a href="../maths/complexes-trigo.html">phaseurs</a>). Le déphasage vient d'une différence de chemin optique \(\delta\) : \(\Delta\varphi = 2\pi\delta/\lambda\). Conditions pour voir des franges : même fréquence, polarisations non orthogonales, et différence de chemin plus courte que la <dfn data-g="longueur-coherence">longueur de cohérence</dfn>.</p>
+      <div class="formule">
+        <span class="f-name">fentes de Young : interfrange</span>
+        <div class="f-eq">\[ i = \frac{\lambda D}{a} \]</div>
+        <div class="f-where"><b>D</b> distance à l'écran · <b>a</b> écart entre les fentes.</div>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>interfrange</h4></div>
+        <p>λ = 650 nm, D = 2 m, a = 0,5 mm. Interfrange, en mm ?</p>
+        <div class="check-row" data-answer="2.6" data-tol="0.01" data-hint="650·10⁻⁹ × 2 / 0,5·10⁻³">
+          <input type="text" inputmode="decimal" placeholder="mm" aria-label="interfrange en mm"><span>mm</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+      <h3>l'interféromètre de Michelson</h3>
+      <p>Une lame séparatrice envoie la lumière vers deux miroirs puis recombine les faisceaux. Déplacer un miroir de \(\lambda/2\) allonge le trajet de \(\lambda\) : une frange défile. En comptant les franges on mesure des déplacements au nanomètre, ou une longueur d'onde inconnue en la comparant à une référence : c'est le principe de nombreux <dfn data-g="lambdametre">lambdamètres</dfn>.</p>
+
+      <h2><span class="n">2</span>diffraction</h2>
+      <p>Toute ouverture limitée étale la lumière. Pour une ouverture circulaire de diamètre \(D\), la tache centrale (disque d'Airy) a un demi-angle :</p>
+      <div class="formule">
+        <span class="f-name">limite de diffraction</span>
+        <div class="f-eq">\[ \theta \approx 1{,}22\,\frac{\lambda}{D} \qquad\qquad \text{tache focale} \;\approx\; 2{,}44\,\frac{\lambda f}{D} \]</div>
+        <div class="f-where">C'est pour ça qu'on ne focalise jamais un faisceau « en un point » : plus la longueur d'onde est courte et l'optique ouverte (grand D, courte f), plus la tache est petite.</div>
+      </div>
+      <h3>le réseau de diffraction</h3>
+      <p>Un <dfn data-g="reseau-diffraction">réseau</dfn> porte des traits réguliers au pas \(d\) (souvent 600 à 1800 traits/mm). Chaque longueur d'onde est renvoyée dans une direction différente : c'est le cœur des spectromètres, des analyseurs de spectre optique… et du laser à cavité externe.</p>
+      <div class="formule">
+        <span class="f-name">formule des réseaux</span>
+        <div class="f-eq">\[ d\,(\sin\theta_i + \sin\theta_m) = m\lambda \qquad\qquad \text{pouvoir de résolution } \frac{\lambda}{\Delta\lambda} = mN \]</div>
+        <div class="f-where"><b>m</b> ordre (entier) · <b>N</b> nombre de traits éclairés. Configuration Littrow (ordre 1 renvoyé vers la source) : \(2d\sin\theta = \lambda\).</div>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>angle de diffraction</h4></div>
+        <p>Réseau de 1200 traits/mm, incidence normale, λ = 532 nm, ordre 1. Angle θ₁ en degrés ?</p>
+        <div class="check-row" data-answer="39.67" data-tol="0.005" data-hint="sin θ = λ/d = 532·10⁻⁹ × 1,2·10⁶">
+          <input type="text" inputmode="decimal" placeholder="°" aria-label="angle en degrés"><span>°</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">3</span>cohérence &amp; speckle</h2>
+      <p>La <dfn data-g="coherence">cohérence temporelle</dfn> mesure combien de temps l'onde garde sa phase (lié à la largeur spectrale) ; la cohérence spatiale, sur quelle surface. Un laser monomode est très cohérent dans les deux sens. Effet visible : quand un faisceau laser éclaire une surface rugueuse, il forme un motif granuleux, le <strong>speckle</strong>, fait d'interférences aléatoires. C'est un signe de cohérence… et une gêne pour l'imagerie et la mesure de profil (on moyenne, ou on fait vibrer un diffuseur).</p>
+
+      <h2><span class="n">4</span>la cavité Fabry-Pérot</h2>
+      <p>Deux miroirs parallèles de réflectivité \(R\) à une distance \(L\) : la lumière fait des allers-retours et ne passe que si un nombre entier de demi-longueurs d'onde tient dans la cavité. La transmission présente des pics fins, régulièrement espacés de l'<dfn data-g="isl">intervalle spectral libre</dfn> :</p>
+      <div class="formule">
+        <span class="f-name">transmission, ISL et finesse</span>
+        <div class="f-eq">\[ T = \frac{1}{1 + \dfrac{4R}{(1-R)^2}\sin^2\!\left(\dfrac{\delta}{2}\right)} \qquad \mathrm{ISL} = \frac{c}{2nL} \qquad \mathcal{F} = \frac{\pi\sqrt R}{1-R} \qquad \Delta\nu_{1/2} = \frac{\mathrm{ISL}}{\mathcal F} \]</div>
+        <div class="f-where">δ = 4πnL/λ (déphasage aller-retour). Une cavité de 5 cm a un ISL de 3 GHz ; avec R = 99 %, la <dfn data-g="finesse">finesse</dfn> vaut ≈ 313 et les pics font ≈ 10 MHz.</div>
+      </div>
+      <div class="lab" data-widget="fabry-perot">
+        <div class="lab-head"><h4>Fabry-Pérot : pics et finesse</h4><span class="tag green">simulation</span></div>
+        <p class="small">Monte la réflectivité : les pics s'affinent. Allonge la cavité : ils se rapprochent. Les raies bleues représentent un laser analysé — un vrai analyseur Fabry-Pérot balaie L avec un piézo pour faire défiler ces pics.</p>
+      </div>
+      <p>Usages : cavité de tout laser (ses pics sont les <a href="../lasers/cavite-modes.html">modes longitudinaux</a>), analyseur de spectre pour vérifier qu'un laser est monomode, filtre étroit, cavité de référence ultra-stable pour verrouiller une fréquence. Attention aussi aux « étalons parasites » : une lame à faces parallèles non traitée dans un faisceau crée un petit Fabry-Pérot qui fait onduler la puissance quand la température ou la longueur d'onde varie.</p>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>finesse</h4></div>
+        <p>Miroirs à R = 95 %. Finesse ?</p>
+        <div class="check-row" data-answer="61.2" data-tol="0.01" data-hint="π√0,95 / 0,05">
+          <input type="text" inputmode="decimal" placeholder="finesse" aria-label="finesse"><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">5</span>couches minces : antireflets &amp; miroirs de Bragg</h2>
+      <p>Une couche d'épaisseur \(\lambda/(4n)\) déposée sur une optique renvoie deux réflexions décalées d'une demi-longueur d'onde : elles s'annulent. Indice idéal : \(\sqrt{n_{\text{verre}}}\) (≈ 1,23 ; on utilise MgF₂, n = 1,38, ou des empilements). En empilant alternativement des couches d'indices haut et bas, on obtient au contraire un miroir quasi parfait (&gt; 99,99 %) : le <strong>miroir de Bragg</strong>. On le retrouve dans les miroirs laser diélectriques, les VCSEL, les diodes DFB/DBR et les réseaux de Bragg inscrits dans les fibres.</p>
+      <div class="box terrain">
+        <p class="box-title">sur le terrain</p>
+        <ul>
+          <li>Un traitement est conçu pour une longueur d'onde et un angle : un miroir HR à 1064 nm peut transmettre à 532 nm, une optique AR à 1550 nm réfléchit dans le visible. Vérifie toujours la référence du traitement.</li>
+          <li>Les traitements se rayent et se brûlent : on les nettoie avec la méthode adaptée (module 06), jamais à sec.</li>
+          <li>Des franges qui bougent sur une mesure de puissance = un étalon parasite : incliner légèrement la lame ou le filtre fautif.</li>
+        </ul>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Δφ = 2πδ/λ ; Young i = λD/a ; Michelson : λ/2 de déplacement = une frange.</li>
+          <li>Diffraction : θ ≈ 1,22 λ/D. Réseau : d(sin θᵢ + sin θₘ) = mλ ; Littrow 2d sin θ = λ.</li>
+          <li>Fabry-Pérot : ISL = c/2nL, finesse π√R/(1−R), largeur = ISL/finesse.</li>
+          <li>Couche λ/4n : antireflet ; empilement λ/4 haut/bas : miroir de Bragg.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="physique-ondulatoire">
+        <header><h3>quiz éclair</h3><span class="tag">4 questions</span></header>
+        <div class="q" data-a="b"><p>1. ISL d'une cavité de 15 cm dans l'air ?</p><div class="opts">
+          <label><input type="radio" value="a"> 2 GHz</label><label><input type="radio" value="b"> 1 GHz</label><label><input type="radio" value="c"> 15 GHz</label></div>
+          <p class="explain">c/2L = 3·10⁸/0,3 = 1 GHz.</p></div>
+        <div class="q" data-a="a"><p>2. Pour une tache focale plus petite, il faut…</p><div class="opts">
+          <label><input type="radio" value="a"> un faisceau plus large sur la lentille et/ou une focale plus courte</label><label><input type="radio" value="b"> un faisceau plus fin sur la lentille</label><label><input type="radio" value="c"> une longueur d'onde plus grande</label></div>
+          <p class="explain">Tache ≈ 2,44 λf/D : grand D, petite f, petite λ.</p></div>
+        <div class="q" data-a="c"><p>3. Le speckle prouve que la lumière laser est…</p><div class="opts">
+          <label><input type="radio" value="a"> polarisée</label><label><input type="radio" value="b"> monochromatique au pm près</label><label><input type="radio" value="c"> cohérente</label></div>
+          <p class="explain">Ce sont des interférences entre les ondes diffusées par les aspérités de la surface.</p></div>
+        <div class="q" data-a="b"><p>4. On augmente R de 90 % à 99 %. La largeur des pics d'un Fabry-Pérot…</p><div class="opts">
+          <label><input type="radio" value="a"> augmente</label><label><input type="radio" value="b"> diminue d'environ un facteur 10</label><label><input type="radio" value="c"> ne change pas</label></div>
+          <p class="explain">Finesse ≈ 30 → ≈ 313 : les pics sont 10 fois plus fins.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>sécurité laser · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="lasers/securite">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>sécurité laser</h1>
+    <span class="hand">on n'a que deux yeux</span>
+    <p class="lead">Une lésion de la rétine par laser est <mark>instantanée, indolore et définitive</mark>. Classes, valeurs limites, lunettes, organisation du poste : ce que tout technicien doit maîtriser avant d'allumer quoi que ce soit.</p>
+    <span class="sticker" data-s="coeur" style="--r:-10deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>expliquer les effets d'un laser sur l'œil et la peau selon la longueur d'onde ;</li>
+          <li>connaître les classes laser (IEC 60825-1) et ce qu'elles impliquent ;</li>
+          <li>calculer une densité optique de lunettes et une distance de risque ;</li>
+          <li>appliquer la hiérarchie des mesures de protection et les règles d'alignement ;</li>
+          <li>savoir réagir en cas d'exposition accidentelle.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>ce que le laser fait à l'œil</h2>
+      <figure class="fig">
+        <div class="fig-inner">
+          <svg viewBox="0 0 760 240" role="img" aria-label="Coupe de l'œil : UV et infrarouge lointain absorbés à l'avant, visible et proche infrarouge focalisés sur la rétine.">
+            <ellipse cx="470" cy="120" rx="150" ry="100" fill="#fff" class="svg-ink"/>
+            <path d="M330 70 Q 300 120 330 170" fill="none" stroke="#3b82f6" stroke-width="3"/>
+            <ellipse cx="350" cy="120" rx="16" ry="38" fill="#e8f2ff" class="svg-ink"/>
+            <path d="M590 40 Q 640 120 590 200" fill="none" stroke="#ff6f1e" stroke-width="5"/>
+            <path d="M60 95 L350 108 L612 120" stroke="#e2372b" stroke-width="2.4" fill="none"/><path d="M60 145 L350 132 L612 120" stroke="#e2372b" stroke-width="2.4" fill="none"/>
+            <circle cx="612" cy="120" r="6" fill="#e2372b"/>
+            <path d="M60 40 L326 70" stroke="#7c3aed" stroke-width="2.4" stroke-dasharray="6 4"/><path d="M60 200 L326 176" stroke="#8f2a14" stroke-width="2.4" stroke-dasharray="6 4"/>
+            <g class="svg-txt"><text x="345" y="180" text-anchor="middle" style="font-size:12px">cristallin</text><text x="300" y="62" text-anchor="middle" style="font-size:12px">cornée</text><text x="640" y="40" style="font-size:12px">rétine</text></g>
+            <text x="40" y="30" class="svg-hand" style="fill:#7c3aed;font-size:18px">UV : cornée, cristallin (cataracte)</text>
+            <text x="40" y="228" class="svg-hand" style="fill:#8f2a14;font-size:18px">IR &gt; 1400 nm : cornée (brûlure)</text>
+            <text x="70" y="88" class="svg-hand" style="fill:#e2372b;font-size:18px">400–1400 nm : focalisé × 100 000 sur la rétine</text>
+          </svg>
+        </div>
+        <figcaption><b>Figure 1 —</b> le cristallin concentre un faisceau parallèle en un point minuscule de la rétine : l'éclairement est multiplié par ~10⁵. C'est pourquoi quelques milliwatts suffisent.</figcaption>
+      </figure>
+      <ul>
+        <li><strong>400–700 nm</strong> (visible) : rétine ; le réflexe palpébral (≈ 0,25 s) protège un peu des faibles puissances (&lt; 1 mW).</li>
+        <li><strong>700–1400 nm</strong> (proche IR) : rétine aussi, mais <em>aucun</em> réflexe — invisible ; zone la plus traîtresse (808, 980, 1064 nm).</li>
+        <li><strong>UV et IR &gt; 1400 nm</strong> : absorbés par la cornée et le cristallin (brûlures, cataracte). 1550 nm est dit « à sécurité oculaire améliorée », pas « sans danger ».</li>
+        <li><strong>Peau</strong> : brûlures pour les fortes puissances (classe 4), effets photochimiques en UV.</li>
+        <li>Autres dangers d'un poste laser : haute tension, incendie (classe 4), fumées d'usinage, gaz et solvants, cryogénie.</li>
+      </ul>
+
+      <h2><span class="n">2</span>les classes laser (IEC 60825-1)</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>classe</th><th>limite indicative (continu)</th><th>risque</th><th>exemples</th></tr></thead>
+        <tbody>
+          <tr><td><strong>1</strong></td><td>sans danger dans toutes les conditions raisonnables</td><td>aucun (peut contenir un laser puissant capoté)</td><td>imprimante laser, machine de découpe fermée</td></tr>
+          <tr><td><strong>1M</strong></td><td>idem à l'œil nu</td><td>danger avec instrument optique (loupe, jumelles)</td><td>faisceaux très divergents ou larges</td></tr>
+          <tr><td><strong>2</strong></td><td>visible, ≤ 1 mW</td><td>protégé par le réflexe palpébral</td><td>lecteurs de codes-barres, pointeurs « classe 2 »</td></tr>
+          <tr><td><strong>2M</strong></td><td>visible, ≤ 1 mW à l'œil nu</td><td>danger avec instrument</td><td>niveaux de chantier à ligne</td></tr>
+          <tr><td><strong>3R</strong></td><td>visible ≤ 5 mW</td><td>vision directe dangereuse, risque faible</td><td><strong>la diode de ton banc (5 mW, 650 nm)</strong></td></tr>
+          <tr><td><strong>3B</strong></td><td>≤ 500 mW</td><td>faisceau direct et réflexions spéculaires dangereux</td><td>DPSS de labo, diodes de pompe, ECDL</td></tr>
+          <tr><td><strong>4</strong></td><td>&gt; 500 mW</td><td>même les réflexions diffuses ; peau ; incendie</td><td>lasers industriels, amplis à fibre W–kW</td></tr>
+        </tbody>
+      </table></div>
+      <p class="small">Les seuils exacts dépendent de la longueur d'onde, de la durée et de la géométrie du faisceau ; la classe figure sur l'étiquette réglementaire du laser.</p>
+
+      <h2><span class="n">3</span>EMP, densité optique et distance de risque</h2>
+      <p>L'<dfn data-g="emp">exposition maximale permise</dfn> (EMP) est l'éclairement (ou l'énergie surfacique) en dessous duquel l'œil ne subit pas de lésion. Pour du visible pendant 0,25 s, elle vaut environ 25 W/m² (2,5 mW/cm²). Deux calculs en découlent :</p>
+      <div class="formule">
+        <span class="f-name">densité optique minimale et distance nominale de risque oculaire</span>
+        <div class="f-eq">\[ DO = \log_{10}\!\left(\frac{E_0}{\text{EMP}}\right) \qquad\qquad \text{DNRO} = \frac{1}{\varphi}\left(\sqrt{\frac{4P}{\pi\,\text{EMP}}} - a\right) \]</div>
+        <div class="f-where"><b>E₀</b> éclairement que l'œil pourrait recevoir · <b>P</b> puissance · <b>a</b> diamètre du faisceau en sortie · <b>φ</b> divergence (angle total). Au-delà de la <dfn data-g="dnro">DNRO</dfn>, le faisceau direct est sous l'EMP — mais attention aux instruments optiques.</div>
+      </div>
+      <div class="lab" data-widget="securite">
+        <div class="lab-head"><h4>combien de densité optique ? à quelle distance ?</h4><span class="tag green">calculateur</span></div>
+        <p class="small">Calcul pédagogique : pour une vraie évaluation, on suit la norme et l'avis du référent sécurité laser.</p>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>ta diode de 5 mW</h4></div>
+        <p>5 mW visible, diamètre 1 mm en sortie, EMP = 25,4 W/m². a) Densité optique minimale (1 décimale) ?</p>
+        <div class="check-row" data-answer="2.4" data-tol="0.03" data-hint="E₀ = 4P/(πa²) ≈ 6370 W/m² ; log₁₀(6370/25,4)">
+          <input type="text" inputmode="decimal" placeholder="DO" aria-label="densité optique"><button class="pill small" type="button">vérifier</button>
+        </div>
+        <p>b) Avec une divergence de 1 mrad, DNRO en m ?</p>
+        <div class="check-row" data-answer="14.8" data-tol="0.02" data-hint="√(4×0,005/(π×25,4)) = 15,8 mm ; (15,8 − 1) mm / 1 mrad">
+          <input type="text" inputmode="decimal" placeholder="m" aria-label="DNRO en m"><span>m</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">4</span>se protéger : la hiérarchie des mesures</h2>
+      <ol>
+        <li><strong>Supprimer ou réduire</strong> : travailler à la plus faible puissance utile (alignement à puissance réduite).</li>
+        <li><strong>Protections collectives (techniques)</strong> : capot, enceinte en matériau filtrant, <dfn data-g="interlock">interlocks</dfn> de porte et de capot, clé de mise en service, arrêt d'urgence, voyant « émission », pièges à faisceau, faisceaux à hauteur constante, sous le niveau des yeux.</li>
+        <li><strong>Mesures organisationnelles</strong> : zone laser délimitée et signalée (panneau triangulaire jaune), accès restreint, procédures écrites, formation, référent sécurité laser (RSL), registre.</li>
+        <li><strong>Protections individuelles</strong> : lunettes marquées pour la bonne longueur d'onde et la bonne densité (norme EN 207 ; lunettes d'alignement EN 208 qui laissent voir un peu le faisceau). Vérifie le marquage à chaque usage : <em>la longueur d'onde d'abord</em>.</li>
+      </ol>
+      <div class="box attention">
+        <p class="box-title">règles d'or de l'alignement</p>
+        <ul>
+          <li>Jamais l'œil à hauteur du faisceau ; ne jamais regarder dans l'axe, même « juste un coup d'œil ».</li>
+          <li>Retirer montres, bagues, badges brillants ; outils mats.</li>
+          <li>Visualiser avec une carte (IR : carte phosphore ou caméra), jamais l'œil nu.</li>
+          <li>Bloquer chaque faisceau secondaire et réflexion parasite (vérifie avec la carte autour du montage).</li>
+          <li>Prévenir les personnes présentes avant de dé-bloquer un faisceau.</li>
+        </ul>
+      </div>
+      <p>Cadre réglementaire en France : la directive européenne 2006/25/CE sur les rayonnements optiques artificiels est transposée dans le Code du travail (articles R. 4452-1 et suivants) : évaluation des risques, valeurs limites d'exposition, information et formation des travailleurs.</p>
+
+      <h2><span class="n">5</span>en cas d'exposition</h2>
+      <div class="box retiens">
+        <p class="box-title">conduite à tenir</p>
+        <ol>
+          <li>Couper le laser (arrêt d'urgence), mettre la zone en sécurité.</li>
+          <li>Ne pas se frotter les yeux ; prévenir le responsable et le RSL.</li>
+          <li><strong>Consultation en ophtalmologie en urgence</strong>, même sans symptôme : un examen du fond d'œil précoce documente une éventuelle lésion.</li>
+          <li>Déclarer l'accident et analyser la cause (méthode des 5 pourquoi, module 06) pour qu'il ne se reproduise pas.</li>
+        </ol>
+      </div>
+      <div class="box terrain">
+        <p class="box-title">ton banc de test</p>
+        <p>Ta diode de 5 mW est de classe 3R. Le banc prévoit : capot opaque (ou fenêtre filtrante <em>certifiée pour 650 nm</em> — attention, un plastique orange laisse passer le rouge, il ne protège que des lasers bleus et UV), interlock de capot, clé, arrêt d'urgence, voyant d'émission et piège à faisceau (voir <a href="../projet/cahier-des-charges.html">cahier des charges</a>). Et le code Python refusera d'allumer le laser si l'interlock est ouvert — mais la sécurité principale est <strong>matérielle</strong>, jamais seulement logicielle.</p>
+      </div>
+      <section class="quiz" data-quiz="lasers-securite">
+        <header><h3>quiz éclair</h3><span class="tag">5 questions</span></header>
+        <div class="q" data-a="c"><p>1. Quelle zone de longueurs d'onde est la plus dangereuse pour la rétine, faute de réflexe ?</p><div class="opts">
+          <label><input type="radio" value="a"> 400–700 nm</label><label><input type="radio" value="b"> au-delà de 1400 nm</label><label><input type="radio" value="c"> 700–1400 nm</label></div>
+          <p class="explain">Invisible, mais transmise et focalisée sur la rétine.</p></div>
+        <div class="q" data-a="b"><p>2. Une diode rouge de 5 mW est typiquement de classe…</p><div class="opts">
+          <label><input type="radio" value="a"> 2</label><label><input type="radio" value="b"> 3R</label><label><input type="radio" value="c"> 4</label></div>
+          <p class="explain">Visible, entre 1 et 5 mW : 3R.</p></div>
+        <div class="q" data-a="a"><p>3. Des lunettes marquées pour 1064 nm protègent-elles d'un laser à 532 nm ?</p><div class="opts">
+          <label><input type="radio" value="a"> pas forcément : il faut une DO suffisante à 532 nm</label><label><input type="radio" value="b"> oui, toujours</label><label><input type="radio" value="c"> oui si on plisse les yeux</label></div>
+          <p class="explain">Une lunette est spécifiée longueur d'onde par longueur d'onde (sauf mention des deux).</p></div>
+        <div class="q" data-a="c"><p>4. La mesure de protection la plus efficace est…</p><div class="opts">
+          <label><input type="radio" value="a"> la paire de lunettes</label><label><input type="radio" value="b"> le panneau sur la porte</label><label><input type="radio" value="c"> la protection collective (capot, interlocks), avant les EPI</label></div>
+          <p class="explain">Les EPI sont le dernier rempart, pas le premier.</p></div>
+        <div class="q" data-a="b"><p>5. Un collègue a reçu un flash direct mais « ne sent rien ». Que faire ?</p><div class="opts">
+          <label><input type="radio" value="a"> attendre de voir si des symptômes apparaissent</label><label><input type="radio" value="b"> couper, prévenir, consultation ophtalmologique en urgence</label><label><input type="radio" value="c"> lui rincer les yeux</label></div>
+          <p class="explain">Les lésions rétiniennes peuvent être indolores ; un examen précoce est indispensable.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

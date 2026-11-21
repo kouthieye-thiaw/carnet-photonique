@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>la cavité & ses modes · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="lasers/cavite-modes">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>la cavité &amp; ses modes</h1>
+    <span class="hand">ce qui décide des couleurs et de la forme du faisceau</span>
+    <p class="lead">La cavité n'accepte que certaines fréquences (les <mark>modes longitudinaux</mark>) et certaines formes de faisceau (les <mark>modes transverses</mark>). Comprendre les modes, c'est comprendre pourquoi un laser est monofréquence… ou saute d'une raie à l'autre.</p>
+    <span class="sticker" data-s="diode" style="--r:-9deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>calculer les fréquences des modes longitudinaux et l'intervalle spectral libre ;</li>
+          <li>estimer combien de modes oscillent sous une courbe de gain ;</li>
+          <li>expliquer ce qu'est un saut de mode et comment on obtient un laser monofréquence ;</li>
+          <li>reconnaître les modes transverses TEM et savoir pourquoi on veut le TEM₀₀ ;</li>
+          <li>vérifier la stabilité géométrique d'une cavité.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>les modes longitudinaux</h2>
+      <p>La lumière fait des allers-retours entre les miroirs : seule une onde qui revient <em>en phase</em> avec elle-même s'auto-entretient. Il faut un nombre entier \(q\) de demi-longueurs d'onde entre les miroirs :</p>
+      <div class="formule">
+        <span class="f-name">fréquences de résonance et intervalle spectral libre</span>
+        <div class="f-eq">\[ L = q\,\frac{\lambda}{2n} \quad\Longleftrightarrow\quad \nu_q = q\,\frac{c}{2nL} \qquad\qquad \mathrm{ISL} = \Delta\nu = \frac{c}{2nL} \qquad \Delta\lambda \approx \frac{\lambda^2}{2nL} \]</div>
+        <div class="f-where"><b>q</b> est un très grand entier (≈ 10⁶ pour un laser de 30 cm). Les modes forment un « peigne » régulier de pas ISL. Le milieu amplificateur n'a de gain que sur une certaine bande : seuls les modes où le gain dépasse les pertes oscillent.</div>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>laser</th><th>cavité</th><th class="num">ISL</th><th>bande de gain</th><th>résultat</th></tr></thead>
+        <tbody>
+          <tr><td>HeNe 633 nm</td><td>30 cm, air</td><td class="num">500 MHz</td><td>≈ 1,5 GHz (Doppler)</td><td>2 à 3 modes</td></tr>
+          <tr><td>diode Fabry-Pérot 650 nm</td><td>0,3 mm, n ≈ 3,5</td><td class="num">≈ 143 GHz (0,2 nm)</td><td>≈ 10 nm</td><td>plusieurs modes, un dominant</td></tr>
+          <tr><td>DPSS Nd:YAG</td><td>5 cm</td><td class="num">3 GHz</td><td>≈ 120 GHz</td><td>dizaines de modes (sauf précautions)</td></tr>
+          <tr><td>laser à fibre</td><td>10 m</td><td class="num">≈ 10 MHz</td><td>THz</td><td>des milliers de modes</td></tr>
+        </tbody>
+      </table></div>
+      <div class="lab" data-widget="modes">
+        <div class="lab-head"><h4>modes sous la courbe de gain</h4><span class="tag green">simulation</span></div>
+        <p class="small">Raies rouges : modes qui oscillent (gain &gt; pertes). Raccourcis la cavité : les modes s'écartent et il n'en reste plus qu'un. Fais ensuite « dériver » la cavité (dilatation thermique) : le mode s'éloigne du centre… et un voisin prend sa place. En dessous : les motifs des modes transverses.</p>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>ISL d'une puce</h4></div>
+        <p>Diode Fabry-Pérot : L = 0,3 mm, n = 3,5. ISL en GHz ?</p>
+        <div class="check-row" data-answer="142.9" data-tol="0.01" data-hint="c / (2nL) = 3·10⁸ / (2 × 3,5 × 0,3·10⁻³)">
+          <input type="text" inputmode="decimal" placeholder="GHz" aria-label="ISL en GHz"><span>GHz</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">2</span>un seul mode : le laser monofréquence</h2>
+      <p>Pour beaucoup d'applications (télécoms denses, spectroscopie, refroidissement d'atomes, interférométrie), il faut <strong>une seule</strong> fréquence. Recettes :</p>
+      <ul>
+        <li><strong>cavité courte</strong> : ISL plus grand que la bande de gain (microlasers, VCSEL) ;</li>
+        <li><strong>filtre dans la cavité</strong> : étalon Fabry-Pérot, réseau de Bragg distribué (<dfn data-g="dfb">DFB</dfn>, <dfn data-g="dbr">DBR</dfn>) ou réseau externe (<dfn data-g="ecdl">ECDL</dfn>) ;</li>
+        <li><strong>cavité en anneau</strong> avec isolateur intracavité (pas d'onde stationnaire, donc pas de « trous » spatiaux dans le gain).</li>
+      </ul>
+      <p>Le revers : le <dfn data-g="saut-mode">saut de mode</dfn>. Quand la température ou le courant change, la longueur optique de la cavité varie et le peigne glisse sous la courbe de gain ; à un moment, le mode voisin devient plus favorable et la fréquence saute d'un ISL. Sur une diode, ces sauts se voient comme des « marches » sur la courbe λ(T) et souvent comme des accidents sur la courbe L-I. On en reparle dans <a href="accordabilite.html">accordabilité &amp; stabilisation</a>.</p>
+
+      <h2><span class="n">3</span>les modes transverses</h2>
+      <p>La cavité impose aussi la forme du faisceau dans sa section : ce sont les modes TEM<sub>mn</sub> (transverse électromagnétique), décrits par des polynômes d'Hermite × une gaussienne. <strong>m</strong> et <strong>n</strong> comptent les zéros (lignes sombres) horizontalement et verticalement. Le mode fondamental <dfn data-g="tem00">TEM₀₀</dfn> est une gaussienne pure : la plus petite divergence et la meilleure focalisation (M² = 1). Les modes d'ordre supérieur sont plus larges et divergent plus.</p>
+      <ul>
+        <li>Un diaphragme dans la cavité coupe les modes larges et force le TEM₀₀ (au prix d'un peu de puissance).</li>
+        <li>Un pompage trop fort ou désaligné excite des modes supérieurs : le profil devient « tâché » et le M² augmente.</li>
+        <li>Différents modes transverses ont des fréquences légèrement différentes : ils battent entre eux et ajoutent du bruit.</li>
+      </ul>
+
+      <h2><span class="n">4</span>la cavité est-elle stable ?</h2>
+      <p>Avec des miroirs courbes (rayons R₁, R₂), un rayon légèrement incliné peut rester confiné (cavité <em>stable</em>) ou s'échapper après quelques tours (instable). On définit les paramètres \(g\) :</p>
+      <div class="formule">
+        <span class="f-name">critère de stabilité</span>
+        <div class="f-eq">\[ g_1 = 1 - \frac{L}{R_1} \qquad g_2 = 1 - \frac{L}{R_2} \qquad\qquad 0 \le g_1 g_2 \le 1 \]</div>
+        <div class="f-where">Miroir plan : R = ∞, g = 1. Plan-plan : g₁g₂ = 1, à la limite — très difficile à aligner. Hémisphérique (plan + R = L, cas du HeNe) : g₁g₂ = 0, limite aussi mais tolérante. Confocale (R₁ = R₂ = L) : g = 0, très tolérante à l'alignement.</div>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>stable ou pas ?</h4></div>
+        <p>L = 50 cm, deux miroirs de rayon 1 m. Calcule g₁g₂.</p>
+        <div class="check-row" data-answer="0.25" data-tol="0.01" data-hint="g = 1 − 0,5/1 = 0,5 pour chaque miroir">
+          <input type="text" inputmode="decimal" placeholder="g₁g₂" aria-label="produit g1 g2"><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+      <div class="box terrain">
+        <p class="box-title">sur le terrain</p>
+        <ul>
+          <li>Pour savoir si un laser est monomode : analyseur Fabry-Pérot à balayage (une seule raie qui défile), OSA haute résolution, ou battement avec un autre laser.</li>
+          <li>Un laser multimode longitudinal montre des pics à l'ISL (et ses multiples) sur un analyseur de spectre RF branché derrière une photodiode rapide : c'est un test simple et parlant.</li>
+          <li>Un profil de faisceau en « double lobe » ou en anneau : mode transverse supérieur → alignement de cavité, pompage, diaphragme à vérifier.</li>
+        </ul>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Modes longitudinaux espacés de ISL = c/2nL ; nombre de modes ≈ bande de gain / ISL.</li>
+          <li>Monofréquence : cavité courte, filtre (DFB, DBR, étalon, réseau externe) ; risque : sauts de mode.</li>
+          <li>TEM₀₀ = gaussien = meilleur faisceau ; diaphragme pour le forcer.</li>
+          <li>Stabilité : 0 ≤ (1 − L/R₁)(1 − L/R₂) ≤ 1.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="lasers-modes">
+        <header><h3>quiz éclair</h3><span class="tag">4 questions</span></header>
+        <div class="q" data-a="b"><p>1. On double la longueur d'une cavité. L'ISL…</p><div class="opts">
+          <label><input type="radio" value="a"> double</label><label><input type="radio" value="b"> est divisé par 2</label><label><input type="radio" value="c"> ne change pas</label></div>
+          <p class="explain">ISL = c/2nL.</p></div>
+        <div class="q" data-a="c"><p>2. Un HeNe de 30 cm a une bande de gain de 1,5 GHz. Combien de modes environ ?</p><div class="opts">
+          <label><input type="radio" value="a"> 1</label><label><input type="radio" value="b"> 30</label><label><input type="radio" value="c"> 3</label></div>
+          <p class="explain">ISL = 500 MHz → 1,5 GHz / 0,5 GHz ≈ 3.</p></div>
+        <div class="q" data-a="a"><p>3. Le mode TEM₀₀ est…</p><div class="opts">
+          <label><input type="radio" value="a"> gaussien, le plus focalisable</label><label><input type="radio" value="b"> en forme d'anneau</label><label><input type="radio" value="c"> le plus puissant possible</label></div>
+          <p class="explain">M² = 1 : c'est le faisceau idéal, pas forcément le plus puissant.</p></div>
+        <div class="q" data-a="b"><p>4. Un saut de mode, c'est…</p><div class="opts">
+          <label><input type="radio" value="a"> une coupure du laser</label><label><input type="radio" value="b"> un changement brusque de fréquence d'un ISL quand un mode voisin devient plus favorable</label><label><input type="radio" value="c"> un passage en TEM₀₁</label></div>
+          <p class="explain">Le peigne de modes glisse sous le gain (température, courant…) jusqu'à ce qu'un voisin l'emporte.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

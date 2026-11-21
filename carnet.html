@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>mon carnet · carnet photonique</title>
+<meta name="description" content="Toutes les notes, le journal de bord et la progression du carnet photonique, avec export et sauvegarde.">
+<link rel="icon" href="assets/img/favicon.svg">
+<link rel="stylesheet" href="assets/css/carnet.css">
+<script defer src="assets/js/site-map.js"></script>
+<script defer src="assets/js/carnet.js"></script>
+</head>
+<body data-nonotes>
+<main>
+<div class="wrap">
+  <header class="tool-hero" style="position:relative">
+    <h1>mon carnet</h1>
+    <span class="hand">tout ce que j'ai noté, au même endroit</span>
+    <p class="lead">Tes notes de chaque leçon, ton journal de bord de technicien et ta progression. Tout est enregistré <mark>dans ce navigateur</mark> : exporte régulièrement une sauvegarde, et tes notes en Markdown pour les garder toute ta carrière.</p>
+    <span class="sticker" data-s="coeur" style="--r:-8deg;top:30px;right:0"></span>
+  </header>
+
+  <section class="section" id="progression">
+    <div class="sec-head"><h2>ma progression</h2><span class="hand sm">module par module</span></div>
+    <div class="resume" data-c="resume" style="margin-bottom:22px"></div>
+    <div data-c="progress"></div>
+  </section>
+
+  <section class="section" id="notes">
+    <div class="sec-head"><h2>mes notes</h2><span class="hand sm">modifiables ici aussi</span></div>
+    <div class="search-box" style="margin-bottom:18px">
+      <input type="search" data-c="filtre" placeholder="chercher dans mes notes…" aria-label="chercher dans mes notes">
+    </div>
+    <div data-c="notes"></div>
+  </section>
+
+  <section class="section" id="journal">
+    <div class="sec-head"><h2>journal de bord</h2><span class="hand sm">ce que j'ai fait, appris, raté</span></div>
+    <p class="lead" style="max-width:46em">Un vrai réflexe de technicien : à chaque séance (montage, mesure, code, dépannage), quelques lignes datées. Ce qui a été fait, ce qui a été observé, ce qui reste à faire.</p>
+    <form class="form-grid" data-c="jform" style="margin:20px 0 28px">
+      <label class="field">titre<input type="text" name="titre" maxlength="120" placeholder="ex. première L-I-V sur charge factice" required></label>
+      <label class="field">catégorie<select name="cat">
+        <option>montage</option><option>mesure</option><option>code</option><option>cours</option><option>dépannage</option><option>idée</option>
+      </select></label>
+      <label class="field full">ce que j'ai fait, observé, conclu<textarea name="texte" placeholder="conditions, résultats, problèmes, prochaine étape…" required></textarea></label>
+      <div class="full"><button class="pill" type="submit">ajouter au journal</button></div>
+    </form>
+    <div data-c="journal"></div>
+  </section>
+
+  <section class="section" id="quiz">
+    <div class="sec-head"><h2>quiz &amp; exercices</h2><span class="hand sm">mes meilleurs scores</span></div>
+    <div data-c="quiz"></div>
+  </section>
+
+  <section class="section" id="sauvegarde">
+    <div class="sec-head"><h2>sauvegarde</h2><span class="hand sm">à faire souvent</span></div>
+    <div class="two-col">
+      <div class="mini-card">
+        <h5>exporter</h5>
+        <p>Les notes et le journal en Markdown (lisible partout, à mettre dans un dossier ou sur GitHub) ; ou une sauvegarde complète (notes, statuts, scores, cases cochées) à restaurer plus tard.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:10px;margin-top:14px">
+          <button class="pill small" type="button" data-c="exp-md">notes en Markdown (.md)</button>
+          <button class="pill small ghost" type="button" data-c="exp-json">sauvegarde complète (.json)</button>
+        </div>
+      </div>
+      <div class="mini-card">
+        <h5>restaurer</h5>
+        <p>Sur un autre ordinateur ou après avoir vidé le navigateur : choisis un fichier de sauvegarde <code>.json</code>. Les données du fichier remplacent celles qui portent le même nom.</p>
+        <label class="pill small ghost" style="margin-top:14px;cursor:pointer">choisir une sauvegarde…<input type="file" accept="application/json,.json" data-c="imp" hidden></label>
+      </div>
+    </div>
+    <div class="box attention" style="margin-top:22px">
+      <p class="box-title">où sont mes données ?</p>
+      <p>Dans le stockage local de ce navigateur, sur cet appareil uniquement : rien n'est envoyé sur Internet. Navigation privée, nettoyage du navigateur ou changement d'ordinateur = données perdues sans sauvegarde.</p>
+    </div>
+  </section>
+</div>
+</main>
+<script defer src="assets/js/pages/carnet-page.js"></script>
+</body>
+</html>

@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>anatomie d'un système laser · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="systemes/architecture">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>anatomie d'un système laser</h1>
+    <span class="hand">un laser, c'est 20 % d'optique et 80 % de « système »</span>
+    <p class="lead">Un laser scientifique ou industriel est un <mark>système</mark> : tête optique, contrôleur électronique, logiciel, refroidissement, sécurités, documentation. Le technicien intervient sur tout ça — souvent plus sur l'électronique et le logiciel que sur l'optique.</p>
+    <span class="sticker" data-s="cle" style="--r:-10deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>décomposer un système laser en sous-ensembles fonctionnels ;</li>
+          <li>décrire le rôle de chaque module d'un contrôleur ;</li>
+          <li>expliquer comment un système se pilote (interface, logiciel, SCPI) ;</li>
+          <li>connaître les étapes d'intégration et de recette (FAT, SAT) ;</li>
+          <li>savoir quelle documentation chercher avant d'intervenir.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>le schéma-bloc</h2>
+      <figure class="fig">
+        <div class="fig-inner">
+          <svg viewBox="0 0 760 330" role="img" aria-label="Schéma-bloc d'un système laser : tête laser, contrôleur avec modules, logiciel, refroidissement, interlocks, alimentation, sortie fibrée.">
+            <defs><marker id="aa" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#171717"/></marker></defs>
+            <g class="svg-ink">
+              <rect x="30" y="40" width="230" height="250" rx="14" fill="#f7efe9"/>
+              <rect x="50" y="70" width="190" height="36" rx="8" fill="#fff"/><rect x="50" y="114" width="190" height="36" rx="8" fill="#fff"/><rect x="50" y="158" width="190" height="36" rx="8" fill="#fff"/><rect x="50" y="202" width="190" height="36" rx="8" fill="#fff"/><rect x="50" y="246" width="190" height="30" rx="8" fill="#fff"/>
+              <rect x="330" y="60" width="200" height="130" rx="14" fill="#ffeee4"/>
+              <rect x="330" y="220" width="200" height="70" rx="14" fill="#f7efe9"/>
+              <rect x="590" y="60" width="150" height="60" rx="14" fill="#fff"/>
+              <rect x="590" y="150" width="150" height="60" rx="14" fill="#fff"/>
+              <rect x="590" y="240" width="150" height="50" rx="14" fill="#fff"/>
+            </g>
+            <g class="svg-txt" text-anchor="middle" style="font-size:13px">
+              <text x="145" y="30" style="font-weight:500">contrôleur (rack)</text>
+              <text x="145" y="93">driver de courant</text><text x="145" y="137">régulation de température</text><text x="145" y="181">piézo / accord</text><text x="145" y="225">asservissement / mesures</text><text x="145" y="266">alimentation + sécurités</text>
+              <text x="430" y="50" style="font-weight:500">tête laser</text><text x="430" y="105">diode, cavité, optiques</text><text x="430" y="125">Peltier, CTN, photodiodes</text><text x="430" y="145">isolateur, sortie</text>
+              <text x="430" y="250">refroidissement</text><text x="430" y="270">air / eau / chiller</text>
+              <text x="665" y="95">logiciel + API</text><text x="665" y="185">interlocks, clé, AU</text><text x="665" y="270">sortie fibrée</text>
+            </g>
+            <g stroke="#171717" stroke-width="1.5" fill="none"><path d="M260 100 H328" marker-end="url(#aa)"/><path d="M330 150 H262" marker-end="url(#aa)"/><path d="M588 90 H262" marker-end="url(#aa)" stroke-dasharray="5 4"/><path d="M588 180 H262" marker-end="url(#aa)"/><path d="M530 125 H560 V265 H588" marker-end="url(#aa)" stroke="#e2372b" stroke-width="2.5"/><path d="M430 218 V192"/></g>
+            <text x="280" y="320" class="svg-hand" style="font-size:18px">câble multibroche : courant, CTN, Peltier, photodiode, piézo, identification</text>
+          </svg>
+        </div>
+        <figcaption><b>Figure 1 —</b> structure typique d'un laser scientifique accordable ou d'un amplificateur : une tête optique compacte reliée à un contrôleur modulaire, piloté par logiciel.</figcaption>
+      </figure>
+
+      <h2><span class="n">2</span>la tête laser</h2>
+      <p>Elle contient la partie optique et ses actionneurs : source (diode, cristal, fibre), optiques de mise en forme, isolateur, Peltier et CTN, photodiodes de contrôle, parfois un piézo et un réseau. Souvent une petite mémoire (EEPROM) identifie la tête et stocke ses paramètres limites (courant max, température) : le contrôleur refuse de dépasser ces valeurs. On l'ouvre rarement, en salle propre ou sous flux laminaire, et jamais sans procédure (risque de désalignement et de contamination).</p>
+
+      <h2><span class="n">3</span>le contrôleur</h2>
+      <ul>
+        <li><strong>driver de courant</strong> bas bruit, avec limite matérielle, démarrage progressif, relais de court-circuit (module 05) ;</li>
+        <li><strong>régulateur de température</strong> (PID + pont) pour la diode, parfois plusieurs (cristal doubleur, réseau, ampli) ;</li>
+        <li><strong>driver haute tension de piézo</strong> (0–150 V) pour l'accord fin ;</li>
+        <li><strong>électronique d'asservissement</strong> : détection synchrone, PID rapides, génération de modulation ;</li>
+        <li><strong>mesures et surveillance</strong> : tensions, courants, puissances, températures, heures de fonctionnement, journal d'événements ;</li>
+        <li><strong>alimentation et sécurités</strong> : interlock, clé, voyant d'émission, temporisation d'émission (souvent quelques secondes après la clé, exigée par la norme).</li>
+      </ul>
+
+      <h2><span class="n">4</span>le logiciel et le pilotage</h2>
+      <p>Le système se pilote depuis un panneau avant, une interface graphique sur PC et une <strong>API</strong> pour l'automatisation : commandes texte <strong>SCPI</strong> (<code>*IDN?</code>, <code>LASER:CURR 85.0</code>…) par USB, série ou Ethernet, ou bibliothèques Python. Le firmware du contrôleur se met à jour : une mise à jour peut changer des comportements, d'où l'importance de noter les versions dans les rapports d'intervention. Ton banc reproduit cette architecture en petit : Raspberry Pi (contrôleur + logiciel), carte driver (modules), tête optique.</p>
+
+      <h2><span class="n">5</span>de la fabrication à la livraison</h2>
+      <ol>
+        <li><strong>Intégration</strong> : assemblage mécanique, câblage, alignement optique, réglages.</li>
+        <li><strong>Tests unitaires</strong> des sous-ensembles (driver sur charge factice, régulation, diode).</li>
+        <li><strong>Déverminage</strong> (burn-in) : fonctionnement prolongé, souvent à chaud, pour éliminer les défauts de jeunesse.</li>
+        <li><strong>Recette usine (FAT)</strong> : mesures de la fiche de spécifications (puissance, λ, M², largeur de raie, stabilité, bruit), rapport de test signé.</li>
+        <li><strong>Recette sur site (SAT)</strong> : installation chez le client, vérification des performances après transport, formation.</li>
+        <li><strong>SAV</strong> : maintenance préventive, dépannage, retours en usine (RMA), mises à jour.</li>
+      </ol>
+
+      <h2><span class="n">6</span>la documentation à avoir sous la main</h2>
+      <ul class="checklist" data-id="doc-systeme">
+        <li><input type="checkbox"><label>Manuel utilisateur et manuel de service (procédures, réglages, schémas).</label></li>
+        <li><input type="checkbox"><label>Fiche de test usine (FAT) : les valeurs de référence de <em>cet</em> exemplaire.</label></li>
+        <li><input type="checkbox"><label>Historique de l'équipement (GMAO) : interventions, pièces changées, heures.</label></li>
+        <li><input type="checkbox"><label>Versions logicielles et firmware ; sauvegarde des paramètres.</label></li>
+        <li><input type="checkbox"><label>Analyse de risques et consignes de sécurité du poste (classe laser, EPI).</label></li>
+        <li><input type="checkbox"><label>Certificats d'étalonnage des instruments de mesure utilisés.</label></li>
+      </ul>
+      <div class="box terrain">
+        <p class="box-title">sur le terrain</p>
+        <p>Avant de toucher un système, <strong>sauvegarde ses paramètres</strong> et note son état (courants, températures, puissance, messages d'erreur). Compare à la fiche de test usine : un écart te dit déjà où chercher. Et après intervention, rends un système dans un état au moins aussi bien documenté qu'à ton arrivée.</p>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Système = tête optique + contrôleur modulaire + logiciel/API + refroidissement + sécurités + documentation.</li>
+          <li>Le contrôleur protège la tête (limites stockées, démarrage progressif, interlock).</li>
+          <li>Pilotage par SCPI/API : noter versions et paramètres.</li>
+          <li>Cycle : intégration → tests → déverminage → FAT → SAT → SAV.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="sys-archi">
+        <header><h3>quiz éclair</h3><span class="tag">3 questions</span></header>
+        <div class="q" data-a="b"><p>1. Pourquoi une tête laser contient-elle souvent une petite mémoire ?</p><div class="opts">
+          <label><input type="radio" value="a"> pour stocker des photos</label><label><input type="radio" value="b"> pour s'identifier et transmettre ses limites (courant, température) au contrôleur</label><label><input type="radio" value="c"> pour accélérer le laser</label></div>
+          <p class="explain">Le contrôleur adapte et borne son fonctionnement à la tête branchée.</p></div>
+        <div class="q" data-a="c"><p>2. La FAT, c'est…</p><div class="opts">
+          <label><input type="radio" value="a"> la recette chez le client</label><label><input type="radio" value="b"> une panne de jeunesse</label><label><input type="radio" value="c"> la recette en usine, avec le rapport de test de référence</label></div>
+          <p class="explain">Factory Acceptance Test ; la SAT est la recette sur site.</p></div>
+        <div class="q" data-a="a"><p>3. Premier réflexe avant une intervention sur un système ?</p><div class="opts">
+          <label><input type="radio" value="a"> relever l'état et sauvegarder les paramètres</label><label><input type="radio" value="b"> ouvrir la tête optique</label><label><input type="radio" value="c"> mettre à jour le firmware</label></div>
+          <p class="explain">On doit pouvoir revenir en arrière et comparer.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

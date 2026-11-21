@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>piloter une diode laser : la source de courant · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="electronique/driver-courant">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>piloter une diode laser : la source de courant</h1>
+    <span class="hand">jamais en tension, toujours en courant</span>
+    <p class="lead">Le « driver » est le circuit qui alimente la diode. Bien conçu, il la fait vivre 50 000 heures ; mal conçu, il la tue en une microseconde. On dessine ensemble le <mark>driver de ton banc</mark>, et on comprend chaque composant.</p>
+    <span class="sticker" data-s="eclair" style="--r:-10deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>expliquer pourquoi une diode laser se pilote en courant ;</li>
+          <li>analyser une source de courant AOP + MOSFET + shunt ;</li>
+          <li>dimensionner shunt, alimentation, MOSFET et consigne (compliance, dissipation, résolution) ;</li>
+          <li>comprendre les modes ACC et APC et leurs pièges ;</li>
+          <li>connaître les points de stabilité, de bruit et de modulation.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>pourquoi en courant ?</h2>
+      <p>La caractéristique d'une diode est exponentielle : au-dessus du coude, quelques millivolts de plus font varier le courant de dizaines de pourcents — et la tension de coude baisse de ≈ 2 mV/°C quand la diode chauffe. Une alimentation en tension, même excellente, conduirait à l'emballement thermique : la diode chauffe, sa tension baisse, le courant monte, elle chauffe plus… La puissance optique dépendant du <em>courant</em>, on impose le courant : c'est le rôle d'une <dfn data-g="source-courant">source de courant</dfn>.</p>
+
+      <h2><span class="n">2</span>la source de courant AOP + MOSFET + shunt</h2>
+      <p>C'est le montage de base de la plupart des drivers, et celui de ton banc. Un <dfn data-g="aop">amplificateur opérationnel</dfn> compare une consigne \(V_{set}\) à la tension aux bornes d'une résistance de <dfn data-g="shunt">shunt</dfn> \(R_s\), et commande un <dfn data-g="mosfet">MOSFET</dfn> qui laisse passer juste ce qu'il faut de courant. La contre-réaction force \(V_- = V_+\) :</p>
+      <div class="formule">
+        <span class="f-name">courant imposé</span>
+        <div class="f-eq">\[ R_s\,I = V_{set} \quad\Longrightarrow\quad I = \frac{V_{set}}{R_s} \qquad\qquad V_+ \;\ge\; V_{LD} + V_{DS,\min} + R_s I \]</div>
+        <div class="f-where">La seconde inégalité est la condition de <dfn data-g="compliance">compliance</dfn> : l'alimentation doit couvrir la tension de la diode, la chute minimale du MOSFET et celle du shunt. Tout le reste de la tension (V<sub>DS</sub>) est dissipé en chaleur dans le MOSFET : P = V<sub>DS</sub>·I.</div>
+      </div>
+      <div class="lab" data-widget="driver">
+        <div class="lab-head"><h4>le driver, en direct</h4><span class="tag green">schéma interactif</span></div>
+        <p class="small">Configuration « puits côté bas » : anode de la diode au +, cathode vers le MOSFET. Règle la consigne et observe le courant. Baisse V+ ou monte R<sub>s</sub> jusqu'à manquer de compliance.</p>
+      </div>
+      <h3>dimensionner pas à pas</h3>
+      <div class="box exemple">
+        <p class="box-title">le driver de ton banc (diode rouge 5 mW, I<sub>max</sub> = 60 mA)</p>
+        <ol class="steps">
+          <li><strong>Pleine échelle de consigne</strong> : on veut au plus ~0,6 V aux bornes du shunt (assez pour être loin du décalage de l'AOP, assez peu pour la compliance). R<sub>s</sub> = 0,6 V / 60 mA = <strong>10 Ω</strong>, 0,1 %, faible coefficient de température.</li>
+          <li><strong>Consigne</strong> : un DAC 12 bits (0–3,3 V) suivi d'un diviseur × 0,18 donne 0–0,6 V. Résolution : 3,3 V / 4096 × 0,18 / 10 Ω ≈ <strong>15 µA</strong>. Le diviseur a un second rôle : <em>même si le DAC part à fond, le courant ne peut pas dépasser 60 mA</em>.</li>
+          <li><strong>Alimentation</strong> : V<sub>LD</sub> ≈ 2,3 V à 60 mA + V<sub>DS,min</sub> ≈ 0,3 V + 0,6 V = 3,2 V. Une alimentation de 5 V laisse une bonne marge.</li>
+          <li><strong>MOSFET</strong> : à 40 mA, V<sub>DS</sub> = 5 − 2,2 − 0,4 = 2,4 V → 96 mW : un petit MOSFET logique en boîtier SOT-23 ou TO-92 suffit (V<sub>GS(th)</sub> bas, bon fonctionnement en linéaire).</li>
+          <li><strong>AOP</strong> : rail-to-rail, entrée de faible décalage (&lt; 1 mV), basse dérive et bas bruit, alimenté en 5 V.</li>
+        </ol>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>dimensionnement</h4></div>
+        <p>a) Dissipation du MOSFET à 40 mA, V+ = 5 V, V<sub>LD</sub> = 2,2 V, R<sub>s</sub> = 10 Ω, en mW ?</p>
+        <div class="check-row" data-answer="96" data-tol="0.01" data-hint="V_DS = 5 − 2,2 − 0,4 ; P = V_DS × I">
+          <input type="text" inputmode="decimal" placeholder="mW" aria-label="dissipation en mW"><span>mW</span><button class="pill small" type="button">vérifier</button>
+        </div>
+        <p>b) Avec V+ = 12 V, même point de fonctionnement : dissipation en mW ?</p>
+        <div class="check-row" data-answer="376" data-tol="0.01" data-hint="V_DS = 12 − 2,2 − 0,4 = 9,4 V">
+          <input type="text" inputmode="decimal" placeholder="mW" aria-label="dissipation en mW"><span>mW</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+      <p class="small">Morale : une alimentation « plus grosse » n'est pas mieux : la tension en trop part en chaleur dans le MOSFET.</p>
+
+      <h2><span class="n">3</span>anode ou cathode à la masse ?</h2>
+      <p>Selon le brochage de la diode (leçon <a href="../lasers/diode-laser.html">diode laser</a>), le boîtier métallique est relié à l'anode ou à la cathode. Si le boîtier doit être à la masse (monture métallique reliée à la terre), il faut :</p>
+      <ul>
+        <li><strong>cathode à la masse</strong> → source de courant côté haut (PMOS ou transistor PNP piloté par l'AOP, shunt côté alimentation) ;</li>
+        <li><strong>anode à la masse</strong> → alimentation négative et puits de courant ;</li>
+        <li>ou isoler la monture et utiliser le montage puits côté bas ci-dessus (le plus simple).</li>
+      </ul>
+      <p>C'est la première question à se poser quand on choisit un driver du commerce : quel type de diode (brochage) accepte-t-il ?</p>
+
+      <h2><span class="n">4</span>ACC ou APC ?</h2>
+      <div class="two-col">
+        <div class="mini-card"><h5><dfn data-g="acc">ACC</dfn> — courant constant</h5><p>Le driver tient le courant. La puissance varie avec la température et le vieillissement. Mode de référence pour <strong>caractériser</strong> une diode (toutes les courbes L-I se font en ACC) et pour les diodes sans photodiode moniteur.</p></div>
+        <div class="mini-card"><h5><dfn data-g="apc">APC</dfn> — puissance constante</h5><p>Une seconde boucle lit le courant de la photodiode moniteur (TIA) et ajuste le courant pour garder la puissance. Pratique en exploitation, mais <strong>dangereux</strong> si la photodiode se débranche ou se dégrade : la boucle pousse le courant au maximum. Une limite de courant matérielle indépendante est obligatoire.</p></div>
+      </div>
+
+      <h2><span class="n">5</span>stabilité, bruit, modulation</h2>
+      <ul>
+        <li><strong>Stabilité de la boucle</strong> : la grille du MOSFET est une capacité ; l'ensemble peut osciller à quelques MHz (invisible au multimètre, mortel pour la diode). Remèdes : résistance de grille R<sub>g</sub> (47–220 Ω), petite capacité de compensation entre sortie et entrée − de l'AOP avec une résistance série, vérification à l'oscilloscope sur charge factice.</li>
+        <li><strong>Bruit</strong> : le bruit de courant devient bruit de puissance (RIN) et bruit de fréquence (≈ 1 GHz/mA pour une DFB). Référence de tension propre, filtrage RC lent de la consigne, AOP bas bruit, alimentation linéaire ou bien filtrée.</li>
+        <li><strong>Modulation</strong> : une entrée sommée sur la consigne (BF) ou un té de polarisation (inductance pour le continu + condensateur pour la RF) pour moduler vite. Attention : toute modulation doit rester dans la plage autorisée, dépassements compris.</li>
+        <li><strong>Mesure du courant</strong> : on lit la tension du shunt (ADC) — c'est la vraie valeur, pas la consigne.</li>
+      </ul>
+      <div class="box attention">
+        <p class="box-title">le test sur charge factice</p>
+        <p>Avant de brancher une vraie diode, on câble une <strong>diode factice</strong> : deux ou trois diodes de redressement en série (≈ 1,8–2,1 V, proche d'une diode rouge) ou une LED rouge + une résistance. On vérifie à l'oscilloscope : pas d'oscillation, pas de pic à la mise sous tension et à la coupure, limite de courant effective, rampe de démarrage. Seulement ensuite, la vraie diode. Détails dans <a href="protection.html">protéger une diode laser</a>.</p>
+      </div>
+      <div class="box terrain">
+        <p class="box-title">sur le terrain</p>
+        <ul>
+          <li>Driver qui « ne monte pas » au courant demandé : compliance insuffisante (connecteur, câble long, diode vieillie avec une tension plus haute), ou limite de courant atteinte.</li>
+          <li>Puissance qui fluctue en APC alors que la diode est saine : photodiode moniteur sale ou mal éclairée, câble de mesure bruité.</li>
+          <li>Un driver commercial s'accompagne d'une fiche de réglage : limite de courant, mode, gain de la boucle APC. Note toujours les réglages avant d'en changer.</li>
+        </ul>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>I = V<sub>set</sub>/R<sub>s</sub> ; compliance : V+ ≥ V<sub>LD</sub> + V<sub>DS,min</sub> + R<sub>s</sub>I ; P<sub>MOSFET</sub> = V<sub>DS</sub>·I.</li>
+          <li>Diviseur de consigne = résolution + limite de courant matérielle.</li>
+          <li>ACC pour caractériser ; APC exige une limite de courant indépendante.</li>
+          <li>R<sub>g</sub> et compensation contre l'oscillation ; essai sur charge factice d'abord.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="elec-driver">
+        <header><h3>quiz éclair</h3><span class="tag">4 questions</span></header>
+        <div class="q" data-a="b"><p>1. Pourquoi ne pas alimenter une diode laser avec une alimentation de laboratoire réglée en tension ?</p><div class="opts">
+          <label><input type="radio" value="a"> parce que c'est trop cher</label><label><input type="radio" value="b"> la caractéristique exponentielle et la dérive thermique mènent à l'emballement du courant</label><label><input type="radio" value="c"> parce que la diode a besoin d'alternatif</label></div>
+          <p class="explain">Une petite variation de tension = une grosse variation de courant.</p></div>
+        <div class="q" data-a="c"><p>2. Shunt de 10 Ω, consigne de 0,35 V : courant ?</p><div class="opts">
+          <label><input type="radio" value="a"> 3,5 mA</label><label><input type="radio" value="b"> 350 mA</label><label><input type="radio" value="c"> 35 mA</label></div>
+          <p class="explain">0,35/10 = 0,035 A.</p></div>
+        <div class="q" data-a="a"><p>3. Le grand danger du mode APC est…</p><div class="opts">
+          <label><input type="radio" value="a"> qu'une photodiode défaillante pousse le courant au maximum</label><label><input type="radio" value="b"> que la puissance devienne constante</label><label><input type="radio" value="c"> qu'il ne fonctionne qu'à 25 °C</label></div>
+          <p class="explain">La boucle croit que la puissance est trop faible et augmente le courant : d'où la limite de courant indépendante.</p></div>
+        <div class="q" data-a="b"><p>4. Le driver oscille à 3 MHz. Premier remède ?</p><div class="opts">
+          <label><input type="radio" value="a"> augmenter la tension d'alimentation</label><label><input type="radio" value="b"> ajouter/augmenter la résistance de grille et compenser la boucle de l'AOP</label><label><input type="radio" value="c"> changer de diode laser</label></div>
+          <p class="explain">La capacité de grille dans la boucle crée un déphasage : on l'isole et on compense.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

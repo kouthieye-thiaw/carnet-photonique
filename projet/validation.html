@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>étalonnage, validation & suite · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="projet/validation">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>étalonnage, validation &amp; suite</h1>
+    <span class="hand">un banc qui mesure juste… et qui le prouve</span>
+    <p class="lead">Un banc n'est utilisable que si chaque chaîne de mesure est <mark>étalonnée</mark> contre une référence traçable, si son incertitude est chiffrée, et s'il a été validé sur un cas connu. Ensuite seulement, on peut le faire grandir : boucle de puissance, 1550 nm et amplificateurs, instruments de laboratoire pilotés en Python.</p>
+    <span class="sticker" data-s="cle" style="--r:-6deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette page, tu sauras…</h4>
+        <ul>
+          <li>étalonner la photodiode, le courant, la température, le spectromètre et la caméra ;</li>
+          <li>construire le budget d'incertitude d'une mesure de puissance ;</li>
+          <li>valider le banc complet et le documenter ;</li>
+          <li>choisir les évolutions qui te feront progresser vers ton métier.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>la chaîne de traçabilité</h2>
+      <figure class="fig">
+        <div class="fig-inner">
+          <svg viewBox="0 0 760 170" role="img" aria-label="Chaîne de traçabilité : étalon national, laboratoire accrédité, puissance-mètre de référence de l'IUT, photodiode du banc, mesures du banc. Chaque maillon ajoute de l'incertitude.">
+            <g class="svg-ink">
+              <rect x="10" y="40" width="130" height="60" rx="12" fill="#f7efe9"/><rect x="160" y="40" width="130" height="60" rx="12" fill="#f7efe9"/><rect x="310" y="40" width="140" height="60" rx="12" fill="#fff"/><rect x="470" y="40" width="130" height="60" rx="12" fill="#fff"/><rect x="620" y="40" width="130" height="60" rx="12" fill="#ffeee4"/>
+              <path d="M140 70 H158 M290 70 H308 M450 70 H468 M600 70 H618" stroke-width="2"/>
+            </g>
+            <g class="svg-txt" text-anchor="middle" style="font-size:13px">
+              <text x="75" y="66">étalon</text><text x="75" y="84">national</text>
+              <text x="225" y="66">labo accrédité</text><text x="225" y="84">(COFRAC)</text>
+              <text x="380" y="66">puissance-mètre</text><text x="380" y="84">de référence</text>
+              <text x="535" y="66">photodiode</text><text x="535" y="84">du banc</text>
+              <text x="685" y="66">tes</text><text x="685" y="84">mesures</text>
+            </g>
+            <text x="380" y="140" text-anchor="middle" class="svg-hand" style="font-size:19px">chaque maillon a un certificat (ou ta fiche d'étalonnage) et ajoute de l'incertitude</text>
+          </svg>
+        </div>
+        <figcaption><b>Figure 1 —</b> une mesure est <dfn data-g="tracabilite">traçable</dfn> si on peut remonter, par une chaîne ininterrompue d'étalonnages documentés, jusqu'à l'étalon national. Ton maillon : l'étalonnage de la photodiode du banc contre le puissance-mètre de l'IUT.</figcaption>
+      </figure>
+
+      <h2><span class="n">2</span>étalonner chaque chaîne</h2>
+      <h3>la puissance optique</h3>
+      <ol>
+        <li>Puissance-mètre de référence (tête silicium, réglée sur 650 nm), certificat d'étalonnage valide. Noter son incertitude (souvent ± 3 à 5 %).</li>
+        <li>Placer sa tête <strong>à la place de l'analyse</strong> (dans le faisceau principal), le prélèvement vers la photodiode restant inchangé.</li>
+        <li>Pour 5 à 8 courants au-dessus du seuil : lire P<sub>ref</sub> et la tension V<sub>PD</sub> de la photodiode du banc (moyennes).</li>
+        <li>Ajuster \(P_{ref} = c\,(V_{PD} - V_{0})\) : la pente \(c\) remplace le coefficient théorique 2,326 mW/V dans <code>[etalonnage]</code> de <code>banc.toml</code>, avec la date et la référence.</li>
+        <li>Vérifier la linéarité (résidus &lt; 1 %) et la reproductibilité (refaire après avoir démonté/remonté la tête).</li>
+      </ol>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>un coefficient d'étalonnage</h4></div>
+        <p>Le puissance-mètre lit 4,00 mW quand la photodiode du banc donne 1,808 V ; son offset (laser éteint) vaut 0,002 V. Coefficient \(c\) en mW/V ? Compare-le à la valeur théorique 2,326 mW/V.</p>
+        <div class="check-row" data-answer="2.2148" data-tol="0.002" data-hint="c = P / (V − V0)">
+          <input type="text" inputmode="decimal" placeholder="mW/V" aria-label="coefficient en mW par volt"><span>mW/V</span><button class="pill small" type="button">vérifier</button>
+        </div>
+        <details class="reveal hint"><summary>et cet écart de 5 % ?</summary><div class="reveal-body"><p>Normal : la fraction réellement prélevée (réflexions sur une lame : très sensible à l'angle et à la polarisation), la sensibilité exacte de la photodiode et la tolérance de la résistance du TIA ne sont pas celles de la théorie. C'est précisément pour cela qu'on étalonne.</p></div></details>
+      </div>
+      <h3>le courant, la tension, la température</h3>
+      <ul>
+        <li><strong>Courant</strong> : multimètre de référence en série avec la charge factice ; comparer à la mesure du shunt sur 5 points de 5 à 40 mA. Écart attendu &lt; 0,5 % (shunt 0,1 % + ADC).</li>
+        <li><strong>Tension</strong> : multimètre aux bornes de la diode, comparé à <code>mesurer_tension_diode</code>.</li>
+        <li><strong>Température</strong> : sonde de référence collée contre la monture (pâte thermique), comparaison à 15, 25 et 35 °C. Un écart constant se corrige par un décalage ; un écart qui varie appelle un réglage du β (ou l'équation de <dfn data-g="steinhart">Steinhart-Hart</dfn>).</li>
+      </ul>
+      <h3>le spectromètre et la caméra</h3>
+      <ul>
+        <li><strong>Spectromètre</strong> : raies connues (néon, mercure d'une lampe fluocompacte) → λ(pixel) par un polynôme de degré 1 ou 2 ; vérifier avec une raie qui n'a pas servi à l'ajustement. Revérifier une raie avant chaque série.</li>
+        <li><strong>Caméra</strong> : linéarité (doubler l'exposition double le signal, loin de la saturation) ; niveau noir et bruit (images obturées) ; taille de pixel connue (1,55 µm), éventuellement vérifiée avec une mire graduée.</li>
+      </ul>
+
+      <h2><span class="n">3</span>le budget d'incertitude</h2>
+      <p>Pour une puissance mesurée par le banc, les contributions principales sont : l'étalonnage du puissance-mètre de référence, la répétabilité de l'étalonnage, la dérive de la photodiode et du prélèvement avec la température, la résolution et le bruit de l'ADC, la non-linéarité. Le widget ci-dessous applique la méthode du GUM : chaque composante, sa loi, puis la combinaison quadratique.</p>
+      <div class="lab" data-widget="incertitude">
+        <div class="lab-head"><h4>budget d'incertitude (GUM)</h4><span class="tag green">outil</span></div>
+      </div>
+      <div class="formule">
+        <span class="f-name">incertitude composée et élargie</span>
+        <div class="f-eq">\[ u_c = \sqrt{\sum_i \left(c_i\,u_i\right)^2} \qquad U = k\,u_c \quad (k = 2 \Rightarrow \approx 95\ \%) \]</div>
+        <div class="f-where">\(u_i\) : incertitude-type de chaque composante · \(c_i\) : coefficient de sensibilité · méthode détaillée dans <a href="../systemes/metrologie.html">métrologie</a>. Le plus souvent, l'étalonnage de la référence domine : inutile de chercher le microvolt sur l'ADC.</div>
+      </div>
+
+      <h2><span class="n">4</span>valider le banc complet</h2>
+      <ol>
+        <li><strong>Sur un cas connu</strong> : mesurer une diode dont on a la fiche (ou une L-I-V mesurée ailleurs) ; écarts expliqués par les incertitudes.</li>
+        <li><strong>Comparaison croisée</strong> : si l'IUT a un analyseur de faisceau ou un analyseur de spectre optique, mesurer la même diode avec les deux.</li>
+        <li><strong>Répétabilité et reproductibilité</strong> : la même mesure 5 fois par toi, puis par une autre personne qui suit uniquement ton protocole.</li>
+        <li><strong>Sécurité</strong> : tous les tests de la <a href="electronique-banc.html">mise en service</a> repassés (interlock, chien de garde, coupure d'alimentation, Ctrl+C, kill).</li>
+        <li><strong>Dossier de validation</strong> : résultats, écarts, incertitudes, limites connues du banc (par exemple : « bruit analysé seulement jusqu'à 430 Hz »).</li>
+      </ol>
+      <ul class="checklist" data-id="validation-banc">
+        <li><input type="checkbox"><label>Photodiode étalonnée (coefficient, offset, date, référence, incertitude) et <code>banc.toml</code> mis à jour.</label></li>
+        <li><input type="checkbox"><label>Courant, tension et température comparés à des instruments de référence.</label></li>
+        <li><input type="checkbox"><label>Spectromètre étalonné et vérifié sur une raie indépendante.</label></li>
+        <li><input type="checkbox"><label>Budget d'incertitude de la puissance établi.</label></li>
+        <li><input type="checkbox"><label>Diode de référence mesurée ; écarts avec la fiche expliqués.</label></li>
+        <li><input type="checkbox"><label>Protocole suivi avec succès par une autre personne.</label></li>
+        <li><input type="checkbox"><label>Tests de sécurité repassés et consignés.</label></li>
+        <li><input type="checkbox"><label>Dossier de validation et limites connues rédigés.</label></li>
+      </ul>
+
+      <h2><span class="n">5</span>et ensuite ?</h2>
+      <div class="cards-3">
+        <div class="box exemple" style="margin:0">
+          <p class="box-title">boucle de puissance (APC)</p>
+          <p>Utilise la photodiode moniteur et un second PID pour garder la puissance constante. Compare la stabilité sur 1 h en ACC et en APC. Lien : <a href="../electronique/driver-courant.html">driver de courant</a>.</p>
+        </div>
+        <div class="box exemple" style="margin:0">
+          <p class="box-title">passer à 1550 nm</p>
+          <p>Diode fibrée, photodiode InGaAs, connecteurs FC/APC : le monde des télécoms. Puis caractériser un module EDFA : gain, figure de bruit, saturation (<a href="../amplis/edfa.html">EDFA</a>, <a href="../amplis/puissance-mesures.html">mesures en fibre</a>).</p>
+        </div>
+        <div class="box exemple" style="margin:0">
+          <p class="box-title">piloter des instruments</p>
+          <p>En entreprise, on automatise des puissance-mètres, des sources et des analyseurs par commandes SCPI : la bibliothèque <code>pyvisa</code> s'ajoute naturellement à ton architecture (un pilote de plus derrière une interface).</p>
+        </div>
+        <div class="box exemple" style="margin:0">
+          <p class="box-title">acquisition rapide</p>
+          <p>Une carte de type Red Pitaya (125 Méch./s) ouvre le bruit haute fréquence, la modulation et les impulsions (<a href="../lasers/impulsions.html">régimes impulsionnels</a>).</p>
+        </div>
+        <div class="box exemple" style="margin:0">
+          <p class="box-title">vieillissement</p>
+          <p>Un test d'endurance de plusieurs semaines (APC, température élevée) : évolution du courant, puis loi de Weibull et MTBF (<a href="../systemes/methodes-maintenance.html">méthodes de maintenance</a>).</p>
+        </div>
+        <div class="box exemple" style="margin:0">
+          <p class="box-title">ton portfolio</p>
+          <p>Le dépôt GitHub (code testé, README clair), des photos du banc, un rapport de test exemplaire et une courte vidéo : de quoi montrer en entretien ce que tu sais faire.</p>
+        </div>
+      </div>
+      <div class="box terrain">
+        <p class="box-title">ce que ce projet dit de toi</p>
+        <p>Lecture de fiches techniques, électronique de puissance et de mesure, sécurité laser, alignement optique, programmation testée, métrologie, rédaction de protocoles et de rapports, diagnostic : c'est très exactement le quotidien d'un technicien en photonique, en R&amp;D comme en production ou en maintenance.</p>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Étalonner = comparer à une référence traçable et documenter (coefficient, date, référence, incertitude).</li>
+          <li>Budget d'incertitude : composantes, combinaison quadratique, U = 2 u<sub>c</sub>.</li>
+          <li>Valider = cas connu, comparaison croisée, répétabilité/reproductibilité, sécurité, limites écrites.</li>
+          <li>Le banc est une base : APC, 1550 nm, SCPI, acquisition rapide, vieillissement.</li>
+        </ul>
+      </div>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

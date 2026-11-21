@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>accordabilité & stabilisation · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="lasers/accordabilite">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>accordabilité &amp; stabilisation</h1>
+    <span class="hand">choisir sa fréquence… et ne plus la lâcher</span>
+    <p class="lead">Refroidir des atomes, piéger des ions, mesurer un gaz, faire tourner une horloge optique : il faut un laser dont on choisit la fréquence et qui <mark>ne bouge plus d'un poil</mark>. Voici le laser à cavité externe et l'art de l'asservissement.</p>
+    <span class="sticker" data-s="diode" style="--r:10deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>citer les moyens d'accorder un laser et leurs ordres de grandeur ;</li>
+          <li>expliquer le fonctionnement d'un ECDL en configuration Littrow ;</li>
+          <li>comprendre l'origine des sauts de mode et l'accord continu ;</li>
+          <li>connaître les sources de largeur de raie et comment la mesurer ;</li>
+          <li>décrire une boucle de stabilisation de fréquence (absorption saturée, Fabry-Pérot, PDH).</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>pourquoi accorder et affiner ?</h2>
+      <p>Une transition atomique a une largeur de quelques MHz : pour l'exciter (refroidissement laser du rubidium à 780,24 nm, piégeage d'ions, capteurs quantiques), il faut un laser plus fin que la raie et réglable dessus. Même besoin pour la spectroscopie de gaz, la métrologie, les télécoms cohérentes ou le LIDAR. Les lasers « scientifiques » combinent donc trois qualités : <strong>accordabilité</strong>, <strong>finesse spectrale</strong> et <strong>stabilité</strong>.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>levier d'accord</th><th>vitesse</th><th>ordre de grandeur</th><th>limite</th></tr></thead>
+        <tbody>
+          <tr><td>température de la puce</td><td>lente (s)</td><td>DFB ≈ 0,1 nm/K ; FP ≈ 0,3 nm/K</td><td>sauts de mode (FP), plage de quelques nm</td></tr>
+          <tr><td>courant</td><td>rapide (MHz)</td><td>≈ 1 GHz/mA (DFB)</td><td>la puissance change en même temps</td></tr>
+          <tr><td>réseau externe (ECDL)</td><td>lente (vis) / rapide (piézo, kHz)</td><td>plusieurs dizaines de nm</td><td>sauts de mode sans synchronisation</td></tr>
+          <tr><td>sections DBR / MEMS-VCSEL</td><td>µs–ms</td><td>10–100 nm</td><td>électronique de commande complexe</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2><span class="n">2</span>le laser à cavité externe en Littrow</h2>
+      <p>On prend une diode dont la facette avant est traitée <strong>antireflet</strong> : seule, elle n'oscille presque plus. On renvoie dans la puce l'ordre 1 diffracté par un <dfn data-g="reseau-diffraction">réseau</dfn> : c'est lui qui ferme la cavité et qui choisit la longueur d'onde (<dfn data-g="littrow">Littrow</dfn> : \(2d\sin\theta = \lambda\)). L'ordre 0 forme le faisceau de sortie. La longue cavité (quelques cm) fait tomber la largeur de raie à ~100 kHz.</p>
+      <div class="v3d" data-model="ecdl">
+        <script type="application/json">{
+          "title": "laser à cavité externe (Littrow)",
+          "intro": "Faisceau collimaté vers le réseau ; l'ordre 1 revient dans la diode (aller-retour animé) ; l'ordre 0 part vers le miroir de renvoi puis sort. Vue éclatée : sépare le Peltier et le dissipateur.",
+          "view": [0.55, 0.95, 1.1],
+          "tour": ["hs_diode", "hs_collimation", "hs_cavite", "hs_reseau", "hs_piezo", "hs_vis", "hs_miroir", "hs_sortie", "hs_tec", "hs_dissipateur"],
+          "hotspots": {
+            "hs_diode": {"t": "diode à facette antireflet", "d": "Sa facette avant est traitée AR (réflexion &lt; 0,1 %) : ce n'est plus elle mais le réseau qui ferme la cavité. Elle est montée dans un bloc régulé en température."},
+            "hs_collimation": {"t": "lentille de collimation", "d": "Asphérique de courte focale. Un faisceau parfaitement collimaté renvoie le maximum de lumière diffractée dans la puce : rétroaction efficace, seuil bas."},
+            "hs_cavite": {"t": "la cavité externe", "d": "Quelques cm entre diode et réseau : ISL = c/2L ≈ 5 GHz pour 3 cm. La cavité stocke les photons plus longtemps : la largeur de raie passe de quelques MHz (diode seule) à ~100 kHz."},
+            "hs_reseau": {"t": "le réseau en Littrow", "d": "1800 traits/mm, incliné de 44,6° pour 780 nm : l'ordre 1 revient exactement dans la diode. 10 à 30 % de la lumière est renvoyée, le reste sort (ordre 0). Tourner le réseau = choisir la longueur d'onde."},
+            "hs_piezo": {"t": "actionneur piézoélectrique", "d": "Quelques µm de course sous 0–100 V : il ajuste finement angle et longueur de cavité. C'est aussi l'actionneur lent de l'asservissement de fréquence."},
+            "hs_vis": {"t": "vis d'accord fin", "d": "Accord grossier sur plusieurs nm. On la tourne par petites fractions de tour en surveillant le lambdamètre et la puissance."},
+            "hs_miroir": {"t": "miroir de renvoi", "d": "Solidaire du bras du réseau, il compense la rotation du faisceau de sortie : la direction de sortie reste fixe quand on accorde. Indispensable pour ne pas désaligner l'aval."},
+            "hs_sortie": {"t": "faisceau de sortie (ordre 0)", "d": "Quelques dizaines de mW, monofréquence. Accordable sans saut de mode sur ~20–50 GHz quand on synchronise piézo et courant (feed-forward)."},
+            "hs_tec": {"t": "élément Peltier", "d": "Régule toute la plaque au mK près : l'aluminium se dilate de 23 µm/m/K, ce qui change la longueur de cavité et donc la fréquence."},
+            "hs_dissipateur": {"t": "dissipateur à ailettes", "d": "Évacue vers l'air la chaleur pompée par le Peltier plus sa propre consommation."}
+          }
+        }</script>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>angle de Littrow</h4></div>
+        <p>Réseau de 1800 traits/mm, λ = 780 nm. Angle θ, en degrés ?</p>
+        <div class="check-row" data-answer="44.6" data-tol="0.005" data-hint="sin θ = λ/(2d) = 780·10⁻⁹ × 1,8·10⁶ / 2">
+          <input type="text" inputmode="decimal" placeholder="°" aria-label="angle en degrés"><span>°</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">3</span>trois filtres et des sauts de mode</h2>
+      <p>La fréquence qui oscille est celle qui a le plus de gain net, produit de trois choses : la courbe de gain de la puce (large, quelques nm, avec une petite modulation due aux modes résiduels de la puce), le filtre du réseau (~ dizaines de GHz) et le peigne des modes de la cavité externe. Tourner le réseau déplace le filtre, mais si la longueur de cavité ne suit pas, le laser saute de mode en mode :</p>
+      <div class="lab" data-widget="ecdl-modes">
+        <div class="lab-head"><h4>accorder sans sauter</h4><span class="tag green">simulation</span></div>
+        <p class="small">En haut : les trois « filtres » et le mode qui gagne (rouge). En bas : la fréquence obtenue quand on balaie tout le réseau. Active la synchronisation pour obtenir un accord continu.</p>
+      </div>
+      <p>Solutions : choisir un <strong>point de pivot</strong> qui allonge la cavité exactement comme il faut quand le réseau tourne ; ou piloter ensemble piézo et courant (« feed-forward »). Configuration voisine : <strong>Littman-Metcalf</strong> (réseau fixe en incidence rasante + miroir tournant), plus fine mais moins puissante.</p>
+
+      <h2><span class="n">4</span>largeur de raie</h2>
+      <p>La largeur fondamentale (Schawlow-Townes) vient de l'émission spontanée ; en pratique, ce sont les bruits techniques qui dominent : bruit du courant (≈ 1 GHz/mA → 1 µA de bruit = 1 MHz !), vibrations acoustiques (longueur de cavité), température. D'où des drivers de courant ultra-bas bruit, des montures massives, des boîtiers fermés.</p>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>pourquoi réguler au millikelvin</h4></div>
+        <p>Cavité de 30 mm en aluminium (23·10⁻⁶ /K) à 780 nm (384 THz). La température change de 0,1 K : décalage de fréquence, en GHz ?</p>
+        <div class="check-row" data-answer="0.88" data-tol="0.02" data-hint="Δν/ν = ΔL/L = 23·10⁻⁶ × 0,1">
+          <input type="text" inputmode="decimal" placeholder="GHz" aria-label="décalage en GHz"><span>GHz</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+      <p><strong>Mesurer une largeur de raie</strong> : battement avec un second laser plus fin (le spectre du battement est la convolution des deux raies), ou montage auto-hétérodyne (le laser bat avec une copie de lui-même retardée dans une longue fibre et décalée en fréquence par un modulateur acousto-optique).</p>
+
+      <h2><span class="n">5</span>stabiliser : la boucle d'asservissement</h2>
+      <p>Pour qu'un laser reste sur une fréquence absolue, on le compare en permanence à une référence et on corrige :</p>
+      <figure class="fig">
+        <div class="fig-inner">
+          <svg viewBox="0 0 760 200" role="img" aria-label="Boucle de stabilisation : laser, référence, signal d'erreur, régulateur PID, actionneurs piézo et courant.">
+            <defs><marker id="ak" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#171717"/></marker></defs>
+            <g class="svg-ink"><rect x="20" y="60" width="120" height="60" rx="12" fill="#ffeee4"/><rect x="230" y="60" width="160" height="60" rx="12" fill="#f7efe9"/><rect x="470" y="60" width="130" height="60" rx="12" fill="#f7efe9"/><rect x="230" y="150" width="160" height="40" rx="12" fill="#fff"/></g>
+            <g class="svg-txt" text-anchor="middle"><text x="80" y="95">laser (ECDL)</text><text x="310" y="88">référence</text><text x="310" y="106" style="font-size:12px">cellule Rb · Fabry-Pérot</text><text x="535" y="88">signal d'erreur</text><text x="535" y="106" style="font-size:12px">détection + démodulation</text><text x="310" y="175">régulateur PID</text></g>
+            <path d="M140 90 H228" stroke="#e2372b" stroke-width="3" marker-end="url(#ak)"/><path d="M390 90 H468" class="svg-ink" marker-end="url(#ak)"/>
+            <path d="M600 90 H680 V170 H392" class="svg-ink" marker-end="url(#ak)"/><path d="M230 170 H80 V122" class="svg-ink" marker-end="url(#ak)"/>
+            <text x="90" y="150" class="svg-hand" style="font-size:18px">piézo (lent) + courant (rapide)</text>
+            <text x="640" y="40" class="svg-hand" style="font-size:18px">« trop haut / trop bas ? »</text>
+          </svg>
+        </div>
+        <figcaption><b>Figure 1 —</b> toute stabilisation suit ce schéma : comparer à une référence, en tirer un signal d'erreur signé, corriger avec un PID.</figcaption>
+      </figure>
+      <ul>
+        <li><strong>Absorption saturée</strong> dans une cellule de vapeur (rubidium, césium, iode) : on obtient des raies sub-Doppler de quelques MHz, références absolues.</li>
+        <li><strong>Cavité Fabry-Pérot de référence</strong> : pics très fins ; avec la technique <dfn data-g="pdh">Pound-Drever-Hall</dfn> (modulation de phase + démodulation du faisceau réfléchi), on obtient un signal d'erreur rapide et signé, et des largeurs de raie sous le Hz.</li>
+        <li><strong>Lambdamètre</strong> : asservissement « lent » et simple, sur une consigne numérique.</li>
+        <li><strong>Peigne de fréquences</strong> : relie le laser à une horloge micro-onde ou optique.</li>
+      </ul>
+      <p>La partie régulateur, c'est exactement le PID que tu étudieras pour le Peltier (<a href="../electronique/tec-pid.html">TEC &amp; PID</a>), en plus rapide.</p>
+      <div class="box terrain">
+        <p class="box-title">sur le terrain</p>
+        <ul>
+          <li>Un ECDL qui « décroche » : courant ou température pas assez stables, vibrations (pompe, ventilateur), retour optique (isolateur indispensable), réseau ou diode qui vieillit.</li>
+          <li>Après un transport, un ECDL se réaligne souvent (rétroaction réseau) : on optimise le seuil en jouant sur l'angle vertical du réseau.</li>
+          <li>On note la position de toutes les vis avant d'en toucher une : retour en arrière possible.</li>
+        </ul>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Accord : température (lent), courant (rapide), réseau externe (large).</li>
+          <li>ECDL Littrow : facette AR, ordre 1 renvoyé (2d sin θ = λ), ordre 0 en sortie, ~100 kHz.</li>
+          <li>Sauts de mode si la cavité ne suit pas le réseau : pivot ou feed-forward piézo + courant.</li>
+          <li>Stabilisation = référence + signal d'erreur + PID (absorption saturée, Fabry-Pérot/PDH).</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="lasers-accord">
+        <header><h3>quiz éclair</h3><span class="tag">4 questions</span></header>
+        <div class="q" data-a="b"><p>1. Pourquoi la facette avant d'une diode d'ECDL est-elle traitée antireflet ?</p><div class="opts">
+          <label><input type="radio" value="a"> pour augmenter sa puissance</label><label><input type="radio" value="b"> pour que ce soit le réseau, et non la puce, qui forme la cavité</label><label><input type="radio" value="c"> pour la protéger des ESD</label></div>
+          <p class="explain">Sinon les modes de la puce entrent en compétition avec ceux de la cavité externe.</p></div>
+        <div class="q" data-a="c"><p>2. Dans un ECDL Littrow, le faisceau de sortie est…</p><div class="opts">
+          <label><input type="radio" value="a"> l'ordre 1 du réseau</label><label><input type="radio" value="b"> la fuite par la facette arrière</label><label><input type="radio" value="c"> l'ordre 0 (réflexion spéculaire) du réseau</label></div>
+          <p class="explain">L'ordre 1 retourne dans la diode pour la rétroaction.</p></div>
+        <div class="q" data-a="a"><p>3. Un bruit de 1 µA sur le courant d'une diode accordée à 1 GHz/mA donne un bruit de fréquence d'environ…</p><div class="opts">
+          <label><input type="radio" value="a"> 1 MHz</label><label><input type="radio" value="b"> 1 GHz</label><label><input type="radio" value="c"> 1 Hz</label></div>
+          <p class="explain">1 GHz/mA × 0,001 mA = 1 MHz : d'où les drivers ultra-bas bruit.</p></div>
+        <div class="q" data-a="b"><p>4. Une boucle de stabilisation de fréquence a besoin avant tout…</p><div class="opts">
+          <label><input type="radio" value="a"> d'un laser plus puissant</label><label><input type="radio" value="b"> d'une référence et d'un signal d'erreur signé</label><label><input type="radio" value="c"> d'une caméra</label></div>
+          <p class="explain">Sans signe, le régulateur ne sait pas dans quel sens corriger.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

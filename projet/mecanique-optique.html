@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>mécanique, optique & alignement · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="projet/mecanique-optique">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>mécanique, optique &amp; alignement</h1>
+    <span class="hand">un banc aligné, c'est un banc qui mesure juste</span>
+    <p class="lead">L'implantation sur la plaque, la collimation, le prélèvement, la caméra sur sa platine, le spectromètre maison et le capot : on monte le trajet optique <mark>élément par élément</mark>, en vérifiant à chaque étape.</p>
+    <span class="sticker" data-s="cle" style="--r:-10deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette page, tu sauras…</h4>
+        <ul>
+          <li>implanter les éléments sur la plaque selon un plan ;</li>
+          <li>collimater la diode et vérifier la collimation ;</li>
+          <li>aligner le trajet optique et la platine de translation ;</li>
+          <li>construire et étalonner un spectromètre à réseau simple ;</li>
+          <li>confiner le faisceau et ranger les câbles.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>le plan d'implantation</h2>
+      <figure class="fig">
+        <div class="fig-inner">
+          <svg viewBox="0 0 760 300" role="img" aria-label="Vue de dessus du banc : diode et collimateur, diaphragme, prélèvement vers la photodiode, polariseur motorisé, densité, lentille de mesure, caméra sur platine, spectromètre recevant la lumière diffusée.">
+            <rect x="10" y="10" width="740" height="280" rx="10" fill="#2a2a2d" opacity=".06"/>
+            <path d="M80 150 H700" stroke="#e2372b" stroke-width="3"/><path d="M300 150 V250" stroke="#e2372b" stroke-width="2.5"/>
+            <g class="svg-ink">
+              <rect x="30" y="125" width="44" height="50" rx="6" fill="#d7d9dc"/><rect x="74" y="140" width="26" height="20" rx="3" fill="#2a2a2d"/>
+              <path d="M170 128 V140 M170 160 V172" stroke-width="4"/>
+              <path d="M288 138 L312 162" stroke-width="3"/><rect x="286" y="246" width="28" height="24" rx="5" fill="#2a2a2d"/>
+              <ellipse cx="400" cy="150" rx="6" ry="26" fill="#cfd8ff"/><circle cx="400" cy="200" r="12" fill="#3b82f6"/>
+              <rect x="470" y="128" width="6" height="44" fill="#4a4a4f"/>
+              <ellipse cx="540" cy="150" rx="5" ry="24" fill="#e9f3ff"/>
+              <rect x="590" y="200" width="150" height="20" rx="4" fill="#d7d9dc"/><rect x="610" y="128" width="16" height="44" rx="3" fill="#1f6b3c"/>
+              <rect x="700" y="60" width="44" height="40" rx="6" fill="#fff"/>
+            </g>
+            <g class="svg-txt" text-anchor="middle" style="font-size:12px">
+              <text x="60" y="110">diode + Peltier</text><text x="170" y="118">diaphragme</text><text x="300" y="118">prélèvement 10 %</text><text x="300" y="285">photodiode</text>
+              <text x="400" y="118">polariseur</text><text x="400" y="226">moteur</text><text x="473" y="118">densité</text><text x="540" y="118">lentille f = 200</text><text x="660" y="240">caméra sur platine (150 mm)</text><text x="722" y="52">spectro</text>
+            </g>
+            <text x="560" y="40" class="svg-hand" style="font-size:17px">hauteur de faisceau : 60 mm partout</text>
+          </svg>
+        </div>
+        <figcaption><b>Figure 1 —</b> vue de dessus. Le faisceau principal va de gauche à droite ; le prélèvement part vers la photodiode ; le spectromètre regarde la lumière diffusée par une cible (ou un morceau de fibre).</figcaption>
+      </figure>
+
+      <h2><span class="n">2</span>monter la diode et la collimater</h2>
+      <ol>
+        <li>Poste ESD : bracelet, tapis. La diode passe de son sachet à son bloc, broches toujours court-circuitées jusqu'au câblage.</li>
+        <li>Pâte thermique en film fin entre l'embase et le bloc ; CTN collée au plus près ; serrage modéré.</li>
+        <li>Barillet ou tube de collimation vissé devant ; mise au point : faisceau sur un mur à 3–5 m, on règle jusqu'à ce que la tache soit la plus petite possible <em>au loin</em> et de taille similaire à 30 cm et à 3 m.</li>
+        <li>Faisceau elliptique (≈ 4 : 1) : c'est normal pour une diode ; on note l'orientation de l'axe rapide.</li>
+        <li>Hauteur et horizontalité : le faisceau doit rester à 60 mm sur toute la longueur de la plaque (vérifie avec un diaphragme réglé à 60 mm, au début et à la fin).</li>
+      </ol>
+
+      <h2><span class="n">3</span>aligner le trajet</h2>
+      <ul>
+        <li>Deux diaphragmes fixent l'axe (début et fin de plaque) ; si la diode n'est pas réglable, on ajoute deux miroirs et on fait du <a href="../systemes/optique-pratique.html">beam walking</a>.</li>
+        <li>Chaque élément est inséré <strong>centré</strong> sur le faisceau, puis <strong>légèrement incliné</strong> (1–3°) pour que sa réflexion ne revienne pas dans la diode (instabilités, sauts de mode).</li>
+        <li>Le prélèvement renvoie ≈ 10 % vers la photodiode : le spot doit tomber entièrement au centre de la zone active (photodiode à ~3–5 cm, éventuellement une petite lentille).</li>
+        <li>Le polariseur est placé <em>avant</em> la densité et la caméra ; sa monture tourne sans faire bouger le faisceau.</li>
+      </ul>
+
+      <h2><span class="n">4</span>la caméra et la platine</h2>
+      <p>Pour mesurer M², on crée un col accessible : une lentille de 200 mm de focale focalise le faisceau (rayon ≈ 1 mm) en un col d'environ 45 µm de rayon, avec une longueur de Rayleigh ≈ 9 mm. La platine de 150 mm fait passer la caméra de part et d'autre du col (zone ±z<sub>R</sub> et au-delà de 2 z<sub>R</sub>), comme le demande la norme.</p>
+      <ol>
+        <li>Retirer l'objectif de la caméra HQ (bouchon de protection du capteur quand on ne s'en sert pas : poussière = défaut fixe dans l'image).</li>
+        <li>Aligner l'axe de la platine avec le faisceau : en parcourant toute la course, le centroïde ne doit pas bouger de plus de quelques pixels. Sinon : régler le parallélisme de la platine.</li>
+        <li>Choisir la densité pour qu'au col (là où l'éclairement est maximal) le pic reste sous ~80 % de la saturation, en temps d'exposition court fixe.</li>
+        <li>Faire une image « laser éteint » pour le fond, à chaque série.</li>
+      </ol>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>vérifie le dimensionnement</h4></div>
+        <p>λ = 650 nm, M² = 1,1, faisceau collimaté de rayon 1 mm, lentille f = 200 mm. Rayon du col, en µm ?</p>
+        <div class="check-row" data-answer="45.5" data-tol="0.03" data-hint="w_f = M²λf/(πw)">
+          <input type="text" inputmode="decimal" placeholder="µm" aria-label="rayon du col en µm"><span>µm</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">5</span>le spectromètre maison</h2>
+      <figure class="fig">
+        <div class="fig-inner">
+          <svg viewBox="0 0 760 200" role="img" aria-label="Spectromètre : lumière diffusée, fente, lentille de collimation, réseau de transmission, objectif de la caméra, capteur.">
+            <g class="svg-ink"><path d="M60 60 V95 M60 105 V140" stroke-width="4"/><ellipse cx="200" cy="100" rx="7" ry="40" fill="#e9f3ff"/><rect x="330" y="60" width="8" height="80" fill="#fff"/><path d="M332 66 V134" stroke-dasharray="2 3"/><rect x="480" y="70" width="60" height="60" rx="8" fill="#2a2a2d"/><rect x="560" y="80" width="10" height="40" fill="#1f6b3c"/></g>
+            <path d="M20 100 H60" stroke="#e2372b" stroke-width="2"/><path d="M60 100 L193 70 M60 100 L193 130" stroke="#e2372b" stroke-width="1.5" opacity=".7"/><path d="M207 75 H330 M207 125 H330" stroke="#e2372b" stroke-width="1.5" opacity=".7"/><path d="M338 75 L480 92 M338 125 L480 110" stroke="#e2372b" stroke-width="1.5" opacity=".7"/>
+            <g class="svg-txt" text-anchor="middle" style="font-size:12px"><text x="60" y="160">fente 50–100 µm</text><text x="200" y="160">lentille f = 50 mm</text><text x="334" y="160">réseau 1000 tr/mm</text><text x="510" y="160">objectif (∞)</text><text x="565" y="160">capteur</text></g>
+            <text x="600" y="60" class="svg-hand" style="font-size:17px">≈ 4 pixels par nm</text>
+          </svg>
+        </div>
+        <figcaption><b>Figure 2 —</b> spectromètre à réseau de transmission, incliné à l'angle de diffraction (~40° pour 650 nm). On ne regarde jamais le faisceau direct : on éclaire la fente avec la lumière diffusée par une cible.</figcaption>
+      </figure>
+      <ul>
+        <li><strong>Étalonnage en longueur d'onde</strong> : une lampe à décharge au néon (raies à 585,2 ; 640,2 ; 650,7 ; 659,9 nm…) ou une lampe fluocompacte (mercure 546,1 nm, europium 611,6 nm) : on relève la position (pixel) de raies connues et on ajuste λ(pixel) par un polynôme de degré 1 ou 2.</li>
+        <li><strong>Résolution</strong> : limitée par la largeur de fente et la taille des pixels (≈ 0,5 nm visé) — de quoi suivre λ(T) mais pas les modes individuels de la diode.</li>
+        <li><strong>Stabilité</strong> : la mécanique du spectromètre ne doit pas bouger entre l'étalonnage et la mesure ; on revérifie une raie de référence avant chaque série.</li>
+      </ul>
+
+      <h2><span class="n">6</span>capot, pièges et câbles</h2>
+      <ul>
+        <li>Chaque faisceau secondaire (réflexions du prélèvement, de la densité, du polariseur) se termine sur un piège mat et non inflammable ; fais le tour à la carte, capot fermé.</li>
+        <li>Capot opaque avec contact de sécurité ; s'il a une fenêtre d'observation, elle est <strong>certifiée pour 650 nm</strong>.</li>
+        <li>Câbles fixés à la plaque, sans tirer sur les montures ; câbles de puissance (Peltier, moteurs) éloignés de ceux des photodiodes.</li>
+      </ul>
+      <div class="box terrain">
+        <p class="box-title">photographie et documente</p>
+        <p>Une photo de dessus avec les éléments numérotés, les cotes principales (distances entre éléments) et les positions des vis de réglage : c'est ta référence pour réaligner après un transport ou une intervention.</p>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Hauteur constante, éléments centrés puis légèrement inclinés, pièges partout.</li>
+          <li>Col de mesure ≈ 45 µm avec f = 200 mm ; platine alignée sur le faisceau ; fond soustrait ; pas de saturation.</li>
+          <li>Spectromètre étalonné sur des raies connues, revérifié avant chaque série.</li>
+        </ul>
+      </div>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

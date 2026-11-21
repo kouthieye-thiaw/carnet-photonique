@@ -1,0 +1,70 @@
+# Configuration du banc de test laser — toutes les valeurs « physiques » au même endroit.
+# Modifie ici (pas dans le code) quand tu changes un composant ou après un étalonnage.
+
+[bus_i2c]
+numero = 1                 # /dev/i2c-1 sur Raspberry Pi
+
+[adc_principal]            # ADS1115 n°1 : mesures du laser
+adresse = 0x48
+gamme_v = 4.096
+cadence = 128
+canal_photodiode = 0       # sortie du TIA de la photodiode du banc
+canal_moniteur = 1         # sortie du TIA de la photodiode moniteur (interne à la diode)
+canal_shunt = 2            # tension aux bornes du shunt : I = V / rs
+canal_vdrain = 3           # tension du drain du MOSFET, divisée par 2
+
+[adc_secondaire]           # ADS1115 n°2 : température et surveillance
+adresse = 0x49
+gamme_v = 4.096
+cadence = 128
+canal_ctn = 0              # milieu du pont CTN (CTN entre ce point et la masse)
+canal_vplus = 1            # alimentation du driver, divisée par 2
+
+[dac]                      # MCP4725 : consigne du driver de courant
+adresse = 0x60
+vref = 3.3
+
+[driver]
+rs_ohm = 10.0              # shunt 0,1 %
+diviseur = 0.18            # diviseur de consigne (limite matérielle ≈ 59 mA)
+v_plus = 5.0               # alimentation linéaire du driver
+i_max_ma = 45.0            # limite LOGICIELLE (sous la limite matérielle et le max de la diode)
+pas_rampe_ma = 1.0         # rampe : pas
+delai_rampe_s = 0.02       # rampe : attente entre deux pas
+
+[gpio]                     # numérotation BCM
+relais_court_circuit = 17  # sortie : 1 = relais excité = court-circuit OUVERT (laser autorisé)
+interlock = 22             # entrée : 1 = boucle d'interlock fermée (sûr)
+chien_de_garde = 27        # sortie : impulsions régulières vers le monostable
+pont_h_in1 = 12            # PWM matérielle
+pont_h_in2 = 13            # PWM matérielle
+platine_step = 23
+platine_dir = 24
+platine_enable = 25        # actif à 0 (moteur désactivé par défaut)
+platine_fin_course = 5
+polariseur = [6, 16, 20, 21]
+polariseur_origine = 26
+
+[ctn]
+r25_ohm = 10000.0
+beta_k = 3950.0
+r_fixe_ohm = 10000.0
+v_alim = 3.3
+
+[regulation]
+kp = 0.5
+ki = 0.02
+kd = 1.5
+periode_s = 0.2
+commande_max = 0.6         # rapport cyclique max du pont en H (protège le Peltier)
+fenetre_laser_c = 0.5      # le laser n'est autorisé qu'à ±0,5 °C de la consigne
+fenetre_coupure_c = 3.0    # au-delà : coupure immédiate
+
+[etalonnage]               # à remplir après comparaison avec un puissance-mètre de référence
+photodiode_mw_par_v = 2.326   # 1 / (0,1 × 0,43 A/W × 10 kΩ)
+photodiode_offset_v = 0.0
+date = "à faire"
+reference = "à faire"
+
+[camera]
+taille_pixel_um = 1.55     # caméra HQ (IMX477)

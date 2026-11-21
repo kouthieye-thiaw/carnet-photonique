@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>amplifier la lumière : gain, saturation, bruit · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="amplis/principe">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>amplifier la lumière : gain, saturation, bruit</h1>
+    <span class="hand">un laser sans miroirs</span>
+    <p class="lead">Un amplificateur optique, c'est un milieu à gain pompé, mais <mark>sans cavité</mark> : la lumière le traverse une ou deux fois et ressort plus forte. Trois chiffres le caractérisent : son gain, sa puissance de saturation et son facteur de bruit.</p>
+    <span class="sticker" data-s="fusee" style="--r:12deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>expliquer à quoi sert un amplificateur optique et en quoi il diffère d'un laser ;</li>
+          <li>calculer un gain en dB et prévoir la puissance de sortie ;</li>
+          <li>décrire la saturation du gain et les régimes préampli / booster ;</li>
+          <li>expliquer l'émission spontanée amplifiée (ASE) et le facteur de bruit (limite à 3 dB) ;</li>
+          <li>appliquer la formule de Friis à une chaîne d'amplificateurs.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>pourquoi amplifier ?</h2>
+      <ul>
+        <li><strong>Compenser des pertes</strong> : après 80–100 km de fibre, le signal a perdu 16–20 dB. Un amplificateur en ligne lui rend sa puissance sans le convertir en électrique (et pour tous les canaux à la fois).</li>
+        <li><strong>Monter en puissance</strong> : un petit laser très propre (fin, stable, monomode) est amplifié jusqu'au watt ou au kilowatt — c'est l'architecture <dfn data-g="mopa">MOPA</dfn>.</li>
+        <li><strong>Préamplifier</strong> un signal faible avant un détecteur, pour améliorer la sensibilité.</li>
+      </ul>
+      <p>Un amplificateur ne doit surtout pas osciller tout seul : faces traitées antireflet ou en angle, isolateurs en entrée et en sortie. Toute réflexion parasite peut le transformer en laser… ou le détruire.</p>
+
+      <h2><span class="n">2</span>le gain</h2>
+      <div class="formule">
+        <span class="f-name">gain d'un amplificateur</span>
+        <div class="f-eq">\[ G = \frac{P_{\text{sortie}}}{P_{\text{entrée}}} \qquad G_{\text{dB}} = 10\log_{10}G \qquad G_0 = \mathrm{e}^{(g_0-\alpha)L} \]</div>
+        <div class="f-where"><b>G₀</b> gain « petit signal » (quand le signal est trop faible pour perturber le milieu) · <b>g₀</b> gain par unité de longueur, proportionnel à l'inversion · <b>L</b> longueur du milieu. Un EDFA typique : G₀ = 20 à 35 dB.</div>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>en petit signal</h4></div>
+        <p>G₀ = 30 dB, signal d'entrée −20 dBm (non saturé). Puissance de sortie, en dBm ?</p>
+        <div class="check-row" data-answer="10" data-tol="0.01" data-abs="0.05" data-hint="dBm + dB">
+          <input type="text" inputmode="decimal" placeholder="dBm" aria-label="sortie en dBm"><span>dBm</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">3</span>la saturation</h2>
+      <p>Chaque photon de signal amplifié consomme un atome excité. Si le signal est fort, il « vide » l'inversion plus vite que la pompe ne la reconstitue : le gain baisse. C'est la <dfn data-g="saturation">saturation</dfn>.</p>
+      <div class="formule">
+        <span class="f-name">saturation homogène</span>
+        <div class="f-eq">\[ g = \frac{g_0}{1 + P/P_{sat}} \qquad\Longrightarrow\qquad G = G_0\,\exp\!\left(-\frac{(G-1)\,P_{\text{entrée}}}{P_{sat}}\right) \]</div>
+        <div class="f-where">On repère souvent la <b>puissance de sortie à −3 dB de compression</b> : la puissance de sortie pour laquelle le gain a chuté de 3 dB.</div>
+      </div>
+      <div class="lab" data-widget="saturation">
+        <div class="lab-head"><h4>du petit signal à la saturation</h4><span class="tag green">simulation</span></div>
+        <p class="small">Orange : gain en fonction de la puissance d'entrée. Bleu : puissance de sortie. Monte l'entrée : la sortie finit par plafonner.</p>
+      </div>
+      <div class="two-col">
+        <div class="mini-card"><h5>préamplificateur</h5><p>Entrée faible, régime linéaire, gain élevé, <strong>bruit minimal</strong> : placé juste avant le récepteur.</p></div>
+        <div class="mini-card"><h5>booster (ampli de puissance)</h5><p>Entrée forte, <strong>régime saturé</strong> : sortie stable et maximale, peu sensible aux variations d'entrée. Placé juste après l'émetteur.</p></div>
+      </div>
+
+      <h2><span class="n">4</span>le bruit : l'émission spontanée amplifiée</h2>
+      <p>Les atomes excités se désexcitent aussi spontanément. Ces photons, émis au hasard, sont amplifiés comme le signal : c'est l'<dfn data-g="ase">ASE</dfn>, un fond large bande qui s'ajoute au signal. On le voit sur un analyseur de spectre optique comme un « plateau » sous la raie du signal.</p>
+      <div class="formule">
+        <span class="f-name">puissance d'ASE dans une bande B (deux polarisations)</span>
+        <div class="f-eq">\[ P_{ASE} = 2\,n_{sp}\,h\nu\,(G-1)\,B \qquad n_{sp} = \frac{N_2}{N_2 - N_1} \ge 1 \]</div>
+        <div class="f-where"><b>n<sub>sp</sub></b> facteur d'émission spontanée : 1 pour une inversion totale, plus grand si l'inversion est incomplète (début de fibre mal pompé, par exemple).</div>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>niveau d'ASE</h4></div>
+        <p>n<sub>sp</sub> = 1,5 ; G = 30 dB ; λ = 1550 nm (hν = 1,28·10⁻¹⁹ J) ; B = 12,5 GHz (0,1 nm). Puissance d'ASE, en µW ?</p>
+        <div class="check-row" data-answer="4.8" data-tol="0.02" data-hint="2 × 1,5 × 1,28·10⁻¹⁹ × 999 × 1,25·10¹⁰">
+          <input type="text" inputmode="decimal" placeholder="µW" aria-label="ASE en µW"><span>µW</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+      <h3>le facteur de bruit</h3>
+      <p>Le <dfn data-g="facteur-bruit">facteur de bruit</dfn> NF mesure de combien l'amplificateur dégrade le rapport signal/bruit :</p>
+      <div class="formule">
+        <span class="f-name">facteur de bruit optique</span>
+        <div class="f-eq">\[ NF = \frac{\mathrm{SNR}_{\text{entrée}}}{\mathrm{SNR}_{\text{sortie}}} \approx 2n_{sp}\frac{G-1}{G} + \frac1G \;\xrightarrow{G \gg 1}\; 2n_{sp} \ge 2 \;(3\ \text{dB}) \]</div>
+        <div class="f-where">Même parfait (n<sub>sp</sub> = 1), un amplificateur à fort gain a au moins <b>3 dB</b> de facteur de bruit : c'est la limite quantique. Un bon EDFA : 4,5 à 5,5 dB ; un SOA : 7 à 9 dB.</div>
+      </div>
+      <h3>chaîne d'amplificateurs : la formule de Friis</h3>
+      <div class="formule">
+        <span class="f-name">facteur de bruit total (en linéaire)</span>
+        <div class="f-eq">\[ NF_{tot} = NF_1 + \frac{NF_2 - 1}{G_1} + \frac{NF_3 - 1}{G_1G_2} + \dots \]</div>
+        <div class="f-where">C'est le <b>premier</b> étage qui fixe le bruit : on y met l'ampli le moins bruyant, avec un bon gain. (Même formule qu'en électronique RF.)</div>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>deux étages</h4></div>
+        <p>Étage 1 : NF = 5 dB, G = 20 dB. Étage 2 : NF = 7 dB. Facteur de bruit total, en dB ?</p>
+        <div class="check-row" data-answer="5.05" data-tol="0.01" data-hint="3,16 + (5,01 − 1)/100 = 3,20 → en dB">
+          <input type="text" inputmode="decimal" placeholder="dB" aria-label="NF total en dB"><span>dB</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">5</span>la dynamique du gain</h2>
+      <p>La vitesse à laquelle le gain réagit dépend de la durée de vie du niveau excité : quelques <strong>ms</strong> pour l'erbium (le gain ne « voit » pas les bits à 10 Gb/s : pas de distorsion, les canaux ne se perturbent pas), quelques <strong>centaines de ps</strong> pour un SOA (le gain suit le signal : distorsions et mélanges entre canaux, mais utile pour le traitement tout-optique). En revanche, une coupure brutale d'un EDFA saturé provoque des transitoires de puissance sur les canaux restants : les amplis télécoms ont une régulation de gain rapide.</p>
+      <div class="box terrain">
+        <p class="box-title">sur le terrain</p>
+        <ul>
+          <li>Ne jamais allumer la pompe d'un ampli de puissance sans signal d'entrée (ou sans la protection prévue) : l'énergie stockée peut partir en impulsion parasite et détruire composants et connecteurs.</li>
+          <li>Pour lire un gain, mesure entrée et sortie avec le même puissance-mètre ou corrige l'ASE : à faible entrée, une bonne partie de la « sortie » est du bruit.</li>
+          <li>Un ampli qui « crache » de l'ASE sans signal est normal ; un pic étroit et instable dans l'ASE signale une oscillation parasite (réflexion) : à corriger immédiatement.</li>
+        </ul>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Ampli = milieu pompé sans cavité ; isolateurs et faces AR pour ne pas osciller.</li>
+          <li>Saturation : G = G₀ exp(−(G−1)P<sub>in</sub>/P<sub>sat</sub>) ; préampli linéaire, booster saturé.</li>
+          <li>ASE = 2n<sub>sp</sub>hν(G−1)B ; NF ≥ 3 dB à fort gain.</li>
+          <li>Friis : le premier étage fixe le bruit.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="amplis-principe">
+        <header><h3>quiz éclair</h3><span class="tag">4 questions</span></header>
+        <div class="q" data-a="b"><p>1. Qu'est-ce qui distingue fondamentalement un amplificateur optique d'un laser ?</p><div class="opts">
+          <label><input type="radio" value="a"> le milieu à gain</label><label><input type="radio" value="b"> l'absence de cavité (pas de rétroaction)</label><label><input type="radio" value="c"> la longueur d'onde</label></div>
+          <p class="explain">Même physique ; mais sans miroirs, pas d'oscillation : il amplifie ce qu'on lui donne.</p></div>
+        <div class="q" data-a="a"><p>2. Facteur de bruit minimal d'un amplificateur optique à fort gain ?</p><div class="opts">
+          <label><input type="radio" value="a"> 3 dB</label><label><input type="radio" value="b"> 0 dB</label><label><input type="radio" value="c"> 10 dB</label></div>
+          <p class="explain">NF → 2n<sub>sp</sub> ≥ 2, soit 3 dB.</p></div>
+        <div class="q" data-a="c"><p>3. Dans une chaîne de deux amplis, lequel compte le plus pour le bruit ?</p><div class="opts">
+          <label><input type="radio" value="a"> le dernier</label><label><input type="radio" value="b"> ils comptent autant</label><label><input type="radio" value="c"> le premier</label></div>
+          <p class="explain">Le bruit du second est divisé par le gain du premier (Friis).</p></div>
+        <div class="q" data-a="b"><p>4. Pourquoi le gain d'un EDFA ne déforme-t-il pas un signal à 10 Gb/s ?</p><div class="opts">
+          <label><input type="radio" value="a"> parce qu'il est saturé</label><label><input type="radio" value="b"> parce que la durée de vie de l'erbium (ms) est bien plus longue qu'un bit</label><label><input type="radio" value="c"> parce que la fibre filtre les bits</label></div>
+          <p class="explain">Le gain moyenne sur des millions de bits.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

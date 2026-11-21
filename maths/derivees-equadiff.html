@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>dérivées, intégrales & équations différentielles · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="maths/derivees-equadiff">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>dérivées, intégrales &amp; équations différentielles</h1>
+    <span class="hand">les maths du changement</span>
+    <p class="lead">La pente d'une courbe L-I, l'énergie d'une impulsion, la température d'une monture qui monte : dériver, intégrer et <mark>résoudre une équation différentielle</mark>, c'est le quotidien de la mesure et de la régulation.</p>
+    <span class="sticker" data-s="pi" style="--r:12deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>interpréter une dérivée comme une pente et la calculer sur des données mesurées ;</li>
+          <li>utiliser la dérivée seconde pour trouver le seuil d'une diode laser ;</li>
+          <li>calculer une intégrale numériquement (énergie d'une impulsion) ;</li>
+          <li>résoudre un système du premier ordre (RC, thermique) et lire sa constante de temps ;</li>
+          <li>simuler une équation différentielle avec la méthode d'Euler, sans la faire diverger.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>la dérivée, une pente</h2>
+      <p>La dérivée \(\dfrac{\mathrm{d}y}{\mathrm{d}x}\) mesure de combien \(y\) change quand \(x\) change un tout petit peu : c'est la pente de la tangente. Sur une courbe L-I de diode laser, \(\mathrm{d}P/\mathrm{d}I\) est le <strong>rendement différentiel</strong> (en W/A) ; sur la courbe V-I, \(\mathrm{d}V/\mathrm{d}I\) est la <strong>résistance différentielle</strong> (résistance série de la diode, quelques ohms).</p>
+      <div class="formule">
+        <span class="f-name">dérivée numérique (différences centrées)</span>
+        <div class="f-eq">\[ \left.\frac{\mathrm{d}y}{\mathrm{d}x}\right|_i \approx \frac{y_{i+1}-y_{i-1}}{x_{i+1}-x_{i-1}} \]</div>
+        <div class="f-where">Dériver amplifie le bruit : si les points sont bruités, lisse d'abord (moyenne glissante, filtre de Savitzky-Golay) ou ajuste une droite sur une fenêtre.</div>
+      </div>
+      <h3>la méthode de la dérivée seconde</h3>
+      <p>Où commence exactement le laser ? La courbe L-I a un « coude ». L'industrie (normes Telcordia) définit souvent le courant de seuil comme le maximum de la <strong>dérivée seconde</strong> \(\mathrm{d}^2P/\mathrm{d}I^2\) : c'est là que la pente change le plus vite. Une autre méthode : prolonger la partie linéaire jusqu'à l'axe des courants (méthode des deux droites). Tu coderas les deux dans le <a href="../projet/code-3-analyse.html">module d'analyse du banc</a>.</p>
+      <div class="box astuce">
+        <p class="box-title">la dérivée comme détecteur de défauts</p>
+        <p>Un « kink » (coude) dans la courbe L-I au-dessus du seuil, invisible à l'œil, saute aux yeux sur \(\mathrm{d}P/\mathrm{d}I\) : chute brusque de la pente = changement de mode transverse, saut de mode ou début de dégradation. C'est un critère de rejet en production.</p>
+      </div>
+
+      <h2><span class="n">2</span>l'intégrale, une aire</h2>
+      <p>L'intégrale \(\int_a^b y\,\mathrm{d}x\) est l'aire sous la courbe. Énergie = intégrale de la puissance dans le temps ; charge = intégrale du courant ; le terme « I » d'un régulateur PID accumule l'erreur au cours du temps.</p>
+      <div class="formule">
+        <span class="f-name">intégration numérique (méthode des trapèzes)</span>
+        <div class="f-eq">\[ \int_{x_0}^{x_N} y\,\mathrm{d}x \approx \sum_{i=0}^{N-1} \frac{y_i + y_{i+1}}{2}\,(x_{i+1}-x_i) \]</div>
+        <div class="f-where">En Python : <code>numpy.trapezoid(y, x)</code> (<code>numpy.trapz</code> dans les anciennes versions).</div>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>énergie d'une impulsion</h4></div>
+        <p>Une photodiode étalonnée mesure une impulsion triangulaire : 0 W à t = 0, 2 kW à t = 5 ns, 0 W à t = 10 ns. Quelle est son énergie, en µJ ?</p>
+        <div class="check-row" data-answer="10" data-tol="0.02" data-hint="aire d'un triangle = base × hauteur / 2">
+          <input type="text" inputmode="decimal" placeholder="µJ" aria-label="énergie en µJ"><span>µJ</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">3</span>l'équation différentielle du premier ordre</h2>
+      <p>Une équation différentielle relie une grandeur à sa propre dérivée. La plus utile de toutes, le <strong>premier ordre</strong>, décrit un condensateur qui se charge, une thermistance qui suit la température, une monture laser qui chauffe :</p>
+      <div class="formule">
+        <span class="f-name">premier ordre et sa réponse à un échelon</span>
+        <div class="f-eq">\[ \tau\,\frac{\mathrm{d}y}{\mathrm{d}t} + y = K\,u \qquad\Longrightarrow\qquad y(t) = K\,u\left(1-\mathrm{e}^{-t/\tau}\right) \]</div>
+        <div class="f-where"><b>K</b> gain statique · <b>τ</b> constante de temps (63 % de la valeur finale atteinte à t = τ). Circuit RC : τ = RC. Thermique : τ = R<sub>th</sub>·C<sub>th</sub>.</div>
+      </div>
+      <h3>exemple : une monture laser qui chauffe</h3>
+      <p>Bilan d'énergie : la chaleur reçue \(P\) sert à chauffer la monture (capacité thermique \(C_{th}\), en J/K) et s'évacue vers l'air ambiant à travers une résistance thermique \(R_{th}\) (en K/W) :</p>
+      <div class="formule">
+        <span class="f-name">modèle thermique à une constante de temps</span>
+        <div class="f-eq">\[ C_{th}\,\frac{\mathrm{d}T}{\mathrm{d}t} = P - \frac{T - T_{amb}}{R_{th}} \qquad\Longrightarrow\qquad \Delta T_\infty = R_{th}\,P \quad,\quad \tau = R_{th}C_{th} \]</div>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>échauffement</h4></div>
+        <p>R<sub>th</sub> = 10 K/W, C<sub>th</sub> = 2 J/K, la diode dissipe 1,5 W. a) Échauffement final, en K ?</p>
+        <div class="check-row" data-answer="15" data-tol="0.01" data-hint="ΔT = R_th × P">
+          <input type="text" inputmode="decimal" placeholder="K" aria-label="échauffement en K"><span>K</span><button class="pill small" type="button">vérifier</button>
+        </div>
+        <p>b) Constante de temps, en s ?</p>
+        <div class="check-row" data-answer="20" data-tol="0.01" data-hint="τ = R_th × C_th">
+          <input type="text" inputmode="decimal" placeholder="s" aria-label="constante de temps en s"><span>s</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">4</span>simuler : la méthode d'Euler</h2>
+      <p>Quand on ne sait pas résoudre l'équation à la main (ou dans un programme qui tourne en temps réel), on avance pas à pas : la dérivée donne la direction, on fait un petit pas \(\Delta t\).</p>
+      <div class="formule">
+        <span class="f-name">schéma d'Euler explicite</span>
+        <div class="f-eq">\[ \frac{\mathrm{d}y}{\mathrm{d}t} = f(y,t) \quad\Longrightarrow\quad y_{n+1} = y_n + \Delta t\cdot f(y_n, t_n) \]</div>
+        <div class="f-where">Pour le premier ordre : \(y_{n+1} = y_n + \dfrac{\Delta t}{\tau}(K u - y_n)\). Règle de stabilité : \(\Delta t < 2\tau\) ; pour la précision : \(\Delta t \le \tau/10\).</div>
+      </div>
+      <div class="lab" data-widget="rc-euler">
+        <div class="lab-head"><h4>Euler : précis, approximatif… ou explosif</h4><span class="tag green">simulation</span></div>
+        <p class="small">Augmente le pas de calcul : d'abord la courbe bleue s'écarte, puis elle oscille, puis elle diverge. C'est exactement ce qui arrive à une boucle de régulation numérique dont la période d'échantillonnage est trop longue.</p>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>un pas d'Euler à la main</h4></div>
+        <p>\(\mathrm{d}y/\mathrm{d}t = -y/\tau\) avec τ = 2 s, y(0) = 1, Δt = 0,5 s. Que vaut y après un pas ? (La valeur exacte est e⁻⁰·²⁵ ≈ 0,779.)</p>
+        <div class="check-row" data-answer="0.75" data-tol="0.01" data-hint="y₁ = y₀ + Δt·(−y₀/τ)">
+          <input type="text" inputmode="decimal" placeholder="y₁" aria-label="valeur de y après un pas"><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">5</span>le second ordre et les équations d'un laser</h2>
+      <p>Un système du second ordre (masse-ressort, circuit RLC, boucle PID mal réglée) peut <strong>osciller</strong> : la réponse dépasse la consigne puis oscille en s'amortissant. Son comportement dépend du coefficient d'amortissement ζ : ζ &lt; 1 oscillant, ζ = 1 critique (le plus rapide sans dépassement), ζ &gt; 1 lent.</p>
+      <p>Le laser lui-même obéit à deux équations différentielles couplées (les <em>équations de population</em>), entre le nombre d'atomes excités \(N\) et le nombre de photons \(S\) dans la cavité :</p>
+      <div class="formule">
+        <span class="f-name">équations de population (forme simplifiée)</span>
+        <div class="f-eq">\[ \frac{\mathrm{d}N}{\mathrm{d}t} = R_p - \frac{N}{\tau} - G\,N\,S \qquad\qquad \frac{\mathrm{d}S}{\mathrm{d}t} = G\,N\,S - \frac{S}{\tau_c} + \beta\frac{N}{\tau} \]</div>
+        <div class="f-where"><b>R<sub>p</sub></b> pompage · <b>τ</b> durée de vie des atomes excités · <b>τ<sub>c</sub></b> durée de vie des photons dans la cavité · <b>β</b> part d'émission spontanée dans le mode. À l'allumage, ce couple oscille : ce sont les <em>oscillations de relaxation</em> (quelques GHz pour une diode), qui limitent la vitesse de modulation.</div>
+      </div>
+      <p>C'est ce système, résolu en régime établi, qui fait tourner la simulation de la leçon <a href="../lasers/principe.html">principe du laser</a>.</p>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Dérivée = pente : dP/dI (rendement), dV/dI (résistance série), d²P/dI² (seuil).</li>
+          <li>Intégrale = aire : énergie = ∫P dt ; trapèzes en numérique.</li>
+          <li>Premier ordre : y = Ku(1 − e^(−t/τ)), 63 % à τ, fini à 5τ ; RC ou R<sub>th</sub>C<sub>th</sub>.</li>
+          <li>Euler : y += Δt·f ; Δt ≤ τ/10 pour être précis, Δt &lt; 2τ pour ne pas diverger.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="maths-derivees">
+        <header><h3>quiz éclair</h3><span class="tag">4 questions</span></header>
+        <div class="q" data-a="a"><p>1. Sur une courbe L-I, la dérivée dP/dI au-dessus du seuil représente…</p><div class="opts">
+          <label><input type="radio" value="a"> le rendement différentiel (W/A)</label><label><input type="radio" value="b"> le courant de seuil</label><label><input type="radio" value="c"> la résistance série</label></div>
+          <p class="explain">C'est la pente de la partie linéaire.</p></div>
+        <div class="q" data-a="c"><p>2. Un système du premier ordre a atteint 63 % de sa valeur finale. Il s'est écoulé…</p><div class="opts">
+          <label><input type="radio" value="a"> 5τ</label><label><input type="radio" value="b"> τ/2</label><label><input type="radio" value="c"> τ</label></div>
+          <p class="explain">1 − e⁻¹ ≈ 0,632.</p></div>
+        <div class="q" data-a="b"><p>3. Pourquoi lisse-t-on des données avant de les dériver ?</p><div class="opts">
+          <label><input type="radio" value="a"> pour gagner du temps de calcul</label><label><input type="radio" value="b"> parce que la dérivation amplifie le bruit</label><label><input type="radio" value="c"> parce que numpy l'exige</label></div>
+          <p class="explain">Une petite fluctuation entre deux points proches donne une énorme pente locale.</p></div>
+        <div class="q" data-a="a"><p>4. Une boucle de régulation numérique échantillonne toutes les 3 s un système de constante de temps 1 s, avec un calcul de type Euler. Que risque-t-on ?</p><div class="opts">
+          <label><input type="radio" value="a"> l'instabilité (Δt &gt; 2τ)</label><label><input type="radio" value="b"> rien, c'est plus économe</label><label><input type="radio" value="c"> une meilleure précision</label></div>
+          <p class="explain">Comme dans la simulation : au-delà de 2τ, le calcul diverge.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>l'EDFA, ampli à fibre dopée erbium · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="amplis/edfa">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>l'EDFA, ampli à fibre dopée erbium</h1>
+    <span class="hand">l'invention qui a rendu Internet possible</span>
+    <p class="lead">Quelques mètres de fibre dopée à l'erbium, une diode de pompe à 980 nm, et 30 dB de gain pour des dizaines de canaux à la fois. On ouvre un module <mark>EDFA</mark> et on regarde chaque composant.</p>
+    <span class="sticker" data-s="fusee" style="--r:-10deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>décrire les niveaux de l'erbium et les deux longueurs d'onde de pompe ;</li>
+          <li>nommer et expliquer chaque composant d'un module EDFA ;</li>
+          <li>prévoir la forme du spectre de gain selon l'inversion et la longueur de fibre ;</li>
+          <li>connaître les modes de régulation et les limites de rendement ;</li>
+          <li>intervenir en sécurité sur un ampli de puissance fibré.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>l'ion erbium</h2>
+      <p>Les ions Er³⁺ insérés dans le cœur d'une fibre de silice ont trois niveaux utiles :</p>
+      <ul>
+        <li>le fondamental <strong>⁴I<sub>15/2</sub></strong> ;</li>
+        <li>le niveau <strong>⁴I<sub>13/2</sub></strong>, métastable (durée de vie ≈ 10 ms), haut de la transition laser vers 1530–1610 nm ;</li>
+        <li>le niveau <strong>⁴I<sub>11/2</sub></strong>, atteint par une pompe à <strong>980 nm</strong>, qui retombe en quelques µs sur ⁴I<sub>13/2</sub>.</li>
+      </ul>
+      <p>On peut aussi pomper directement dans le haut de la bande ⁴I<sub>13/2</sub> à <strong>1480 nm</strong> : meilleur rendement (moins de défaut quantique), un peu plus de bruit (inversion moins complète). C'est un système à 3 niveaux : non pompée, la fibre <em>absorbe</em> le signal.</p>
+      <div class="formule">
+        <span class="f-name">rendement de conversion maximal (limite quantique)</span>
+        <div class="f-eq">\[ \mathrm{PCE}_{\max} = \frac{\lambda_{pompe}}{\lambda_{signal}} \qquad 980 \to 1550 : 63\,\% \qquad 1480 \to 1550 : 95\,\% \]</div>
+      </div>
+
+      <h2><span class="n">2</span>dans le boîtier</h2>
+      <p>Voici un module EDFA « simple étage » ouvert. Les fibres jaunes relient les composants (en vrai, par épissures soudées). La bobine de fibre dopée brille en vert : c'est réel, les ions erbium pompés émettent un peu de lumière verte par conversion ascendante.</p>
+      <div class="v3d" data-model="edfa">
+        <script type="application/json">{
+          "title": "module EDFA, capot retiré",
+          "intro": "Suis le trajet du signal avec la visite guidée : entrée → prélèvement → isolateur → multiplexeur → fibre dopée → isolateur → prélèvement → sortie. La carte de commande pilote la pompe.",
+          "view": [0.25, 1.25, 1.0],
+          "tour": ["hs_entree", "hs_prise_in", "hs_isolateur", "hs_wdm", "hs_pompe", "hs_fibre_dopee", "hs_isolateur_out", "hs_prise_out", "hs_sortie", "hs_carte"],
+          "hotspots": {
+            "hs_entree": {"t": "entrée signal (SC/APC)", "d": "Connecteur vert = poli à 8° (APC) : la réflexion repart hors du cœur. Un connecteur sale à l'entrée ajoute des pertes avant l'ampli : c'est le pire endroit, car il dégrade directement le facteur de bruit."},
+            "hs_prise_in": {"t": "prélèvement d'entrée + photodiode", "d": "Un coupleur prélève ~1 à 2 % du signal vers une photodiode : on mesure la puissance d'entrée en permanence (alarme de perte de signal, régulation de gain)."},
+            "hs_isolateur": {"t": "isolateur d'entrée", "d": "Empêche l'ASE qui remonte vers l'entrée et les réflexions de transformer l'ampli en laser. 30–40 dB d'isolation."},
+            "hs_wdm": {"t": "multiplexeur 980/1550 (WDM)", "d": "Coupleur fusionné qui combine la pompe à 980 nm et le signal à 1550 nm dans la même fibre, avec très peu de pertes pour chacun."},
+            "hs_pompe": {"t": "diode de pompe 980 nm", "d": "Boîtier butterfly 14 broches : puce de puissance (100–700 mW), Peltier, thermistance, photodiode et souvent un réseau de Bragg sur la fibre qui verrouille sa longueur d'onde sur 976 nm. Le composant le plus cher et le plus surveillé (courant, température, heures)."},
+            "hs_fibre_dopee": {"t": "fibre dopée erbium", "d": "5 à 30 m enroulés (plus longue en bande L). Rayon d'enroulement contrôlé pour éviter les pertes par courbure. La lueur verte vient de la conversion ascendante des ions pompés."},
+            "hs_isolateur_out": {"t": "isolateur de sortie", "d": "Protège l'ampli des réflexions du réseau aval (connecteurs, coupures) qui pourraient le faire osciller ou le déstabiliser."},
+            "hs_prise_out": {"t": "prélèvement de sortie + photodiode", "d": "Mesure de la puissance de sortie pour la régulation (APC ou AGC) et la détection d'une coupure de fibre aval (réduction automatique de puissance)."},
+            "hs_sortie": {"t": "sortie (SC/APC)", "d": "Jusqu'à +20 à +27 dBm (100–500 mW) sur les amplis télécoms : invisible, classe 3B voire 4. Ne jamais déconnecter une sortie active, ne jamais regarder un connecteur."},
+            "hs_carte": {"t": "carte de commande", "d": "Driver de courant de la pompe, régulation du Peltier, lecture des photodiodes, microcontrôleur (régulation de gain, alarmes, interface). Une bonne partie des pannes « optiques » se diagnostiquent ici."}
+          }
+        }</script>
+      </div>
+
+      <h2><span class="n">3</span>la forme du gain</h2>
+      <p>Le gain à chaque longueur d'onde dépend de l'équilibre entre émission et absorption, donc de l'<strong>inversion</strong> (fraction d'ions excités) et de la longueur de fibre :</p>
+      <div class="formule">
+        <span class="f-name">gain spectral (modèle simplifié)</span>
+        <div class="f-eq">\[ G_{\text{dB}}(\lambda) \propto L\,\big[\,n_2\,\sigma_e(\lambda) - (1-n_2)\,\sigma_a(\lambda)\,\big] \]</div>
+        <div class="f-where"><b>σ<sub>e</sub>, σ<sub>a</sub></b> sections efficaces d'émission et d'absorption · <b>n₂</b> fraction d'ions excités. Forte inversion : gros pic à 1530 nm. Inversion modérée + fibre longue : gain décalé vers 1570–1610 nm (bande L).</div>
+      </div>
+      <div class="lab" data-widget="edfa-gain">
+        <div class="lab-head"><h4>sculpter le spectre de gain</h4><span class="tag green">simulation</span></div>
+        <p class="small">Sections efficaces modélisées d'après l'allure réelle de l'erbium dans la silice. Baisse l'inversion pour voir naître la bande L ; active le filtre d'égalisation.</p>
+      </div>
+      <p>Pour le multiplexage dense (DWDM, 40 à 96 canaux espacés de 50–100 GHz), le gain doit être plat à ±0,5 dB : on ajoute un <strong>filtre d'égalisation</strong> (GFF, souvent un réseau de Bragg à pas variable) et on construit des amplis à deux étages (préampli peu bruyant + booster), avec parfois un atténuateur variable entre les deux pour régler le niveau sans déformer le spectre.</p>
+
+      <h2><span class="n">4</span>régulation et exploitation</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>mode</th><th>on maintient constant…</th><th>usage</th></tr></thead>
+        <tbody>
+          <tr><td>ACC</td><td>le courant de pompe</td><td>caractérisation, laboratoire</td></tr>
+          <tr><td>APC</td><td>la puissance de sortie totale</td><td>booster, liaison point à point</td></tr>
+          <tr><td>AGC</td><td>le gain (sortie/entrée)</td><td>réseaux WDM où des canaux s'ajoutent ou disparaissent</td></tr>
+        </tbody>
+      </table></div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>sortie d'un booster</h4></div>
+        <p>Entrée −10 dBm, gain 25 dB. Puissance de sortie, en mW ?</p>
+        <div class="check-row" data-answer="31.6" data-tol="0.01" data-hint="−10 + 25 = 15 dBm = 10^1,5 mW">
+          <input type="text" inputmode="decimal" placeholder="mW" aria-label="sortie en mW"><span>mW</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+      <div class="box attention">
+        <p class="box-title">sécurité sur les amplis fibrés</p>
+        <ul>
+          <li>Puissances invisibles de centaines de mW à plusieurs W : lunettes adaptées, jamais de regard dans un connecteur, couper avant de déconnecter.</li>
+          <li><strong>Fusible de fibre</strong> : à forte puissance, un connecteur sale peut chauffer et déclencher une onde de destruction du cœur qui remonte la fibre à ~1 m/s. Propreté absolue des connecteurs.</li>
+          <li>La réduction automatique de puissance (APR) coupe ou baisse la pompe si une coupure est détectée en aval : ne pas la shunter.</li>
+        </ul>
+      </div>
+      <div class="box terrain">
+        <p class="box-title">sur le terrain</p>
+        <ul>
+          <li>Gain en baisse progressive : vieillissement de la diode de pompe (courant en hausse pour la même puissance), connecteur d'entrée sale, épissure dégradée.</li>
+          <li>Facteur de bruit qui se dégrade : pertes en hausse <em>avant</em> la fibre dopée (connecteur d'entrée, isolateur, WDM).</li>
+          <li>Les mesures de gain et de NF se font à l'analyseur de spectre optique (OSA) : c'est la leçon suivante sur les <a href="puissance-mesures.html">mesures</a>.</li>
+        </ul>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Er³⁺ : métastable 10 ms ; pompe 980 nm (bruit faible) ou 1480 nm (rendement élevé) ; bandes C et L.</li>
+          <li>Chaîne : isolateur → WDM → fibre dopée ← pompe → isolateur, avec prélèvements et photodiodes.</li>
+          <li>Inversion forte = pic à 1530 ; faible + fibre longue = bande L ; GFF pour égaliser.</li>
+          <li>ACC / APC / AGC ; sécurité : invisible, fort, fusible de fibre.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="amplis-edfa">
+        <header><h3>quiz éclair</h3><span class="tag">4 questions</span></header>
+        <div class="q" data-a="c"><p>1. Rôle du multiplexeur 980/1550 ?</p><div class="opts">
+          <label><input type="radio" value="a"> isoler l'ampli</label><label><input type="radio" value="b"> égaliser le gain</label><label><input type="radio" value="c"> injecter la pompe dans la même fibre que le signal</label></div>
+          <p class="explain">Il combine deux longueurs d'onde avec peu de pertes.</p></div>
+        <div class="q" data-a="a"><p>2. Si la pompe tombe en panne, le signal en sortie de l'EDFA…</p><div class="opts">
+          <label><input type="radio" value="a"> est fortement atténué (la fibre dopée absorbe)</label><label><input type="radio" value="b"> passe sans gain mais sans pertes</label><label><input type="radio" value="c"> est doublé</label></div>
+          <p class="explain">Système à 3 niveaux : sans inversion, l'erbium absorbe à 1530–1560 nm.</p></div>
+        <div class="q" data-a="b"><p>3. Pour amplifier la bande L (1570–1610 nm), on utilise…</p><div class="opts">
+          <label><input type="radio" value="a"> une fibre plus courte et plus inversée</label><label><input type="radio" value="b"> une fibre plus longue avec une inversion plus modérée</label><label><input type="radio" value="c"> une pompe visible</label></div>
+          <p class="explain">À inversion modérée, le gain se décale vers les grandes longueurs d'onde.</p></div>
+        <div class="q" data-a="c"><p>4. Le facteur de bruit d'un EDFA se dégrade. Où chercher en premier ?</p><div class="opts">
+          <label><input type="radio" value="a"> à la sortie</label><label><input type="radio" value="b"> sur la carte de commande</label><label><input type="radio" value="c"> aux pertes en entrée (connecteur, isolateur, WDM)</label></div>
+          <p class="explain">Chaque dB perdu avant le gain s'ajoute directement au facteur de bruit.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

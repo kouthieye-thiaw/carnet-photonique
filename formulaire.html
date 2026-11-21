@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>le formulaire · carnet photonique</title>
+<meta name="description" content="Toutes les formules clés du carnet photonique : maths, physique, lasers, amplificateurs, électronique, maintenance et banc de test, avec unités et ordres de grandeur.">
+<link rel="icon" href="assets/img/favicon.svg">
+<link rel="stylesheet" href="assets/css/carnet.css">
+<script defer src="assets/js/site-map.js"></script>
+<script defer src="assets/js/carnet.js"></script>
+<style>
+  .fgrid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(min(100%, 460px), 1fr)); margin-top: 8px; }
+  .fgrid .formule { margin: 0; }
+  .fsec { margin-top: 48px; }
+  .fsec h2 { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; font-size: clamp(30px, 4.6vw, 42px); }
+  .fsec h2 .num { font-family: var(--font-hand); color: var(--accent); font-size: 32px; }
+  .fsec h2 a { font-family: var(--font-geist); font-size: 15px; font-weight: 400; }
+  .fsticky { position: sticky; top: calc(var(--header-h, 64px) + 8px); z-index: 5; background: var(--paper); padding: 10px 0; }
+  @media print { .fsticky, .site-header, .site-footer, .notes-fab { display: none !important; } .fgrid { grid-template-columns: 1fr 1fr; } .formule { break-inside: avoid; } }
+</style>
+</head>
+<body data-notes="formulaire">
+<main>
+<div class="wrap">
+  <header class="tool-hero" style="position:relative">
+    <h1>le formulaire</h1>
+    <span class="hand">tout ce qu'il faut savoir retrouver, sur une page</span>
+    <p class="lead">Les formules clés de chaque module, avec la signification des lettres, les unités et un ordre de grandeur. Tape un mot pour filtrer ; imprime la page (<kbd>Ctrl</kbd>+<kbd>P</kbd>) pour en faire un aide-mémoire papier.</p>
+    <span class="sticker" data-s="pi" style="--r:-10deg;top:30px;right:0"></span>
+  </header>
+  <div class="fsticky"><div class="search-box"><input type="search" data-c="q" placeholder="filtrer : dBm, Rayleigh, Weibull, TIA…" aria-label="filtrer les formules"></div><p class="small" data-c="n" style="margin:8px 0 0"></p></div>
+
+  <section class="fsec" data-mod="maths">
+    <h2><span class="num">01</span>maths &amp; signaux <a href="maths/unites-db.html">voir le module →</a></h2>
+    <div class="fgrid">
+      <div class="formule"><span class="f-name">décibels et dBm</span><div class="f-eq">\[ G_{dB} = 10\log_{10}\frac{P_2}{P_1} \qquad P_{dBm} = 10\log_{10}\frac{P}{1\ \text{mW}} \]</div><div class="f-where">+3 dB ≈ ×2 · +10 dB = ×10 · 0 dBm = 1 mW · pour des tensions : \(20\log_{10}(V_2/V_1)\).</div></div>
+      <div class="formule"><span class="f-name">bilan en dB</span><div class="f-eq">\[ P_{dBm,\,sortie} = P_{dBm,\,\text{entrée}} + \sum G_{dB} - \sum A_{dB} \]</div><div class="f-where">Les gains et pertes s'additionnent en dB · fibre : ≈ 0,2 dB/km à 1550 nm · connecteur : ≈ 0,3 dB.</div></div>
+      <div class="formule"><span class="f-name">nombres complexes et impédances</span><div class="f-eq">\[ e^{j\theta} = \cos\theta + j\sin\theta \qquad \underline{Z}_R = R \quad \underline{Z}_L = jL\omega \quad \underline{Z}_C = \frac{1}{jC\omega} \]</div><div class="f-where">\(\omega = 2\pi f\) (rad/s) · module = amplitude, argument = déphasage.</div></div>
+      <div class="formule"><span class="f-name">système du premier ordre</span><div class="f-eq">\[ u(t) = U_f + (U_0 - U_f)\,e^{-t/\tau} \qquad \tau = RC \qquad f_c = \frac{1}{2\pi\tau} \]</div><div class="f-where">63 % de la variation en τ, 95 % en 3τ, 99 % en 5τ.</div></div>
+      <div class="formule"><span class="f-name">échantillonnage et FFT</span><div class="f-eq">\[ f_e > 2 f_{max} \qquad \Delta f = \frac{f_e}{N} \]</div><div class="f-where">Shannon : sinon, repliement · \(N\) : nombre de points de la FFT · fenêtre de Hann contre les fuites spectrales.</div></div>
+      <div class="formule"><span class="f-name">moyenne et écart-type expérimental</span><div class="f-eq">\[ \bar x = \frac{1}{n}\sum x_i \qquad s = \sqrt{\frac{1}{n-1}\sum (x_i - \bar x)^2} \qquad u(\bar x) = \frac{s}{\sqrt n} \]</div><div class="f-where">Incertitude de type A sur la moyenne de \(n\) mesures répétées.</div></div>
+      <div class="formule"><span class="f-name">incertitude de type B et composition</span><div class="f-eq">\[ u = \frac{a}{\sqrt 3} \qquad u_c = \sqrt{\sum (c_i\,u_i)^2} \qquad U = k\,u_c \]</div><div class="f-where">\(a\) : demi-étendue d'une loi uniforme (ex. résolution/2) · \(c_i\) : sensibilité · \(k = 2\) ≈ 95 %.</div></div>
+      <div class="formule"><span class="f-name">régression linéaire</span><div class="f-eq">\[ a = \frac{\sum (x_i - \bar x)(y_i - \bar y)}{\sum (x_i - \bar x)^2} \qquad b = \bar y - a\bar x \]</div><div class="f-where">Coefficient de détermination \(R^2 = 1 - SS_{res}/SS_{tot}\) · toujours regarder les résidus.</div></div>
+    </div>
+  </section>
+
+  <section class="fsec" data-mod="physique">
+    <h2><span class="num">02</span>physique de la lumière <a href="physique/lumiere-photon.html">voir le module →</a></h2>
+    <div class="fgrid">
+      <div class="formule"><span class="f-name">énergie du photon</span><div class="f-eq">\[ E = h\nu = \frac{hc}{\lambda} \qquad E\,[\text{eV}] \approx \frac{1240}{\lambda\,[\text{nm}]} \]</div><div class="f-where">\(h = 6{,}626\cdot10^{-34}\) J·s · \(c = 3\cdot10^8\) m/s · 650 nm → 1,91 eV · 1550 nm → 0,80 eV.</div></div>
+      <div class="formule"><span class="f-name">flux de photons</span><div class="f-eq">\[ \dot N = \frac{P}{h\nu} = \frac{P\,\lambda}{hc} \]</div><div class="f-where">1 mW à 650 nm ≈ 3,3·10¹⁵ photons par seconde.</div></div>
+      <div class="formule"><span class="f-name">longueur d'onde de coupure d'un semi-conducteur</span><div class="f-eq">\[ \lambda_c\,[\mu\text{m}] = \frac{1{,}24}{E_g\,[\text{eV}]} \]</div><div class="f-where">Si : 1,12 eV → 1,1 µm · InGaAs : 0,75 eV → 1,65 µm · GaAs : 1,42 eV → 870 nm.</div></div>
+      <div class="formule"><span class="f-name">réfraction (Snell-Descartes)</span><div class="f-eq">\[ n_1 \sin i_1 = n_2 \sin i_2 \qquad \sin i_c = \frac{n_2}{n_1} \]</div><div class="f-where">\(i_c\) : angle limite de réflexion totale (de \(n_1\) vers \(n_2 < n_1\)).</div></div>
+      <div class="formule"><span class="f-name">fibre optique</span><div class="f-eq">\[ ON = \sqrt{n_c^2 - n_g^2} \qquad V = \frac{2\pi a}{\lambda}\,ON < 2{,}405 \Rightarrow \text{monomode} \]</div><div class="f-where">\(n_c\), \(n_g\) : indices du cœur et de la gaine · \(a\) : rayon du cœur.</div></div>
+      <div class="formule"><span class="f-name">lentille mince et grandissement</span><div class="f-eq">\[ \frac{1}{\overline{OA'}} - \frac{1}{\overline{OA}} = \frac{1}{f'} \qquad \gamma = \frac{\overline{OA'}}{\overline{OA}} \]</div><div class="f-where">Distances algébriques, sens de la lumière positif.</div></div>
+      <div class="formule"><span class="f-name">Fabry-Perot : intervalle spectral libre et finesse</span><div class="f-eq">\[ \Delta\nu_{ISL} = \frac{c}{2nL} \qquad \Delta\lambda_{ISL} \approx \frac{\lambda^2}{2nL} \qquad \mathcal{F} = \frac{\pi\sqrt R}{1 - R} \]</div><div class="f-where">Largeur d'un pic de transmission : \(\Delta\nu_{ISL}/\mathcal{F}\).</div></div>
+      <div class="formule"><span class="f-name">réseau de diffraction (incidence normale)</span><div class="f-eq">\[ \sin\theta_m = \frac{m\,\lambda}{a} \]</div><div class="f-where">\(a\) : pas du réseau · 1000 traits/mm (a = 1 µm), 650 nm, ordre 1 → θ ≈ 40,5°.</div></div>
+      <div class="formule"><span class="f-name">polarisation : Malus et Brewster</span><div class="f-eq">\[ I = I_0\cos^2\theta \qquad \tan\theta_B = \frac{n_2}{n_1} \]</div><div class="f-where">À l'incidence de Brewster, la polarisation p n'est pas réfléchie · verre (n = 1,5) : θ<sub>B</sub> ≈ 56°.</div></div>
+      <div class="formule"><span class="f-name">thermique : résistance et constante de temps</span><div class="f-eq">\[ \Delta T = R_{th}\,P \qquad R_{th} = \frac{e}{k\,S} \qquad \tau = R_{th}\,C_{th} \]</div><div class="f-where">\(k\) : conductivité (W/m/K) · \(e\) : épaisseur · \(S\) : section · \(C_{th}\) : capacité thermique (J/K).</div></div>
+      <div class="formule"><span class="f-name">thermistance CTN (modèle β)</span><div class="f-eq">\[ \frac{1}{T} = \frac{1}{T_{25}} + \frac{1}{\beta}\ln\frac{R}{R_{25}} \qquad R = R_{25}\,e^{\beta\left(\frac{1}{T} - \frac{1}{T_{25}}\right)} \]</div><div class="f-where">T en kelvins, \(T_{25} = 298{,}15\) K · 10 kΩ, β = 3950 K : ≈ 5,3 kΩ à 40 °C.</div></div>
+    </div>
+  </section>
+
+  <section class="fsec" data-mod="lasers">
+    <h2><span class="num">03</span>lasers <a href="lasers/principe.html">voir le module →</a></h2>
+    <div class="fgrid">
+      <div class="formule"><span class="f-name">condition de seuil</span><div class="f-eq">\[ R_1R_2\,e^{2(g - \alpha)L} = 1 \;\Rightarrow\; g_{th} = \alpha + \frac{1}{2L}\ln\frac{1}{R_1R_2} \]</div><div class="f-where">Le gain compense exactement les pertes internes \(\alpha\) et les pertes des miroirs.</div></div>
+      <div class="formule"><span class="f-name">modes longitudinaux d'une cavité</span><div class="f-eq">\[ \Delta\nu = \frac{c}{2nL} \qquad \Delta\lambda \approx \frac{\lambda^2}{2nL} \]</div><div class="f-where">Diode Fabry-Perot de 300 µm (n ≈ 3,6) à 650 nm : Δλ ≈ 0,2 nm.</div></div>
+      <div class="formule"><span class="f-name">puissance au-dessus du seuil</span><div class="f-eq">\[ P = \eta_d\,\frac{h\nu}{e}\,(I - I_{th}) \qquad \frac{\mathrm{d}P}{\mathrm{d}I} = \eta_d\,\frac{h\nu}{e} \]</div><div class="f-where">\(\eta_d\) : rendement quantique différentiel · pente typique d'une diode rouge : 0,5 à 1 mW/mA.</div></div>
+      <div class="formule"><span class="f-name">rendement quantique externe</span><div class="f-eq">\[ \eta_{ext} = \frac{\mathrm{d}P}{\mathrm{d}I}\,[\text{W/A}] \times \frac{\lambda\,[\text{nm}]}{1240} \]</div><div class="f-where">Photons sortis par électron injecté au-dessus du seuil.</div></div>
+      <div class="formule"><span class="f-name">température caractéristique</span><div class="f-eq">\[ I_{th}(T) = I_{th}(T_{ref})\,e^{(T - T_{ref})/T_0} \]</div><div class="f-where">\(T_0\) ≈ 50 à 100 K pour une diode rouge : +20 °C → seuil × 1,3 environ.</div></div>
+      <div class="formule"><span class="f-name">faisceau gaussien</span><div class="f-eq">\[ w(z) = w_0\sqrt{1 + \left(\frac{z - z_0}{z_R}\right)^2} \qquad z_R = \frac{\pi w_0^2}{M^2\lambda} \qquad \theta = \frac{M^2\lambda}{\pi w_0} \]</div><div class="f-where">\(w\) : rayon à \(1/e^2\) · \(\theta\) : demi-angle de divergence · \(M^2 = 1\) pour un TEM₀₀ parfait.</div></div>
+      <div class="formule"><span class="f-name">focalisation et produit de faisceau</span><div class="f-eq">\[ w_f \approx \frac{M^2\lambda f}{\pi w} \qquad BPP = w_0\,\theta = \frac{M^2\lambda}{\pi} \]</div><div class="f-where">\(w\) : rayon sur la lentille · le BPP se conserve à travers une optique parfaite.</div></div>
+      <div class="formule"><span class="f-name">cohérence</span><div class="f-eq">\[ L_c \approx \frac{c}{\Delta\nu} = \frac{\lambda^2}{\Delta\lambda} \]</div><div class="f-where">Ordre de grandeur (la constante dépend de la forme de la raie) · diode multimode : ≈ 1 mm ; laser monofréquence : m à km.</div></div>
+      <div class="formule"><span class="f-name">régime impulsionnel</span><div class="f-eq">\[ P_{moy} = E_p\,f_{rep} \qquad P_{\text{crête}} \approx \frac{E_p}{\tau} \]</div><div class="f-where">\(E_p\) : énergie par impulsion · \(\tau\) : durée · 1 mJ en 10 ns → 100 kW crête.</div></div>
+      <div class="formule"><span class="f-name">densité optique d'un filtre ou de lunettes</span><div class="f-eq">\[ T = 10^{-DO} \qquad DO = \log_{10}\frac{P_{incidente}}{P_{transmise}} \]</div><div class="f-where">DO 4 → transmission 0,01 % · à choisir pour la longueur d'onde utilisée (marquage EN 207).</div></div>
+    </div>
+  </section>
+
+  <section class="fsec" data-mod="amplis">
+    <h2><span class="num">04</span>amplificateurs optiques <a href="amplis/principe.html">voir le module →</a></h2>
+    <div class="fgrid">
+      <div class="formule"><span class="f-name">gain</span><div class="f-eq">\[ G = \frac{P_{sortie}}{P_{\text{entrée}}} \qquad G_{dB} = P_{sortie,\,dBm} - P_{\text{entrée},\,dBm} \]</div><div class="f-where">EDFA typique : 20 à 30 dB en petit signal.</div></div>
+      <div class="formule"><span class="f-name">saturation du gain (modèle simple)</span><div class="f-eq">\[ g = \frac{g_0}{1 + P/P_{sat}} \]</div><div class="f-where">Quand la puissance du signal approche \(P_{sat}\), le gain diminue : la puissance de sortie plafonne.</div></div>
+      <div class="formule"><span class="f-name">facteur de bruit</span><div class="f-eq">\[ F = \frac{SNR_{\text{entrée}}}{SNR_{sortie}} \qquad NF = 10\log_{10}F \qquad NF \geq 3\ \text{dB} \;(\text{gain élevé}) \]</div><div class="f-where">Limite quantique d'un amplificateur à inversion de population · EDFA réel : 4 à 6 dB.</div></div>
+      <div class="formule"><span class="f-name">émission spontanée amplifiée (ASE)</span><div class="f-eq">\[ P_{ASE} = 2\,n_{sp}\,h\nu\,(G - 1)\,B_o \]</div><div class="f-where">\(n_{sp} \geq 1\) : facteur d'inversion · \(B_o\) : bande optique considérée · facteur 2 : deux polarisations.</div></div>
+      <div class="formule"><span class="f-name">grille WDM</span><div class="f-eq">\[ \Delta\lambda = \frac{\lambda^2}{c}\,\Delta\nu \]</div><div class="f-where">À 1550 nm, 100 GHz ↔ 0,8 nm ; 50 GHz ↔ 0,4 nm.</div></div>
+      <div class="formule"><span class="f-name">conversion de puissance en photons pompés</span><div class="f-eq">\[ \eta_{quantique} = \frac{\lambda_{pompe}}{\lambda_{signal}} \]</div><div class="f-where">Rendement maximal en énergie : pompe 980 nm → signal 1550 nm : 63 % au mieux (défaut quantique).</div></div>
+    </div>
+  </section>
+
+  <section class="fsec" data-mod="electronique">
+    <h2><span class="num">05</span>électronique d'intégration <a href="electronique/driver-courant.html">voir le module →</a></h2>
+    <div class="fgrid">
+      <div class="formule"><span class="f-name">source de courant à AOP</span><div class="f-eq">\[ I = \frac{V_{set}}{R_s} \qquad V_+ \geq V_{diode} + R_s I + V_{DS,\,min} \]</div><div class="f-where">La seconde condition (compliance) dit si la source peut vraiment imposer ce courant.</div></div>
+      <div class="formule"><span class="f-name">puissance dissipée dans le transistor</span><div class="f-eq">\[ P_{MOS} = \left(V_+ - V_{diode} - R_s I\right) I \]</div><div class="f-where">5 V, 2,2 V, 10 Ω, 40 mA → 96 mW : pas de dissipateur nécessaire.</div></div>
+      <div class="formule"><span class="f-name">photodiode et sensibilité</span><div class="f-eq">\[ I_{ph} = \mathcal{R}\,P \qquad \mathcal{R} = \frac{\eta\,e\,\lambda}{hc} = \eta\,\frac{\lambda\,[\text{nm}]}{1240}\ \text{A/W} \]</div><div class="f-where">Silicium à 650 nm : ≈ 0,4 à 0,45 A/W · InGaAs à 1550 nm : ≈ 1 A/W.</div></div>
+      <div class="formule"><span class="f-name">amplificateur transimpédance (TIA)</span><div class="f-eq">\[ V_{s} = R_f\,I_{ph} \qquad f_{-3\,dB} \approx \sqrt{\frac{GBW}{2\pi R_f C_d}} \]</div><div class="f-where">Signe selon le sens de branchement · \(C_d\) : capacité de la photodiode · un petit \(C_f\) en parallèle sur \(R_f\) stabilise.</div></div>
+      <div class="formule"><span class="f-name">bruits fondamentaux</span><div class="f-eq">\[ i_{grenaille} = \sqrt{2eI\Delta f} \qquad i_{thermique} = \sqrt{\frac{4kT\Delta f}{R}} \]</div><div class="f-where">\(e = 1{,}6\cdot10^{-19}\) C · \(k = 1{,}38\cdot10^{-23}\) J/K · \(\Delta f\) : bande passante.</div></div>
+      <div class="formule"><span class="f-name">convertisseur analogique-numérique</span><div class="f-eq">\[ q = \frac{FS}{2^N} \qquad SNR_{\text{idéal}} = 6{,}02\,N + 1{,}76\ \text{dB} \]</div><div class="f-where">ADS1115 (±4,096 V, 16 bits signés) : 125 µV par pas.</div></div>
+      <div class="formule"><span class="f-name">filtre LC</span><div class="f-eq">\[ f_0 = \frac{1}{2\pi\sqrt{LC}} \]</div><div class="f-where">Lisse la PWM du Peltier : \(f_0\) très inférieure à la fréquence de découpage (20 kHz).</div></div>
+      <div class="formule"><span class="f-name">PID numérique</span><div class="f-eq">\[ u_k = K_p e_k + K_i\sum_j e_j\Delta t - K_d\,\frac{y_k - y_{k-1}}{\Delta t} \]</div><div class="f-where">Dérivée sur la mesure \(y\), anti-windup, sortie bornée.</div></div>
+    </div>
+  </section>
+
+  <section class="fsec" data-mod="systemes">
+    <h2><span class="num">06</span>systèmes, métrologie &amp; maintenance <a href="systemes/architecture.html">voir le module →</a></h2>
+    <div class="fgrid">
+      <div class="formule"><span class="f-name">fiabilité à taux de défaillance constant</span><div class="f-eq">\[ R(t) = e^{-\lambda t} \qquad MTBF = \frac{1}{\lambda} \]</div><div class="f-where">\(\lambda\) en défaillances par heure · R(MTBF) = 37 % seulement.</div></div>
+      <div class="formule"><span class="f-name">loi de Weibull</span><div class="f-eq">\[ R(t) = \exp\left[-\left(\frac{t - \gamma}{\eta}\right)^{\beta}\right] \]</div><div class="f-where">β &lt; 1 : défauts de jeunesse · β = 1 : hasard · β &gt; 1 : usure · η : paramètre d'échelle · γ : décalage.</div></div>
+      <div class="formule"><span class="f-name">disponibilité</span><div class="f-eq">\[ D = \frac{MTBF}{MTBF + MTTR} \]</div><div class="f-where">MTTR : temps moyen de réparation · 1000 h / (1000 + 4) h → 99,6 %.</div></div>
+      <div class="formule"><span class="f-name">criticité (AMDEC)</span><div class="f-eq">\[ C = F \times G \times D \]</div><div class="f-where">Fréquence × gravité × non-détection, chacune notée sur une grille (souvent 1 à 4 ou 1 à 10).</div></div>
+      <div class="formule"><span class="f-name">quantité économique de Wilson</span><div class="f-eq">\[ Q^* = \sqrt{\frac{2\,D\,C_c}{C_p}} \]</div><div class="f-where">\(D\) : consommation annuelle · \(C_c\) : coût d'une commande · \(C_p\) : coût de possession d'une pièce par an.</div></div>
+      <div class="formule"><span class="f-name">point de commande</span><div class="f-eq">\[ P_c = C_m \times D_l + S_s \]</div><div class="f-where">\(C_m\) : consommation moyenne par unité de temps · \(D_l\) : délai de livraison · \(S_s\) : stock de sécurité.</div></div>
+    </div>
+  </section>
+
+  <section class="fsec" data-mod="projet">
+    <h2><span class="num">07</span>le banc de test <a href="projet/cahier-des-charges.html">voir le module →</a></h2>
+    <div class="fgrid">
+      <div class="formule"><span class="f-name">ADS1115 : code → tension</span><div class="f-eq">\[ V = N\,\frac{FS}{32\,768} \]</div><div class="f-where">\(N\) signé de −32 768 à 32 767 · mot de référence AIN0, ±4,096 V, 128 éch./s : 0xC383.</div></div>
+      <div class="formule"><span class="f-name">MCP4725 : code → tension</span><div class="f-eq">\[ V = \frac{\text{code}}{4096}\,V_{DD} \]</div><div class="f-where">Code de 0 à 4095 · EEPROM à 0 pour démarrer sans courant.</div></div>
+      <div class="formule"><span class="f-name">consigne de courant du banc</span><div class="f-eq">\[ I = \frac{\text{code}}{4096}\,V_{ref}\,\frac{k}{R_s} \]</div><div class="f-where">\(k = 0{,}18\), \(R_s = 10\ \Omega\), 3,3 V → 59,4 mA au maximum · 40 mA ↔ code 2758.</div></div>
+      <div class="formule"><span class="f-name">pont CTN</span><div class="f-eq">\[ R_{CTN} = R_{fixe}\,\frac{V}{V_{alim} - V} \]</div><div class="f-where">CTN entre le point milieu et la masse · 1,65 V sur 3,3 V → 10 kΩ → 25 °C.</div></div>
+      <div class="formule"><span class="f-name">puissance par la photodiode du banc</span><div class="f-eq">\[ P = c\,(V_{PD} - V_0) \qquad c_{\text{théorique}} = \frac{1}{\tau\,\mathcal{R}\,R_f} \]</div><div class="f-where">≈ 2,3 mW/V en théorie (10 %, 0,43 A/W, 10 kΩ) ; la valeur utilisée vient de l'étalonnage.</div></div>
+      <div class="formule"><span class="f-name">diamètre D4σ (ISO 11146)</span><div class="f-eq">\[ \sigma_x^2 = \frac{\sum (x - \bar x)^2 E}{\sum E} \qquad D_{4\sigma} = 4\sigma_x = 2w \;(\text{gaussien}) \]</div><div class="f-where">Sans écrêtage du bruit, fenêtre de 3 × D4σ itérée.</div></div>
+      <div class="formule"><span class="f-name">caustique et M²</span><div class="f-eq">\[ w^2 = a + bz + cz^2 \qquad M^2 = \frac{\pi}{\lambda}\sqrt{ac - \frac{b^2}{4}} \qquad z_0 = -\frac{b}{2c} \]</div><div class="f-where">Toutes les longueurs dans la même unité · \(w_0 = \sqrt{a - b^2/(4c)}\).</div></div>
+      <div class="formule"><span class="f-name">bruit relatif d'intensité</span><div class="f-eq">\[ RIN(f) = \frac{S_{\delta V}(f)}{\bar V^{\,2}} \qquad S_{blanc} = \frac{2\sigma^2}{f_e} \]</div><div class="f-where">En dB/Hz · moyenne sur une bande calculée en linéaire.</div></div>
+      <div class="formule"><span class="f-name">taux d'extinction de polarisation</span><div class="f-eq">\[ PER = 10\log_{10}\frac{P_{max}}{P_{min}} \]</div><div class="f-where">Diode rouge au-dessus du seuil : 15 à 25 dB.</div></div>
+      <div class="formule"><span class="f-name">résolution de la platine</span><div class="f-eq">\[ \Delta z = \frac{p_{vis}}{N_{pas}\,\mu} \]</div><div class="f-where">Vis de 8 mm par tour, 200 pas, 16 micro-pas → 2,5 µm par micro-pas.</div></div>
+    </div>
+  </section>
+</div>
+</main>
+<script defer src="assets/js/pages/formulaire-page.js"></script>
+</body>
+</html>

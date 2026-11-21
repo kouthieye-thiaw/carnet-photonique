@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>méthodes & indicateurs de maintenance · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="systemes/methodes-maintenance">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>méthodes &amp; indicateurs de maintenance</h1>
+    <span class="hand">réparer moins, prévoir mieux</span>
+    <p class="lead">Types de maintenance, MTBF, disponibilité, loi de Weibull, AMDEC : les outils de ton cours de maintenance du S5, <mark>appliqués à des lasers</mark>. Ta fiche de révision complète est rangée dans « mes cours BUT3 ».</p>
+    <span class="sticker" data-s="cle" style="--r:10deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>classer une intervention selon les types de maintenance (NF EN 13306) ;</li>
+          <li>calculer MTBF, MTTR et disponibilité ;</li>
+          <li>interpréter les paramètres d'une loi de Weibull et en déduire une stratégie ;</li>
+          <li>mener une AMDEC simple sur un système laser ;</li>
+          <li>bâtir un plan de maintenance préventive pour un laser ou un banc.</li>
+        </ul>
+      </div>
+      <p class="small">Révisions S5 (pièces de rechange, Wilson, point de commande, optimisation des coûts, Weibull) : <a href="../but3/fiche-maintenance-s5.html">fiche maintenance S5</a> et <a href="../but3/revision-s5-maintenance-maths.html">révision maintenance + probas</a>.</p>
+
+      <h2><span class="n">1</span>les types de maintenance</h2>
+      <figure class="fig">
+        <div class="fig-inner">
+          <svg viewBox="0 0 760 220" role="img" aria-label="Arbre des types de maintenance : corrective (palliative, curative) et préventive (systématique, conditionnelle, prévisionnelle).">
+            <g class="svg-ink"><rect x="300" y="14" width="160" height="40" rx="10" fill="#ffeee4"/><rect x="90" y="90" width="180" height="40" rx="10" fill="#f7efe9"/><rect x="490" y="90" width="180" height="40" rx="10" fill="#f7efe9"/>
+            <rect x="20" y="165" width="130" height="40" rx="10" fill="#fff"/><rect x="170" y="165" width="130" height="40" rx="10" fill="#fff"/><rect x="390" y="165" width="120" height="40" rx="10" fill="#fff"/><rect x="520" y="165" width="120" height="40" rx="10" fill="#fff"/><rect x="650" y="165" width="100" height="40" rx="10" fill="#fff"/>
+            <path d="M380 54 V72 H180 V90 M380 72 H580 V90 M180 130 V148 H85 V165 M180 148 H235 V165 M580 130 V148 H450 V165 M580 148 V165 M580 148 H700 V165"/></g>
+            <g class="svg-txt" text-anchor="middle" style="font-size:13px"><text x="380" y="39">maintenance</text><text x="180" y="115">corrective (après panne)</text><text x="580" y="115">préventive (avant panne)</text>
+            <text x="85" y="190">palliative</text><text x="235" y="190">curative</text><text x="450" y="190">systématique</text><text x="580" y="190">conditionnelle</text><text x="700" y="190">prévisionnelle</text></g>
+          </svg>
+        </div>
+        <figcaption><b>Figure 1 —</b> palliative = dépannage provisoire ; curative = réparation définitive ; systématique = à échéance fixe ; conditionnelle = sur l'état mesuré ; prévisionnelle = sur une tendance extrapolée.</figcaption>
+      </figure>
+      <div class="table-wrap"><table>
+        <thead><tr><th>exemple sur un laser</th><th>type</th></tr></thead>
+        <tbody>
+          <tr><td>Remplacer un ventilateur bloqué pour relancer le système en attendant la pièce d'origine</td><td>corrective palliative</td></tr>
+          <tr><td>Changer la diode de pompe défectueuse et requalifier le laser</td><td>corrective curative</td></tr>
+          <tr><td>Changer les filtres à air et l'eau du refroidisseur tous les 6 mois</td><td>préventive systématique</td></tr>
+          <tr><td>Changer la diode quand son courant a augmenté de 20 % à puissance constante</td><td>préventive conditionnelle</td></tr>
+          <tr><td>Planifier le remplacement d'après la tendance du courant extrapolée sur 3 mois</td><td>préventive prévisionnelle</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2><span class="n">2</span>les indicateurs</h2>
+      <div class="formule">
+        <span class="f-name">indicateurs de base</span>
+        <div class="f-eq">\[ \mathrm{MTBF} = \frac{\text{temps de bon fonctionnement}}{\text{nombre de défaillances}} \qquad \mathrm{MTTR} = \frac{\text{temps de réparation}}{\text{nombre d'interventions}} \qquad D = \frac{\mathrm{MTBF}}{\mathrm{MTBF} + \mathrm{MTTR}} \]</div>
+        <div class="f-where">Taux de défaillance constant λ (loi exponentielle) : \(R(t) = \mathrm{e}^{-\lambda t}\) et MTBF = 1/λ. Agir sur la <dfn data-g="disponibilite">disponibilité</dfn>, c'est augmenter le <dfn data-g="mtbf">MTBF</dfn> (fiabilité) ou réduire le <dfn data-g="mttr">MTTR</dfn> (diagnostic rapide, pièces disponibles, accessibilité).</div>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>indicateurs</h4></div>
+        <p>a) λ = 2·10⁻⁵ /h. MTBF en heures ?</p>
+        <div class="check-row" data-answer="50000" data-tol="0.01" data-hint="1/λ">
+          <input type="text" inputmode="decimal" placeholder="h" aria-label="MTBF en heures"><span>h</span><button class="pill small" type="button">vérifier</button>
+        </div>
+        <p>b) MTBF = 2000 h et MTTR = 8 h : disponibilité en % (2 décimales) ?</p>
+        <div class="check-row" data-answer="99.60" data-tol="0.0005" data-hint="2000/2008">
+          <input type="text" inputmode="decimal" placeholder="%" aria-label="disponibilité en %"><span>%</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">3</span>la loi de Weibull</h2>
+      <p>La plupart des composants ne suivent pas un taux de défaillance constant : jeunesse (défauts de fabrication), vie utile (pannes aléatoires), vieillesse (usure) — la fameuse « courbe en baignoire ». La <dfn data-g="weibull">loi de Weibull</dfn> décrit les trois avec un seul paramètre de forme β.</p>
+      <div class="formule">
+        <span class="f-name">Weibull à deux paramètres</span>
+        <div class="f-eq">\[ R(t) = \exp\!\left[-\left(\frac{t}{\eta}\right)^{\beta}\right] \qquad \lambda(t) = \frac{\beta}{\eta}\left(\frac{t}{\eta}\right)^{\beta-1} \qquad \mathrm{MTBF} = \eta\,\Gamma\!\left(1+\frac1\beta\right) \]</div>
+        <div class="f-where"><b>β</b> forme (&lt; 1 jeunesse, = 1 hasard, &gt; 1 usure) · <b>η</b> échelle (à t = η, R = 36,8 %). Avec un décalage γ (temps sans défaillance possible), on remplace t par t − γ.</div>
+      </div>
+      <div class="lab" data-widget="weibull">
+        <div class="lab-head"><h4>fiabilité d'un composant</h4><span class="tag green">simulation</span></div>
+        <p class="small">En haut : la fiabilité R(t). En bas : le taux de défaillance λ(t). Fais varier β et regarde la stratégie de maintenance changer.</p>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>Weibull</h4></div>
+        <p>Diode de pompe : η = 20 000 h, β = 2. a) Fiabilité à 5000 h, en % ?</p>
+        <div class="check-row" data-answer="93.9" data-tol="0.005" data-hint="exp(−(5000/20000)²)">
+          <input type="text" inputmode="decimal" placeholder="%" aria-label="fiabilité en %"><span>%</span><button class="pill small" type="button">vérifier</button>
+        </div>
+        <p>b) Durée B10 (90 % encore en vie), en heures ?</p>
+        <div class="check-row" data-answer="6492" data-tol="0.01" data-hint="η × (−ln 0,9)^(1/β)">
+          <input type="text" inputmode="decimal" placeholder="h" aria-label="B10 en heures"><span>h</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">4</span>l'AMDEC</h2>
+      <p>L'<dfn data-g="amdec">AMDEC</dfn> recense, pour chaque fonction, les modes de défaillance possibles, leurs causes, leurs effets, et les note en <strong>fréquence (F)</strong>, <strong>gravité (G)</strong> et <strong>non-détection (D)</strong>, chacune de 1 à 4 (ou 1 à 10). La criticité C = F × G × D hiérarchise les actions. Exemple sur ton banc :</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>élément</th><th>mode de défaillance</th><th>effet</th><th class="num">F</th><th class="num">G</th><th class="num">D</th><th class="num">C</th><th>action</th></tr></thead>
+        <tbody>
+          <tr><td>diode laser</td><td>destruction par ESD / pic</td><td>arrêt du banc</td><td class="num">2</td><td class="num">4</td><td class="num">3</td><td class="num">24</td><td>poste ESD, relais NF, essai sur charge factice</td></tr>
+          <tr><td>Peltier</td><td>court-circuit / inversion</td><td>surchauffe de la diode</td><td class="num">2</td><td class="num">4</td><td class="num">2</td><td class="num">16</td><td>fenêtre de température, test de polarité</td></tr>
+          <tr><td>logiciel</td><td>plantage pendant une mesure</td><td>laser laissé allumé</td><td class="num">3</td><td class="num">4</td><td class="num">2</td><td class="num">24</td><td>chien de garde matériel, état sûr par défaut</td></tr>
+          <tr><td>photodiode</td><td>optique encrassée</td><td>mesure fausse (dérive)</td><td class="num">3</td><td class="num">2</td><td class="num">3</td><td class="num">18</td><td>contrôle hebdomadaire à vide et au puissance-mètre</td></tr>
+          <tr><td>ventilateur</td><td>blocage</td><td>dérive thermique</td><td class="num">2</td><td class="num">2</td><td class="num">2</td><td class="num">8</td><td>surveillance de la commande du Peltier</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2><span class="n">5</span>plan de maintenance d'un laser</h2>
+      <ul class="checklist" data-id="plan-maintenance">
+        <li><input type="checkbox"><label><strong>Quotidien</strong> : contrôle visuel, voyants, puissance de référence, relevé du courant et de la température.</label></li>
+        <li><input type="checkbox"><label><strong>Mensuel</strong> : test des interlocks et de l'arrêt d'urgence, propreté des fenêtres et connecteurs, filtres à air.</label></li>
+        <li><input type="checkbox"><label><strong>Semestriel</strong> : liquide de refroidissement (niveau, conductivité, biocide), étalonnage de la mesure interne de puissance.</label></li>
+        <li><input type="checkbox"><label><strong>Conditionnel</strong> : remplacement de la pompe à +20 % de courant, réalignement si M² ou puissance hors tolérance.</label></li>
+        <li><input type="checkbox"><label><strong>Toujours</strong> : saisie dans la <dfn data-g="gmao">GMAO</dfn> (date, heures, valeurs, pièces), analyse des tendances.</label></li>
+      </ul>
+      <p>Les pièces critiques (diodes de pompe, ventilateurs, alimentations) se gèrent en stock selon les méthodes de ton TD1 (point de commande, loi de Poisson pour les pièces à faible consommation), et la périodicité optimale de remplacement préventif selon l'optimisation des coûts du TD2.</p>
+      <div class="box terrain">
+        <p class="box-title">sur le terrain</p>
+        <p>Le meilleur indicateur conditionnel d'un laser à diode est souvent gratuit : le <strong>courant nécessaire pour une puissance donnée</strong>, relevé régulièrement. Tracé dans le temps, il donne la tendance de vieillissement et permet de planifier le remplacement avant la panne — et de commander la pièce à temps.</p>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Corrective (palliative, curative) / préventive (systématique, conditionnelle, prévisionnelle).</li>
+          <li>D = MTBF/(MTBF + MTTR) ; exponentielle : MTBF = 1/λ.</li>
+          <li>Weibull : β &lt; 1 jeunesse, = 1 hasard, &gt; 1 usure → préventif rentable.</li>
+          <li>AMDEC : C = F × G × D ; on traite d'abord les plus critiques.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="sys-maint">
+        <header><h3>quiz éclair</h3><span class="tag">4 questions</span></header>
+        <div class="q" data-a="b"><p>1. Remplacer une diode quand son courant a augmenté de 20 %, c'est de la maintenance…</p><div class="opts">
+          <label><input type="radio" value="a"> systématique</label><label><input type="radio" value="b"> conditionnelle</label><label><input type="radio" value="c"> curative</label></div>
+          <p class="explain">Déclenchée par un état mesuré (un seuil sur un indicateur).</p></div>
+        <div class="q" data-a="c"><p>2. Pour un composant à β = 1, une maintenance préventive systématique…</p><div class="opts">
+          <label><input type="radio" value="a"> est indispensable</label><label><input type="radio" value="b"> double la fiabilité</label><label><input type="radio" value="c"> n'apporte rien (taux de défaillance constant)</label></div>
+          <p class="explain">Un composant neuf n'est pas plus fiable qu'un ancien quand λ est constant.</p></div>
+        <div class="q" data-a="a"><p>3. Pour augmenter la disponibilité sans changer la fiabilité, on peut…</p><div class="opts">
+          <label><input type="radio" value="a"> réduire le MTTR (pièces en stock, procédures de diagnostic)</label><label><input type="radio" value="b"> augmenter le MTTR</label><label><input type="radio" value="c"> réduire le MTBF</label></div>
+          <p class="explain">D = MTBF/(MTBF + MTTR).</p></div>
+        <div class="q" data-a="b"><p>4. Dans une AMDEC, D (non-détection) élevé signifie…</p><div class="opts">
+          <label><input type="radio" value="a"> la panne est facile à détecter</label><label><input type="radio" value="b"> la défaillance risque de passer inaperçue avant ses effets</label><label><input type="radio" value="c"> la panne est rare</label></div>
+          <p class="explain">On réduit D en ajoutant des contrôles, capteurs, alarmes.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>diagnostic & dépannage · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="systemes/diagnostic">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>diagnostic &amp; dépannage</h1>
+    <span class="hand">penser avant de dévisser</span>
+    <p class="lead">Un bon dépanneur n'est pas celui qui connaît toutes les pannes, c'est celui qui a <mark>une méthode</mark> : observer, mesurer, faire des hypothèses, tester une chose à la fois, et documenter. Voici la méthode, des outils, et un arbre de diagnostic interactif.</p>
+    <span class="sticker" data-s="cle" style="--r:-11deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>suivre une démarche de diagnostic structurée ;</li>
+          <li>utiliser QQOQCP, Ishikawa (5M), les 5 pourquoi et la dichotomie ;</li>
+          <li>dérouler un arbre de diagnostic sur les symptômes classiques d'un laser ;</li>
+          <li>rédiger un rapport d'intervention utile.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>la démarche</h2>
+      <ol>
+        <li><strong>Recueillir</strong> : qu'observe l'utilisateur, depuis quand, après quoi ? (QQOQCP : quoi, qui, où, quand, comment, combien, pourquoi). Consulter l'historique (GMAO) et la fiche de test usine.</li>
+        <li><strong>Sécuriser</strong> : consignation si nécessaire, EPI laser et électriques, ESD.</li>
+        <li><strong>Constater et reproduire</strong> le défaut ; relever l'état (paramètres, alarmes, mesures) <em>avant</em> de toucher.</li>
+        <li><strong>Formuler des hypothèses</strong>, classées par probabilité et facilité de test.</li>
+        <li><strong>Tester</strong>, du plus simple au plus complexe, <em>une modification à la fois</em>, en notant chaque résultat.</li>
+        <li><strong>Corriger</strong> la cause (pas seulement le symptôme), puis <strong>vérifier</strong> le bon fonctionnement avec des mesures objectives.</li>
+        <li><strong>Documenter et capitaliser</strong> : rapport, mise à jour de la GMAO, de la base de connaissances, de l'AMDEC.</li>
+      </ol>
+
+      <h2><span class="n">2</span>les outils</h2>
+      <div class="cards-3">
+        <div class="mini-card"><h5>Ishikawa (5M)</h5><p>Les causes possibles rangées en Matériel, Méthode, Main-d'œuvre, Milieu, Matière (+ Mesure). Utile en groupe pour ne rien oublier.</p></div>
+        <div class="mini-card"><h5>les 5 pourquoi</h5><p>On demande « pourquoi ? » jusqu'à la cause racine. La diode est morte → pic de courant → branchement à chaud → pas de procédure → procédure écrite et relais NF ajouté.</p></div>
+        <div class="mini-card"><h5>la dichotomie</h5><p>Dans une chaîne (signal, faisceau, alimentation), on mesure au milieu : le défaut est avant ou après. On divise par 2 à chaque mesure : 16 éléments → 4 mesures.</p></div>
+      </div>
+      <figure class="fig">
+        <div class="fig-inner">
+          <svg viewBox="0 0 760 250" role="img" aria-label="Diagramme d'Ishikawa : effet « puissance instable », causes par familles matériel, méthode, milieu, mesure, main-d'œuvre, matière.">
+            <g class="svg-ink"><path d="M60 125 H620"/><path d="M620 125 L606 118 M620 125 L606 132"/>
+              <path d="M160 40 L230 125 M330 40 L400 125 M500 40 L570 125 M160 210 L230 125 M330 210 L400 125 M500 210 L570 125"/>
+              <rect x="625" y="100" width="125" height="50" rx="10" fill="#ffeee4"/></g>
+            <g class="svg-txt" style="font-size:13px"><text x="687" y="122" text-anchor="middle">puissance</text><text x="687" y="138" text-anchor="middle">instable</text>
+              <text x="140" y="32">matériel</text><text x="312" y="32">méthode</text><text x="482" y="32">milieu</text><text x="140" y="230">mesure</text><text x="300" y="230">main-d'œuvre</text><text x="482" y="230">matière</text></g>
+            <g class="svg-hand" style="font-size:16px"><text x="172" y="70">driver bruité</text><text x="188" y="96">isolateur HS</text><text x="342" y="70">consigne mal réglée</text><text x="490" y="70">clim, vibrations</text><text x="508" y="96">poussière</text><text x="150" y="168">tête sale</text><text x="170" y="192">λ mal réglée</text><text x="318" y="168">pas formé ESD</text><text x="490" y="168">fibre non PM</text></g>
+          </svg>
+        </div>
+        <figcaption><b>Figure 1 —</b> un Ishikawa pour « puissance instable » : chaque arête est une famille de causes à vérifier.</figcaption>
+      </figure>
+
+      <h2><span class="n">3</span>l'arbre de diagnostic</h2>
+      <div class="lab" data-widget="diagnostic">
+        <div class="lab-head"><h4>dépanner un laser pas à pas</h4><span class="tag green">arbre interactif</span></div>
+        <p class="small">Choisis le symptôme et réponds aux questions. Les pistes proposées sont les plus fréquentes, pas une vérité absolue : chaque système a sa documentation de dépannage, à consulter en premier.</p>
+      </div>
+
+      <h2><span class="n">4</span>exemple : « la puissance a baissé de 10 % »</h2>
+      <div class="box exemple">
+        <p class="box-title">un cas réel, raconté pas à pas</p>
+        <ol class="steps">
+          <li><strong>Recueil</strong> : depuis lundi, après le déménagement du banc dans une autre salle. Pas d'alarme.</li>
+          <li><strong>État</strong> : courant et température identiques à la fiche de test ; puissance −10 % mesurée avec le puissance-mètre du labo.</li>
+          <li><strong>Hypothèses</strong> : (1) mesure (puissance-mètre, λ réglée ?) ; (2) désalignement après transport ; (3) optique sale.</li>
+          <li><strong>Test 1</strong> : un second puissance-mètre étalonné donne la même valeur → la mesure n'est pas en cause.</li>
+          <li><strong>Test 2</strong> : puissance juste à la sortie de la tête conforme → la perte est en aval.</li>
+          <li><strong>Test 3</strong> : en suivant le faisceau, il tape le bord d'un diaphragme après le cube : la monture a glissé pendant le transport.</li>
+          <li><strong>Correction</strong> : réalignement, serrage, puissance conforme. <strong>Vérification</strong> sur 1 h. <strong>Capitalisation</strong> : ajout d'une étape « vérification des diaphragmes » à la procédure de déménagement.</li>
+        </ol>
+      </div>
+
+      <h2><span class="n">5</span>le rapport d'intervention</h2>
+      <ul class="checklist" data-id="rapport-intervention">
+        <li><input type="checkbox"><label>Équipement (référence, n° de série, heures), date, intervenant.</label></li>
+        <li><input type="checkbox"><label>Symptôme décrit par l'utilisateur et constat initial (mesures, alarmes).</label></li>
+        <li><input type="checkbox"><label>Tests réalisés et résultats, dans l'ordre.</label></li>
+        <li><input type="checkbox"><label>Cause identifiée (ou hypothèse la plus probable) et action corrective.</label></li>
+        <li><input type="checkbox"><label>Pièces changées (références, lots), temps passé.</label></li>
+        <li><input type="checkbox"><label>Vérifications finales (valeurs mesurées vs spécifications) et état rendu.</label></li>
+        <li><input type="checkbox"><label>Recommandations (préventif, formation, modification).</label></li>
+      </ul>
+      <div class="box terrain">
+        <p class="box-title">les réflexes qui font gagner des heures</p>
+        <ul>
+          <li>Prendre une photo avant de démonter ; repérer les câbles et les vis.</li>
+          <li>Ne jamais changer deux choses en même temps.</li>
+          <li>Soupçonner d'abord ce qui a changé récemment (intervention, transport, mise à jour, saison).</li>
+          <li>Se méfier de l'instrument de mesure autant que du système.</li>
+        </ul>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Recueillir → sécuriser → constater → hypothèses → tester une chose à la fois → corriger la cause → vérifier → documenter.</li>
+          <li>Ishikawa pour lister, 5 pourquoi pour creuser, dichotomie pour localiser.</li>
+          <li>Un rapport utile permet à quelqu'un d'autre de comprendre et de refaire.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="sys-diag">
+        <header><h3>quiz éclair</h3><span class="tag">3 questions</span></header>
+        <div class="q" data-a="b"><p>1. Une chaîne de 32 éléments ; combien de mesures au plus pour localiser un élément fautif par dichotomie ?</p><div class="opts">
+          <label><input type="radio" value="a"> 16</label><label><input type="radio" value="b"> 5</label><label><input type="radio" value="c"> 32</label></div>
+          <p class="explain">2⁵ = 32.</p></div>
+        <div class="q" data-a="c"><p>2. Le courant de la diode est normal mais aucune lumière ne sort de la tête. Piste principale ?</p><div class="opts">
+          <label><input type="radio" value="a"> interlock ouvert</label><label><input type="radio" value="b"> Peltier inversé</label><label><input type="radio" value="c"> facette détruite (COD) ou obturateur interne</label></div>
+          <p class="explain">La diode conduit mais n'émet plus.</p></div>
+        <div class="q" data-a="a"><p>3. Pourquoi ne jamais modifier deux réglages en même temps ?</p><div class="opts">
+          <label><input type="radio" value="a"> on ne saurait pas lequel a eu l'effet</label><label><input type="radio" value="b"> c'est interdit par la norme</label><label><input type="radio" value="c"> ça use le matériel</label></div>
+          <p class="explain">Le diagnostic repose sur des causes et des effets identifiables.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

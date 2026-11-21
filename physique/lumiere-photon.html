@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>la lumière : onde et photon · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="physique/lumiere-photon">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>la lumière : onde et photon</h1>
+    <span class="hand">deux visages, une seule lumière</span>
+    <p class="lead">Pour comprendre une interférence, la lumière est une <mark>onde électromagnétique</mark>. Pour comprendre une photodiode ou un laser, c'est un flux de <mark>photons</mark>. Le technicien doit savoir jongler entre les deux.</p>
+    <span class="sticker" data-s="photon" style="--r:10deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>décrire la lumière comme une onde électromagnétique et situer le visible et l'infrarouge télécom ;</li>
+          <li>calculer fréquence, énergie d'un photon et flux de photons ;</li>
+          <li>expliquer pourquoi un laser vert « paraît » plus puissant qu'un rouge, et pourquoi l'IR est traître ;</li>
+          <li>utiliser l'indice de réfraction pour calculer une vitesse et un temps de vol dans une fibre.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>une onde électromagnétique</h2>
+      <p>La lumière est un champ électrique \(\vec E\) et un champ magnétique \(\vec B\) qui oscillent perpendiculairement l'un à l'autre et à la direction de propagation (onde <em>transverse</em>). Dans le vide elle avance à \(c = 299\,792\,458\) m/s (exactement : c'est la définition du mètre). Sa longueur d'onde et sa fréquence sont liées par :</p>
+      <div class="formule">
+        <span class="f-name">relation fondamentale</span>
+        <div class="f-eq">\[ \lambda = \frac{c}{\nu} \qquad\qquad \lambda_{\text{milieu}} = \frac{\lambda_0}{n} \]</div>
+        <div class="f-where">Dans un matériau d'indice <b>n</b>, la vitesse devient c/n et la longueur d'onde raccourcit ; la <b>fréquence ne change jamais</b>. Par convention, « λ » sans précision est la longueur d'onde dans le vide.</div>
+      </div>
+      <figure class="fig">
+        <div class="fig-inner">
+          <svg viewBox="0 0 760 190" role="img" aria-label="Spectre électromagnétique : radio, micro-ondes, infrarouge, visible, ultraviolet, rayons X.">
+            <defs><linearGradient id="vis" x1="0" x2="1"><stop offset="0" stop-color="#7c3aed"/><stop offset=".2" stop-color="#3b5bff"/><stop offset=".38" stop-color="#22a7f0"/><stop offset=".52" stop-color="#22c55e"/><stop offset=".68" stop-color="#f2c230"/><stop offset=".82" stop-color="#ff8a1e"/><stop offset="1" stop-color="#e2372b"/></linearGradient></defs>
+            <rect x="20" y="70" width="720" height="34" rx="8" fill="#f7efe9" class="svg-ink"/>
+            <rect x="330" y="70" width="70" height="34" fill="url(#vis)"/>
+            <g class="svg-txt" text-anchor="middle"><text x="70" y="92">radio</text><text x="160" y="92">micro-ondes</text><text x="260" y="92">infrarouge</text><text x="460" y="92">UV</text><text x="560" y="92">rayons X</text><text x="680" y="92">gamma</text></g>
+            <g class="svg-txt" text-anchor="middle" style="fill:rgba(43,26,7,.6);font-size:12px"><text x="70" y="128">m – km</text><text x="160" y="128">mm – cm</text><text x="260" y="128">0,78 – 1000 µm</text><text x="365" y="128">380–780 nm</text><text x="460" y="128">10–380 nm</text><text x="560" y="128">pm – nm</text></g>
+            <path d="M365 66 C 360 40, 330 30, 300 32" class="arrow-hand"/><text x="200" y="30" class="svg-hand">le visible : une toute petite fenêtre</text>
+            <path d="M262 108 C 262 150, 300 160, 330 162" class="arrow-hand"/><text x="336" y="168" class="svg-hand" style="font-size:18px">nos lasers : 400 nm – 2 µm (et le CO₂ à 10,6 µm)</text>
+          </svg>
+        </div>
+        <figcaption><b>Figure 1 —</b> le spectre électromagnétique. Les lasers de ce carnet vivent surtout dans le proche UV, le visible et le proche infrarouge.</figcaption>
+      </figure>
+      <h3>les bandes télécoms</h3>
+      <p>Dans les fibres, on travaille là où la silice absorbe le moins : bande O (1260–1360 nm, dispersion nulle vers 1310 nm), et surtout bande <strong>C</strong> (1530–1565 nm, minimum d'atténuation ≈ 0,2 dB/km, amplifiable par EDFA) puis L (1565–1625 nm).</p>
+
+      <h2><span class="n">2</span>le photon</h2>
+      <p>La lumière échange son énergie par paquets indivisibles, les <dfn data-g="photon">photons</dfn>. Leur énergie ne dépend que de la fréquence :</p>
+      <div class="formule">
+        <span class="f-name">énergie d'un photon</span>
+        <div class="f-eq">\[ E = h\nu = \frac{hc}{\lambda} \qquad\qquad E\,[\text{eV}] \approx \frac{1240}{\lambda\,[\text{nm}]} \]</div>
+        <div class="f-where"><b>h</b> = 6,626·10⁻³⁴ J·s (constante de Planck) · 1 eV = 1,602·10⁻¹⁹ J. Le photon bleu (405 nm, 3,1 eV) transporte deux fois plus d'énergie que le photon infrarouge à 808 nm (1,5 eV).</div>
+      </div>
+      <div class="formule">
+        <span class="f-name">flux de photons</span>
+        <div class="f-eq">\[ \Phi = \frac{P}{E} = \frac{P\,\lambda}{hc} \quad [\text{photons/s}] \]</div>
+        <div class="f-where">C'est pour ça que la sensibilité d'une photodiode (A/W) augmente avec λ : à puissance égale, plus de photons rouges que de bleus, donc plus d'électrons.</div>
+      </div>
+      <div class="lab" data-widget="spectre">
+        <div class="lab-head"><h4>du nanomètre au photon</h4><span class="tag green">calculateur</span></div>
+        <p class="small">Fais glisser la longueur d'onde : couleur, fréquence, énergie du photon et nombre de photons par seconde pour la puissance choisie. La courbe pointillée est la sensibilité de l'œil.</p>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>quelques calculs</h4></div>
+        <p>a) Énergie d'un photon à 1550 nm, en eV (2 décimales) ?</p>
+        <div class="check-row" data-answer="0.80" data-tol="0.01" data-hint="1240 / 1550">
+          <input type="text" inputmode="decimal" placeholder="eV" aria-label="énergie en eV"><span>eV</span><button class="pill small" type="button">vérifier</button>
+        </div>
+        <p>b) Fréquence d'un laser vert à 532 nm, en THz ?</p>
+        <div class="check-row" data-answer="563.5" data-tol="0.005" data-hint="ν = c/λ = 3·10⁸ / 532·10⁻⁹">
+          <input type="text" inputmode="decimal" placeholder="THz" aria-label="fréquence en THz"><span>THz</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">3</span>puissance « physique » et luminosité « perçue »</h2>
+      <p>Les instruments mesurent des watts (radiométrie). L'œil, lui, pèse chaque longueur d'onde par sa sensibilité \(V(\lambda)\), maximale à 555 nm (vert) : on parle de lumens (photométrie). Conséquences très concrètes :</p>
+      <ul>
+        <li>un pointeur vert de 5 mW paraît environ 5 à 10 fois plus lumineux qu'un rouge de 5 mW ;</li>
+        <li>un faisceau à 780–1064 nm de plusieurs watts peut être <strong>totalement invisible</strong> tout en étant focalisé sur la rétine — le cristallin le laisse passer jusqu'à 1400 nm ;</li>
+        <li>une carte de visualisation IR (phosphore) ou une caméra sans filtre IR est indispensable pour aligner un laser infrarouge.</li>
+      </ul>
+
+      <h2><span class="n">4</span>la lumière dans la matière</h2>
+      <p>L'indice de réfraction \(n = c/v\) dépend de la longueur d'onde (c'est la <em>dispersion</em> : le prisme sépare les couleurs). Dans une fibre, l'information voyage à la vitesse de groupe \(c/n_g\) ; pour la silice à 1550 nm, \(n \approx 1{,}444\) et \(n_g \approx 1{,}468\), soit environ <strong>5 µs par kilomètre</strong>.</p>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>temps de vol</h4></div>
+        <p>Une impulsion parcourt 10 km de fibre (n<sub>g</sub> = 1,468). Durée du trajet, en µs ? (C'est le principe du réflectomètre OTDR qui localise une cassure.)</p>
+        <div class="check-row" data-answer="49.0" data-tol="0.01" data-hint="t = L·n_g / c">
+          <input type="text" inputmode="decimal" placeholder="µs" aria-label="durée en µs"><span>µs</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>λ</th><th>source typique</th><th>usage</th></tr></thead>
+        <tbody>
+          <tr><td>405 nm</td><td>diode GaN violette</td><td>Blu-ray, lithographie, fluorescence</td></tr>
+          <tr><td>532 nm</td><td>Nd doublé en fréquence (DPSS)</td><td>pointeurs verts, pompage Ti:Sa, ophtalmologie</td></tr>
+          <tr><td>633 / 650 nm</td><td>hélium-néon / diode rouge</td><td>alignement, métrologie, lecteurs</td></tr>
+          <tr><td>780 nm</td><td>diode AlGaAs, ECDL</td><td>atomes de rubidium refroidis, horloges, capteurs quantiques</td></tr>
+          <tr><td>808 / 976 nm</td><td>diodes de puissance</td><td>pompage Nd et Yb / Er</td></tr>
+          <tr><td>1064 nm</td><td>Nd:YAG, fibre Yb</td><td>marquage, découpe, LIDAR</td></tr>
+          <tr><td>1310 / 1550 nm</td><td>DFB InGaAsP</td><td>télécoms optiques</td></tr>
+          <tr><td>10,6 µm</td><td>CO₂</td><td>découpe des non-métaux, chirurgie</td></tr>
+        </tbody>
+      </table></div>
+
+      <div class="box terrain">
+        <p class="box-title">sur le terrain</p>
+        <ul>
+          <li>Règle la <strong>longueur d'onde</strong> sur le puissance-mètre avant toute mesure : il convertit le photocourant en watts avec la sensibilité correspondante.</li>
+          <li>Pour l'IR : carte de visualisation, viseur IR ou caméra de téléphone (beaucoup filtrent l'IR, teste avant). Jamais l'œil, même « juste pour voir ».</li>
+          <li>Les lunettes de protection sont spécifiées <em>par bande de longueurs d'onde</em> : des lunettes 1064 nm ne protègent pas du 532 nm.</li>
+        </ul>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>λ = c/ν ; dans un milieu, v = c/n et λ raccourcit, ν reste la même.</li>
+          <li>E(eV) ≈ 1240/λ(nm) ; flux = P/E (1 mW à 650 nm ≈ 3·10¹⁵ photons/s).</li>
+          <li>L'œil voit 380–780 nm, mieux à 555 nm ; 400–1400 nm atteint la rétine.</li>
+          <li>Fibre : ≈ 5 µs/km ; bande C 1530–1565 nm.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="physique-lumiere">
+        <header><h3>quiz éclair</h3><span class="tag">4 questions</span></header>
+        <div class="q" data-a="b"><p>1. Quand la lumière passe de l'air dans le verre, qu'est-ce qui ne change pas ?</p><div class="opts">
+          <label><input type="radio" value="a"> la longueur d'onde</label><label><input type="radio" value="b"> la fréquence</label><label><input type="radio" value="c"> la vitesse</label></div>
+          <p class="explain">La fréquence est imposée par la source ; vitesse et longueur d'onde sont divisées par n.</p></div>
+        <div class="q" data-a="a"><p>2. À puissance égale, quel laser envoie le plus de photons par seconde ?</p><div class="opts">
+          <label><input type="radio" value="a"> 1550 nm</label><label><input type="radio" value="b"> 532 nm</label><label><input type="radio" value="c"> 405 nm</label></div>
+          <p class="explain">Photons infrarouges moins énergétiques → plus nombreux pour la même puissance.</p></div>
+        <div class="q" data-a="c"><p>3. Pourquoi un laser à 980 nm est-il particulièrement dangereux pour l'œil ?</p><div class="opts">
+          <label><input type="radio" value="a"> parce qu'il est absorbé par la cornée</label><label><input type="radio" value="b"> parce qu'il est ultraviolet</label><label><input type="radio" value="c"> parce qu'il est invisible mais focalisé sur la rétine</label></div>
+          <p class="explain">Pas de réflexe de clignement, et toute la puissance concentrée en un point de la rétine.</p></div>
+        <div class="q" data-a="b"><p>4. 1 eV correspond à environ quelle longueur d'onde ?</p><div class="opts">
+          <label><input type="radio" value="a"> 620 nm</label><label><input type="radio" value="b"> 1240 nm</label><label><input type="radio" value="c"> 1550 nm</label></div>
+          <p class="explain">λ(nm) ≈ 1240/E(eV).</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>le faisceau gaussien · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="lasers/faisceau-gaussien">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>le faisceau gaussien</h1>
+    <span class="hand">un col, une divergence, et le fameux M²</span>
+    <p class="lead">Un faisceau laser n'est jamais parfaitement parallèle : il a un col, puis il diverge. Trois nombres le décrivent — <mark>w₀, z<sub>R</sub> et M²</mark> — et ton banc les mesurera avec une caméra sur une platine motorisée.</p>
+    <span class="sticker" data-s="pi" style="--r:10deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>décrire un faisceau gaussien : col, longueur de Rayleigh, divergence, rayon de courbure ;</li>
+          <li>calculer la tache focale d'une lentille et la profondeur de champ ;</li>
+          <li>définir et mesurer le facteur M² selon la norme ISO 11146 ;</li>
+          <li>choisir entre D4σ, couteau et 1/e² pour mesurer une largeur ;</li>
+          <li>utiliser un élargisseur de faisceau à bon escient.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>le profil en 3D</h2>
+      <p>Coupe un faisceau TEM₀₀ : l'intensité est une gaussienne de révolution. Le modèle ci-dessous est le profil d'intensité \(I(x,y)\) en relief ; l'anneau noir marque le rayon \(w\) à 1/e².</p>
+      <div class="v3d" data-model="gauss">
+        <script type="application/json">{
+          "title": "profil d'intensité d'un faisceau gaussien",
+          "intro": "Hauteur = intensité. Clique sur les étiquettes.",
+          "view": [0.9, 0.85, 1.1], "autorotate": true,
+          "tour": ["hs_pic", "hs_w", "hs_aile"],
+          "hotspots": {
+            "hs_pic": {"t": "le pic central", "d": "Intensité maximale I₀ = 2P/(πw²) : le double de la valeur « moyenne » P/(πw²). C'est elle qui compte pour les dommages des optiques et pour la sécurité."},
+            "hs_w": {"t": "l'anneau 1/e² (rayon w)", "d": "À la distance w de l'axe, l'intensité tombe à 13,5 % du pic. 86,5 % de la puissance passe à l'intérieur de ce cercle."},
+            "hs_aile": {"t": "les ailes", "d": "La gaussienne ne s'annule jamais tout à fait. Il faut une ouverture d'au moins 1,5 w de rayon (≈ 99 %) pour ne pas « couper » le faisceau et créer de la diffraction."}
+          }
+        }</script>
+      </div>
+
+      <h2><span class="n">2</span>comment il se propage</h2>
+      <div class="formule">
+        <span class="f-name">enveloppe d'un faisceau gaussien</span>
+        <div class="f-eq">\[ w(z) = w_0\sqrt{1 + \left(\frac{z}{z_R}\right)^2} \qquad z_R = \frac{\pi w_0^2}{\lambda} \qquad \theta = \frac{\lambda}{\pi w_0} \qquad R(z) = z\left[1 + \left(\frac{z_R}{z}\right)^2\right] \]</div>
+        <div class="f-where"><b>w₀</b> rayon au col (<dfn data-g="waist">waist</dfn>) · <b>z<sub>R</sub></b> <dfn data-g="rayleigh">longueur de Rayleigh</dfn> : à z = z<sub>R</sub>, w = √2·w₀ · <b>θ</b> demi-angle de divergence en champ lointain · <b>R</b> rayon de courbure du front d'onde (infini au col).</div>
+      </div>
+      <p>La relation \(w_0\,\theta = \lambda/\pi\) est un compromis imposé par la diffraction : un faisceau très fin diverge vite, un faisceau large reste parallèle longtemps.</p>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>un HeNe</h4></div>
+        <p>w₀ = 0,5 mm, λ = 633 nm. a) Longueur de Rayleigh, en m ?</p>
+        <div class="check-row" data-answer="1.24" data-tol="0.01" data-hint="π × (0,5·10⁻³)² / 633·10⁻⁹">
+          <input type="text" inputmode="decimal" placeholder="m" aria-label="longueur de Rayleigh en m"><span>m</span><button class="pill small" type="button">vérifier</button>
+        </div>
+        <p>b) Divergence (demi-angle), en mrad ?</p>
+        <div class="check-row" data-answer="0.403" data-tol="0.01" data-hint="λ/(π w₀)">
+          <input type="text" inputmode="decimal" placeholder="mrad" aria-label="divergence en mrad"><span>mrad</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">3</span>le facteur de qualité M²</h2>
+      <p>Un faisceau réel (multimode, aberré, diode) se focalise moins bien qu'un gaussien parfait. On le compare à un gaussien de même col par le facteur <dfn data-g="m2">M²</dfn> :</p>
+      <div class="formule">
+        <span class="f-name">faisceau réel</span>
+        <div class="f-eq">\[ \theta = M^2\,\frac{\lambda}{\pi w_0} \qquad \text{BPP} = w_0\,\theta = M^2\,\frac{\lambda}{\pi} \qquad w^2(z) = w_0^2 + \left(\frac{M^2\lambda}{\pi w_0}\right)^2 (z - z_0)^2 \]</div>
+        <div class="f-where">M² = 1 : gaussien parfait · HeNe ≈ 1,05 · diode monomode ≈ 1,1–1,5 (souvent différent selon l'axe) · laser à fibre monomode &lt; 1,1 · diode large multimode : 10 à 50 dans l'axe lent. Le <b>BPP</b> (produit paramètre de faisceau, en mm·mrad) est l'invariant utilisé en industrie.</div>
+      </div>
+      <h3>mesurer M² (ISO 11146)</h3>
+      <ol>
+        <li>Focaliser le faisceau avec une lentille de bonne qualité.</li>
+        <li>Mesurer la largeur (D4σ) en au moins 10 positions : la moitié dans ±z<sub>R</sub> autour du col, l'autre moitié au-delà de 2z<sub>R</sub>.</li>
+        <li>Ajuster \(w^2(z)\) par une parabole \(a + bz + cz^2\) : on en tire w₀, z₀ et M² (\(M^2 = \frac{\pi}{\lambda}\sqrt{ac - b^2/4}\)).</li>
+      </ol>
+      <p>C'est exactement ce que fera ton banc : la caméra se déplace sur la platine motorisée (visible dans le <a href="../projet/cahier-des-charges.html">modèle 3D du banc</a>) et Python ajuste la caustique.</p>
+
+      <h2><span class="n">4</span>focaliser &amp; élargir</h2>
+      <div class="lab" data-widget="gauss-beam">
+        <div class="lab-head"><h4>propager un faisceau et le focaliser</h4><span class="tag green">simulation</span></div>
+        <p class="small">L'enveloppe rouge est ±w(z). Change le col, la longueur d'onde, le M², puis place une lentille. Le calcul utilise le paramètre complexe q et les matrices ABCD : exactement ce qu'on fait pour concevoir un montage.</p>
+      </div>
+      <div class="formule">
+        <span class="f-name">tache focale (faisceau collimaté de rayon w sur la lentille)</span>
+        <div class="f-eq">\[ w_f \approx M^2\,\frac{\lambda f}{\pi w} \qquad \text{profondeur de champ} \approx 2 z_{R,f} = \frac{2\pi w_f^2}{M^2\lambda} \]</div>
+        <div class="f-where">Pour une tache plus petite : focale plus courte, ou faisceau plus large sur la lentille. D'où l'<b>élargisseur</b> (télescope de grandissement G = f₂/f₁) : il multiplie le rayon par G et divise la divergence par G.</div>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>tache focale</h4></div>
+        <p>Faisceau de 1 mm de rayon, λ = 1064 nm, M² = 1, lentille f = 50 mm. Rayon au foyer, en µm ?</p>
+        <div class="check-row" data-answer="16.9" data-tol="0.02" data-hint="λf/(πw) = 1,064·10⁻⁶ × 0,05 / (π × 10⁻³)">
+          <input type="text" inputmode="decimal" placeholder="µm" aria-label="rayon au foyer en µm"><span>µm</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+      <p class="small">Le paramètre complexe \(q\) : \(\frac1q = \frac1R - j\frac{\lambda}{\pi w^2}\) ; à travers un système ABCD, \(q_2 = \dfrac{Aq_1 + B}{Cq_1 + D}\). C'est ce qui fait tourner la simulation.</p>
+
+      <h2><span class="n">5</span>mesurer une largeur de faisceau</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>méthode</th><th>principe</th><th>+ / −</th></tr></thead>
+        <tbody>
+          <tr><td><dfn data-g="d4sigma">D4σ</dfn> (caméra)</td><td>4 × écart-type de la distribution d'intensité (moments d'ordre 2)</td><td>norme ISO, vrai pour tout profil ; très sensible au fond et au bruit → soustraire le fond, fenêtrer</td></tr>
+          <tr><td>1/e² (caméra ou fente)</td><td>diamètre où I = 13,5 % du max</td><td>simple ; n'a de sens que pour un profil gaussien</td></tr>
+          <tr><td><dfn data-g="knife-edge">couteau</dfn></td><td>une lame masque progressivement le faisceau ; distance 10–90 % = 1,28 w</td><td>marche pour des faisceaux minuscules ou très puissants ; lent</td></tr>
+        </tbody>
+      </table></div>
+      <div class="box attention">
+        <p class="box-title">pièges de la mesure à la caméra</p>
+        <ul>
+          <li><strong>Saturation</strong> : un pixel saturé écrase le pic et fausse D4σ. Ajoute de la densité optique jusqu'à un maximum ≈ 70–90 % de la pleine échelle.</li>
+          <li><strong>Fond</strong> : soustrais une image « laser éteint ». Sans ça, les ailes de bruit gonflent D4σ.</li>
+          <li><strong>Taille de pixel</strong> : la caméra HQ de la Raspberry Pi a des pixels de 1,55 µm ; un faisceau de moins de ~15 µm est mal échantillonné.</li>
+          <li><strong>Jamais de lentille d'objectif</strong> : le faisceau tombe directement sur le capteur nu (sinon on mesure l'image, pas le faisceau).</li>
+        </ul>
+      </div>
+      <div class="box terrain">
+        <p class="box-title">sur le terrain</p>
+        <ul>
+          <li>Un M² qui se dégrade sur un laser en service : optique sale ou endommagée, alignement de cavité, lentille thermique.</li>
+          <li>Pour aligner un faisceau sur une fibre monomode, il faut accorder col et ouverture : le faisceau doit avoir le même « diamètre de mode » que la fibre au bon endroit — un mauvais couplage est souvent un problème de taille, pas d'alignement.</li>
+        </ul>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>z<sub>R</sub> = πw₀²/λ ; θ = M²λ/(πw₀) ; w(z) = w₀√(1 + (z/z<sub>R</sub>)²).</li>
+          <li>Tache focale ≈ M²λf/(πw) : élargir avant de focaliser.</li>
+          <li>M² se mesure par la caustique (≥ 10 points, ISO 11146).</li>
+          <li>D4σ = référence, mais exige fond soustrait et pas de saturation.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="lasers-gauss">
+        <header><h3>quiz éclair</h3><span class="tag">4 questions</span></header>
+        <div class="q" data-a="a"><p>1. On divise par 2 le rayon au col d'un faisceau. Sa divergence…</p><div class="opts">
+          <label><input type="radio" value="a"> double</label><label><input type="radio" value="b"> est divisée par 2</label><label><input type="radio" value="c"> ne change pas</label></div>
+          <p class="explain">θ = λ/(πw₀).</p></div>
+        <div class="q" data-a="c"><p>2. À la distance z<sub>R</sub> du col, le rayon vaut…</p><div class="opts">
+          <label><input type="radio" value="a"> 2 w₀</label><label><input type="radio" value="b"> w₀</label><label><input type="radio" value="c"> √2 w₀</label></div>
+          <p class="explain">L'aire a doublé.</p></div>
+        <div class="q" data-a="b"><p>3. Un faisceau de M² = 3 focalisé par la même lentille qu'un gaussien parfait donne une tache…</p><div class="opts">
+          <label><input type="radio" value="a"> 3 fois plus petite</label><label><input type="radio" value="b"> 3 fois plus grande</label><label><input type="radio" value="c"> identique</label></div>
+          <p class="explain">w<sub>f</sub> ≈ M²λf/(πw).</p></div>
+        <div class="q" data-a="a"><p>4. Avant de mesurer D4σ à la caméra, il faut absolument…</p><div class="opts">
+          <label><input type="radio" value="a"> éviter la saturation et soustraire le fond</label><label><input type="radio" value="b"> mettre un objectif photo</label><label><input type="radio" value="c"> augmenter le gain au maximum</label></div>
+          <p class="explain">Saturation et fond faussent les moments d'ordre 2.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

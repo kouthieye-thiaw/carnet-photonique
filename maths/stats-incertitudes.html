@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>statistiques, incertitudes & régression · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="maths/stats-incertitudes">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>statistiques, incertitudes &amp; régression</h1>
+    <span class="hand">une mesure sans incertitude n'est qu'une rumeur</span>
+    <p class="lead">Un technicien de test ne donne jamais un nombre seul : il donne <mark>une valeur, une incertitude et une méthode</mark>. Voici les outils pour le faire proprement — ceux de ton cours de probas-stats, appliqués au banc laser.</p>
+    <span class="sticker" data-s="pi" style="--r:-12deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>calculer moyenne, écart-type et écart-type de la moyenne ;</li>
+          <li>évaluer une incertitude de type A (statistique) et de type B (fiche technique, résolution) ;</li>
+          <li>combiner et propager des incertitudes, puis écrire un résultat correctement ;</li>
+          <li>ajuster une droite par moindres carrés et juger l'ajustement (R², résidus) ;</li>
+          <li>extraire seuil et rendement d'une courbe L-I sans biais.</li>
+        </ul>
+      </div>
+      <p class="small">Tu as déjà vu les lois normale, de Student et les tests en S5 : ta fiche est dans <a href="../but3/index.html">mes cours BUT3</a>. Ici on se concentre sur l'usage en métrologie.</p>
+
+      <h2><span class="n">1</span>moyenne &amp; écart-type</h2>
+      <div class="formule">
+        <span class="f-name">sur n mesures répétées x₁ … xₙ</span>
+        <div class="f-eq">\[ \bar x = \frac{1}{n}\sum_{i=1}^{n} x_i \qquad s = \sqrt{\frac{1}{n-1}\sum_{i=1}^{n}(x_i-\bar x)^2} \qquad s_{\bar x} = \frac{s}{\sqrt n} \]</div>
+        <div class="f-where"><b>s</b> dispersion d'une mesure individuelle (on divise par n − 1, pas n : c'est l'estimateur sans biais ; en Python <code>np.std(x, ddof=1)</code>) · <b>s/√n</b> incertitude sur la <em>moyenne</em> : 4 fois plus de mesures → 2 fois moins d'incertitude.</div>
+      </div>
+      <p>Si les fluctuations sont aléatoires, elles suivent souvent une loi normale : 68 % des valeurs dans ±1σ, 95 % dans ±2σ, 99,7 % dans ±3σ.</p>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>cinq mesures de puissance</h4></div>
+        <p>4,52 · 4,48 · 4,55 · 4,50 · 4,45 mW. Calcule l'écart-type s (en mW, 3 décimales).</p>
+        <div class="check-row" data-answer="0.0381" data-tol="0.03" data-hint="moyenne 4,50 ; écarts 0,02 −0,02 0,05 0 −0,05 ; somme des carrés 0,0058 ; /4 puis √">
+          <input type="text" inputmode="decimal" placeholder="mW" aria-label="écart-type en mW"><span>mW</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">2</span>les deux familles d'incertitude</h2>
+      <div class="two-col">
+        <div class="mini-card"><h5>type A — statistique</h5><p>Évaluée en répétant la mesure : \(u_A = s/\sqrt n\). Elle capture le bruit, les petites fluctuations de positionnement, etc.</p></div>
+        <div class="mini-card"><h5>type B — autres informations</h5><p>Fiche technique, certificat d'étalonnage, résolution de l'afficheur, expérience. Si on sait seulement que l'erreur est dans ±a (loi rectangulaire) : \(u_B = a/\sqrt3\). Résolution q d'un afficheur : \(u = q/\sqrt{12}\).</p></div>
+      </div>
+      <div class="formule">
+        <span class="f-name">incertitude composée et élargie</span>
+        <div class="f-eq">\[ u_c = \sqrt{u_A^2 + u_{B1}^2 + u_{B2}^2 + \dots} \qquad\qquad U = k\,u_c \quad (k = 2 \Rightarrow \approx 95\,\%) \]</div>
+        <div class="f-where">On écrit : <b>P = (4,50 ± 0,14) mW, k = 2</b>. L'incertitude a 1 ou 2 chiffres significatifs, et la valeur s'arrête à la même décimale.</div>
+      </div>
+      <div class="box exemple">
+        <p class="box-title">exemple : puissance lue sur un puissance-mètre</p>
+        <ol class="steps">
+          <li>Répétabilité (5 mesures ci-dessus) : u<sub>A</sub> = 0,038/√5 = 0,017 mW.</li>
+          <li>Étalonnage de la tête : ±3 % (certificat, k = 2) → u = 1,5 % × 4,50 = 0,068 mW.</li>
+          <li>Résolution de l'afficheur 0,01 mW → u = 0,01/√12 = 0,003 mW (négligeable).</li>
+          <li>u<sub>c</sub> = √(0,017² + 0,068² + 0,003²) ≈ 0,070 mW → U = 0,14 mW. Résultat : <strong>(4,50 ± 0,14) mW, k = 2</strong>. C'est l'étalonnage qui domine : répéter la mesure 100 fois n'y changerait rien.</li>
+        </ol>
+      </div>
+
+      <h2><span class="n">3</span>propager une incertitude</h2>
+      <p>Quand le résultat est calculé à partir de plusieurs grandeurs mesurées, on propage :</p>
+      <div class="formule">
+        <span class="f-name">loi de propagation (grandeurs indépendantes)</span>
+        <div class="f-eq">\[ u_f^2 = \sum_i \left(\frac{\partial f}{\partial x_i}\right)^2 u_{x_i}^2 \qquad\text{produits / quotients :}\quad \left(\frac{u_f}{f}\right)^2 = \sum_i \left(\frac{u_{x_i}}{x_i}\right)^2 \]</div>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>puissance calculée depuis une photodiode</h4></div>
+        <p>P = I<sub>ph</sub>/ℛ. Le photocourant est connu à 0,5 % près, la sensibilité ℛ à 3 % près. Incertitude relative sur P, en % ?</p>
+        <div class="check-row" data-answer="3.04" data-tol="0.01" data-hint="√(0,5² + 3²)">
+          <input type="text" inputmode="decimal" placeholder="%" aria-label="incertitude relative en %"><span>%</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">4</span>la régression linéaire (moindres carrés)</h2>
+      <p>On cherche la droite \(y = ax + b\) qui minimise la somme des carrés des écarts verticaux entre les points et la droite. Les formules donnent directement :</p>
+      <div class="formule">
+        <span class="f-name">pente, ordonnée à l'origine, coefficient de détermination</span>
+        <div class="f-eq">\[ a = \frac{n\sum x_iy_i - \sum x_i\sum y_i}{n\sum x_i^2 - \left(\sum x_i\right)^2} \qquad b = \bar y - a\bar x \qquad R^2 = 1 - \frac{\sum (y_i - \hat y_i)^2}{\sum (y_i - \bar y)^2} \]</div>
+        <div class="f-where">En Python : <code>a, b = np.polyfit(x, y, 1)</code>. Pour une courbe L-I : <b>a</b> = rendement différentiel, <b>seuil = −b/a</b> (là où la droite coupe l'axe des courants).</div>
+      </div>
+      <div class="lab" data-widget="regression">
+        <div class="lab-head"><h4>ajuster une courbe L-I</h4><span class="tag green">simulation</span></div>
+        <p class="small">Données simulées : seuil 25 mA, pente 0,8 W/A, plus du bruit. La zone orangée est la fenêtre d'ajustement. Étire-la sous le seuil et observe ce qui arrive au seuil estimé… et aux résidus.</p>
+      </div>
+      <div class="box attention">
+        <p class="box-title">R² ne suffit pas</p>
+        <p>Un R² de 0,995 peut cacher un ajustement faux. Regarde toujours le <strong>graphe des résidus</strong> : ils doivent être répartis au hasard autour de zéro. Une forme (sourire, vague) signale un modèle inadapté — ici, une fenêtre qui déborde sous le seuil, ou une courbe L-I qui sature à fort courant (échauffement).</p>
+      </div>
+
+      <div class="box terrain">
+        <p class="box-title">sur le terrain</p>
+        <ul>
+          <li>Une fiche de test donne : valeur, incertitude, conditions (température de la monture, λ), instrument et date d'étalonnage.</li>
+          <li>Avant de conclure qu'une diode « est hors spécification », compare l'écart à l'incertitude : une différence plus petite que U n'est pas significative.</li>
+          <li>Garde les données brutes (CSV) : on peut toujours refaire un ajustement, jamais une mesure perdue.</li>
+        </ul>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>s avec n − 1 ; incertitude de la moyenne s/√n.</li>
+          <li>Type B rectangulaire : a/√3 ; résolution : q/√12 ; on combine en somme quadratique ; U = 2u.</li>
+          <li>Produits/quotients : les incertitudes relatives s'ajoutent quadratiquement.</li>
+          <li>Moindres carrés : pente = rendement, −b/a = seuil ; vérifier les résidus, pas seulement R².</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="maths-stats">
+        <header><h3>quiz éclair</h3><span class="tag">4 questions</span></header>
+        <div class="q" data-a="b"><p>1. On passe de 25 à 100 mesures répétées. L'incertitude de type A sur la moyenne…</p><div class="opts">
+          <label><input type="radio" value="a"> est divisée par 4</label><label><input type="radio" value="b"> est divisée par 2</label><label><input type="radio" value="c"> ne change pas</label></div>
+          <p class="explain">s/√n : √100/√25 = 2.</p></div>
+        <div class="q" data-a="c"><p>2. Une fiche technique indique « précision ±2 % » sans autre précision. L'incertitude-type associée vaut…</p><div class="opts">
+          <label><input type="radio" value="a"> 2 %</label><label><input type="radio" value="b"> 1 %</label><label><input type="radio" value="c"> 2/√3 ≈ 1,15 %</label></div>
+          <p class="explain">Loi rectangulaire sur ±a : u = a/√3.</p></div>
+        <div class="q" data-a="a"><p>3. Quelle écriture est correcte ?</p><div class="opts">
+          <label><input type="radio" value="a"> (12,3 ± 0,4) mA, k = 2</label><label><input type="radio" value="b"> 12,3456 ± 0,4 mA</label><label><input type="radio" value="c"> 12 mA ± 0,4321 %</label></div>
+          <p class="explain">Valeur et incertitude arrondies à la même décimale, avec l'unité et le facteur d'élargissement.</p></div>
+        <div class="q" data-a="b"><p>4. Ajustement linéaire d'une courbe L-I : résidus en forme de « sourire ». Que faire ?</p><div class="opts">
+          <label><input type="radio" value="a"> rien, R² est bon</label><label><input type="radio" value="b"> resserrer la fenêtre sur la partie vraiment linéaire</label><label><input type="radio" value="c"> ajouter des points sous le seuil</label></div>
+          <p class="explain">Une structure dans les résidus signifie que le modèle « droite » ne décrit pas toute la fenêtre choisie.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

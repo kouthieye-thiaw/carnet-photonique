@@ -1,0 +1,165 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>la diode laser · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="lasers/diode-laser">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>la diode laser</h1>
+    <span class="hand">le laser le plus répandu au monde — et le plus fragile</span>
+    <p class="lead">C'est la source de ton banc, la pompe des lasers à fibre, l'émetteur des télécoms. On l'ouvre, on la caractérise (<mark>L-I-V, spectre, faisceau</mark>) et on apprend tout ce qui la tue.</p>
+    <span class="sticker" data-s="diode" style="--r:-10deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>décrire l'intérieur d'une diode en boîtier TO et le rôle de chaque pièce ;</li>
+          <li>lire une fiche technique : seuil, pente, valeurs maximales, brochage ;</li>
+          <li>interpréter les courbes L-I-V et leur évolution avec la température ;</li>
+          <li>connaître les spécificités spectrales et géométriques du faisceau ;</li>
+          <li>éviter les causes de destruction (ESD, surintensité, tension inverse, COD).</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>ouvrir une diode laser</h2>
+      <p>Voici une diode en boîtier TO-56 (5,6 mm de diamètre), le format le plus courant pour les diodes de quelques mW à quelques centaines de mW. Lance la visite, puis utilise la <strong>vue éclatée</strong> pour sortir la puce et la photodiode.</p>
+      <div class="v3d" data-model="to-can">
+        <script type="application/json">{
+          "title": "diode laser en boîtier TO-56",
+          "intro": "Échelle : l'embase fait 5,6 mm. La puce a été grossie pour être visible (en vrai : ~0,3 mm). Le faisceau rouge animé sort de la facette avant.",
+          "view": [0.95, 0.55, 1.1], "distance": 0.95,
+          "tour": ["hs_embase", "hs_broches", "hs_dissipateur", "hs_puce", "hs_photodiode", "hs_capot", "hs_fenetre", "hs_faisceau"],
+          "hotspots": {
+            "hs_embase": {"t": "l'embase (header)", "d": "Disque de Kovar doré. Toute la chaleur de la puce s'évacue par sa face arrière : c'est elle qu'on plaque (avec un peu de pâte thermique) contre la monture régulée en température. Le petit méplat repère l'orientation."},
+            "hs_broches": {"t": "les trois broches", "d": "Laser, photodiode et broche commune reliée au boîtier. Selon le modèle, le boîtier est relié à l'anode ou à la cathode du laser : le brochage change d'une référence à l'autre. Toujours vérifier la fiche technique AVANT de câbler, et choisir un driver compatible (anode ou cathode à la masse)."},
+            "hs_dissipateur": {"t": "le plot dissipateur", "d": "Bloc de cuivre doré sur lequel la puce est brasée. Il conduit la chaleur de la jonction vers l'embase. Résistance thermique jonction → boîtier : quelques dizaines de K/W."},
+            "hs_puce": {"t": "la puce laser", "d": "Quelques centaines de µm de semi-conducteur montés sur une embase céramique (AlN) qui adapte la dilatation. La ligne rouge est la zone active (puits quantiques). Les deux facettes clivées forment la cavité Fabry-Pérot : traitement HR à l'arrière, partiellement réfléchissant à l'avant. Les fils d'or amènent le courant."},
+            "hs_photodiode": {"t": "la photodiode moniteur", "d": "Elle reçoit la lumière qui fuit par la facette arrière : son courant est proportionnel à la puissance émise. C'est la base de la régulation de puissance (APC). Elle est inclinée pour ne pas renvoyer de lumière dans la puce."},
+            "hs_capot": {"t": "le capot", "d": "Soudé sous atmosphère sèche (azote) : il protège les facettes de l'humidité et des poussières. Un capot cabossé ou une fenêtre fêlée = diode à écarter."},
+            "hs_fenetre": {"t": "la fenêtre", "d": "Verre traité antireflet à la longueur d'onde. Une trace de doigt diffuse, absorbe et chauffe : à nettoyer avec la méthode adaptée (module 06), sans appuyer."},
+            "hs_faisceau": {"t": "le faisceau elliptique", "d": "Très divergent : ≈ 30° perpendiculairement à la jonction (axe rapide), ≈ 8° dans son plan (axe lent), parce que la zone d'émission est un rectangle d'environ 1 µm × 3 µm. Il faut une lentille de collimation très ouverte, et le faisceau collimaté reste elliptique."}
+          }
+        }</script>
+      </div>
+      <p class="small">Autres boîtiers : <strong>butterfly 14 broches</strong> (télécoms, avec Peltier, thermistance, isolateur et fibre intégrés), <strong>C-mount</strong> (puce nue sur un bloc de cuivre, puissance), diodes <strong>fibrées</strong> (pigtail), barrettes et empilements (kW, pompage).</p>
+
+      <h2><span class="n">2</span>lire une fiche technique</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>paramètre</th><th>symbole</th><th>exemple : diode rouge 5 mW</th><th>remarque</th></tr></thead>
+        <tbody>
+          <tr><td>longueur d'onde</td><td>λ</td><td>645–660 nm (typ. 650)</td><td>à 25 °C et au courant nominal</td></tr>
+          <tr><td>puissance de sortie</td><td>P<sub>o</sub></td><td>5 mW</td><td>ne jamais dépasser la valeur max absolue</td></tr>
+          <tr><td>courant de seuil</td><td>I<sub>th</sub></td><td>20 mA typ.</td><td>augmente avec T et le vieillissement</td></tr>
+          <tr><td>courant de fonctionnement</td><td>I<sub>op</sub></td><td>≈ 28 mA à 5 mW</td><td>varie d'une diode à l'autre : à mesurer</td></tr>
+          <tr><td>tension de fonctionnement</td><td>V<sub>op</sub></td><td>2,2 V typ.</td><td>dimensionne la compliance du driver</td></tr>
+          <tr><td>rendement différentiel</td><td>η<sub>d</sub></td><td>0,6 W/A</td><td>pente de la courbe L-I</td></tr>
+          <tr><td>divergence ⊥ / ∥</td><td>θ⊥ / θ∥</td><td>30° / 8° (FWHM)</td><td>ellipticité ≈ 4 : 1</td></tr>
+          <tr><td>courant photodiode</td><td>I<sub>m</sub></td><td>0,1–0,5 mA à 5 mW</td><td>dispersion énorme : on étalonne chaque diode</td></tr>
+          <tr><td><strong>tension inverse max (laser)</strong></td><td>V<sub>R,LD</sub></td><td><strong>2 V</strong></td><td>une simple inversion de polarité la tue</td></tr>
+          <tr><td>tension inverse max (photodiode)</td><td>V<sub>R,PD</sub></td><td>30 V</td><td></td></tr>
+          <tr><td>température de fonctionnement</td><td>T<sub>c</sub></td><td>−10 à +60 °C (boîtier)</td><td>la durée de vie chute vite à chaud</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2><span class="n">3</span>les courbes L-I-V</h2>
+      <p>La première mesure sur n'importe quelle diode : on balaie le courant et on mesure en même temps la puissance (L) et la tension (V). De ces courbes on tire seuil, pente, résistance série, tension de coude — et on repère les défauts.</p>
+      <div class="formule">
+        <span class="f-name">paramètres extraits</span>
+        <div class="f-eq">\[ P = \eta_d\,(I - I_{th}) \qquad \eta_{ext} = \frac{q}{h\nu}\,\eta_d = \frac{\lambda\,[\text{nm}]}{1240}\,\eta_d\,[\text{W/A}] \qquad R_s = \frac{\mathrm{d}V}{\mathrm{d}I} \qquad \eta_{prise} = \frac{P}{V I} \]</div>
+        <div class="f-where"><b>η<sub>ext</sub></b> rendement quantique différentiel externe : fraction des électrons injectés au-dessus du seuil qui sortent sous forme de photons utiles.</div>
+      </div>
+      <div class="lab" data-widget="liv">
+        <div class="lab-head"><h4>une diode rouge, de 5 à 75 °C</h4><span class="tag green">simulation</span></div>
+        <p class="small">Modèle réaliste : seuil exponentiel en T (T₀ = 70 K), pente qui baisse, courbure thermique (roll-over) aux forts courants, longueur d'onde qui dérive de 0,22 nm/°C. Active le « kink » puis la dérivée pour voir comment on le détecte.</p>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>exploiter deux mesures</h4></div>
+        <p>On mesure 6 mW à 30 mA et 12 mW à 40 mA (au-dessus du seuil). a) Courant de seuil, en mA ?</p>
+        <div class="check-row" data-answer="20" data-tol="0.01" data-hint="pente = 6 mW / 10 mA ; I_th = 30 − 6/pente">
+          <input type="text" inputmode="decimal" placeholder="mA" aria-label="seuil en mA"><span>mA</span><button class="pill small" type="button">vérifier</button>
+        </div>
+        <p>b) Rendement quantique différentiel externe à 650 nm, en % ?</p>
+        <div class="check-row" data-answer="31.5" data-tol="0.02" data-hint="0,6 W/A × 650 / 1240">
+          <input type="text" inputmode="decimal" placeholder="%" aria-label="rendement quantique en %"><span>%</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">4</span>spectre &amp; faisceau</h2>
+      <ul>
+        <li><strong>Fabry-Pérot</strong> : plusieurs modes longitudinaux espacés de ≈ 0,2 nm (à 650 nm) ; le mode dominant change avec I et T (sauts de mode). Largeur globale &lt; 1 nm.</li>
+        <li><strong>DFB/DBR</strong> : une seule raie (largeur ~ MHz), accordable continûment de ≈ 0,1 nm/°C sur quelques nm.</li>
+        <li><strong>Dérive en courant</strong> : augmenter le courant chauffe la jonction → λ augmente d'environ 0,005–0,02 nm/mA.</li>
+        <li><strong>Faisceau</strong> : elliptique et <dfn data-g="astigmatisme">astigmate</dfn> ; on le collimate avec une asphérique (ON ≈ 0,5), on le circularise avec une paire de prismes anamorphoseurs ou des lentilles cylindriques ; le couplage dans une fibre monomode dépasse rarement 50–70 %.</li>
+      </ul>
+
+      <h2><span class="n">5</span>ce qui tue une diode laser</h2>
+      <div class="box attention">
+        <p class="box-title">les cinq causes de mort subite</p>
+        <ol>
+          <li><strong>Décharge électrostatique (<dfn data-g="esd">ESD</dfn>)</strong> : quelques dizaines de volts suffisent. Bracelet antistatique relié à la terre, tapis dissipatif, broches court-circuitées (ressort ou mousse conductrice) tant que la diode n'est pas câblée.</li>
+          <li><strong>Surintensité transitoire</strong> : branchement « à chaud », alimentation qui démarre avant la régulation, rebond d'un interrupteur. Un pic de quelques µs au-dessus du courant max suffit à brûler les facettes.</li>
+          <li><strong>Tension inverse</strong> : au-delà de 2 V en inverse, la jonction claque. Une erreur de brochage, et c'est fini.</li>
+          <li><strong>Surpuissance optique (COD)</strong> : <em>catastrophic optical damage</em> — la facette fond localement. Attention : en régulation de puissance (APC), une photodiode moniteur mal étalonnée peut pousser le courant bien au-delà du raisonnable.</li>
+          <li><strong>Surchauffe et retours optiques</strong> : un Peltier inversé ou absent, une réflexion forte renvoyée dans la puce.</li>
+        </ol>
+        <p>Tout le module <a href="../electronique/protection.html">protéger une diode laser</a> est consacré à l'électronique qui empêche ces accidents.</p>
+      </div>
+      <p><strong>Vieillissement normal</strong> : le seuil augmente lentement et la pente baisse ; en régulation de puissance, le courant nécessaire grimpe au fil des heures. On définit souvent la fin de vie comme +20 % de courant à puissance constante. Durées de vie typiques : 10 000 à 100 000 h. En production, les diodes subissent un <em>déverminage</em> (burn-in) à chaud pour éliminer les défauts de jeunesse.</p>
+
+      <div class="box terrain">
+        <p class="box-title">sur le terrain : la mise en service d'une diode</p>
+        <ul class="checklist" data-id="mise-en-service-diode">
+          <li><input type="checkbox"><label>Poste ESD : bracelet branché, tapis, pas de vêtement synthétique.</label></li>
+          <li><input type="checkbox"><label>Brochage vérifié sur la fiche technique, compatible avec le driver.</label></li>
+          <li><input type="checkbox"><label>Driver testé d'abord sur une charge factice (diodes en série + résistance).</label></li>
+          <li><input type="checkbox"><label>Limite de courant du driver réglée sous le courant max de la diode.</label></li>
+          <li><input type="checkbox"><label>Monture régulée à 25 °C avant d'allumer.</label></li>
+          <li><input type="checkbox"><label>Courant monté lentement en surveillant puissance et tension.</label></li>
+          <li><input type="checkbox"><label>Lunettes adaptées à la longueur d'onde, faisceau terminé sur un piège.</label></li>
+        </ul>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Boîtier TO : embase, plot dissipateur, puce sur embase AlN, photodiode moniteur, capot à fenêtre AR.</li>
+          <li>L-I-V → seuil, pente (W/A), η<sub>ext</sub> = η<sub>d</sub>·λ/1240, R<sub>s</sub>, rendement à la prise.</li>
+          <li>Chaleur : seuil ↑, pente ↓, λ ↑ ; faisceau elliptique et astigmate.</li>
+          <li>ESD, surintensité, tension inverse &gt; 2 V, COD, surchauffe : les cinq tueurs.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="lasers-diode">
+        <header><h3>quiz éclair</h3><span class="tag">5 questions</span></header>
+        <div class="q" data-a="b"><p>1. À quoi sert la photodiode moniteur intégrée ?</p><div class="opts">
+          <label><input type="radio" value="a"> à mesurer la température</label><label><input type="radio" value="b"> à mesurer la puissance émise (régulation APC)</label><label><input type="radio" value="c"> à protéger contre les ESD</label></div>
+          <p class="explain">Elle reçoit la fuite de la facette arrière, proportionnelle à la puissance avant.</p></div>
+        <div class="q" data-a="c"><p>2. Quelle tension inverse supporte typiquement une diode laser ?</p><div class="opts">
+          <label><input type="radio" value="a"> 30 V</label><label><input type="radio" value="b"> 230 V</label><label><input type="radio" value="c"> environ 2 V</label></div>
+          <p class="explain">C'est la photodiode qui tient 20–30 V, pas le laser.</p></div>
+        <div class="q" data-a="a"><p>3. En régulation de puissance, le courant nécessaire augmente lentement au fil des mois. Cela indique…</p><div class="opts">
+          <label><input type="radio" value="a"> un vieillissement normal (seuil ↑, pente ↓)</label><label><input type="radio" value="b"> une ESD</label><label><input type="radio" value="c"> que la fenêtre est trop propre</label></div>
+          <p class="explain">On suit cette dérive en maintenance préventive pour anticiper le remplacement.</p></div>
+        <div class="q" data-a="b"><p>4. Le faisceau d'une diode est elliptique parce que…</p><div class="opts">
+          <label><input type="radio" value="a"> le capot est ovale</label><label><input type="radio" value="b"> la zone d'émission est un rectangle de ~1 × 3 µm</label><label><input type="radio" value="c"> la photodiode le déforme</label></div>
+          <p class="explain">La diffraction est plus forte dans la direction où l'ouverture est la plus petite (axe rapide).</p></div>
+        <div class="q" data-a="c"><p>5. Comment repérer un « kink » sur une courbe L-I ?</p><div class="opts">
+          <label><input type="radio" value="a"> à l'œil, c'est toujours évident</label><label><input type="radio" value="b"> en mesurant la tension</label><label><input type="radio" value="c"> sur la dérivée dP/dI, qui chute brusquement</label></div>
+          <p class="explain">La dérivée amplifie les changements de pente.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

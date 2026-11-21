@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>protocoles de mesure · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="projet/protocoles">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>protocoles de mesure</h1>
+    <span class="hand">la même mesure, refaite par n'importe qui, donne le même résultat</span>
+    <p class="lead">Un protocole écrit fixe la préparation, les réglages, l'ordre des opérations, les critères d'acceptation et ce qu'on enregistre. C'est ce qui rend une mesure <mark>reproductible</mark> — et c'est exactement ce qu'on attend d'un technicien en laboratoire ou en production.</p>
+    <span class="sticker" data-s="cle" style="--r:7deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette page, tu sauras…</h4>
+        <ul>
+          <li>rédiger un protocole selon un modèle constant ;</li>
+          <li>mettre en service une diode laser sans risque pour elle ni pour toi ;</li>
+          <li>dérouler les mesures du cahier des charges : L-I-V, température caractéristique, λ(T), profil et M², polarisation, bruit, stabilité ;</li>
+          <li>fixer des critères d'acceptation et savoir quoi faire quand une mesure sort des clous.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>le modèle de protocole</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>rubrique</th><th>contenu</th></tr></thead>
+        <tbody>
+          <tr><td>objet</td><td>la grandeur mesurée, sur quel composant, pour quelle décision</td></tr>
+          <tr><td>moyens</td><td>matériel, logiciel (version), instruments de référence et date de leur étalonnage</td></tr>
+          <tr><td>sécurité</td><td>classe du laser, lunettes (marquage EN 207), interlock, risques électriques et ESD</td></tr>
+          <tr><td>préparation</td><td>conditions (température, préchauffage), réglages, vérifications préalables</td></tr>
+          <tr><td>mode opératoire</td><td>étapes numérotées, avec la commande exacte à lancer</td></tr>
+          <tr><td>critères</td><td>ce qui rend la mesure valide (et le composant conforme)</td></tr>
+          <tr><td>enregistrements</td><td>fichiers produits, où ils sont rangés, ce qu'on note dans le journal</td></tr>
+        </tbody>
+      </table></div>
+      <div class="box astuce">
+        <p class="box-title">copie ce modèle dans ton carnet</p>
+        <p>Ouvre les notes de cette page (bouton en bas à droite) et colle-y le modèle : à chaque mesure réelle, tu complètes une copie. Après quelques séries, tes protocoles seront plus précis que ceux de cette page — c'est le but.</p>
+      </div>
+
+      <h2><span class="n">2</span>P0 · mise en service d'une diode</h2>
+      <p class="small"><b>objet</b> : premier allumage d'une diode neuve · <b>moyens</b> : banc validé sur charge factice, multimètre, carte de visualisation, puissance-mètre si disponible · <b>sécurité</b> : lunettes, capot, interlock testé, poste ESD.</p>
+      <ol>
+        <li>Relire la fiche technique : courant max, tension inverse max, brochage. Reporter le courant max dans la configuration (la limite logicielle doit rester en dessous).</li>
+        <li>Driver hors tension, relais fermé : monter la diode (bracelet ESD), vérifier au multimètre le sens et l'absence de court-circuit.</li>
+        <li>Mettre sous tension. Lancer <code>banclaser etat</code> : interlock fermé, monture à la température ambiante, courant nul.</li>
+        <li>Stabiliser la monture à 25 °C.</li>
+        <li>Monter le courant par paliers de 2 mA jusqu'à apercevoir la lumière sur la carte (sous le seuil : lueur faible et large, c'est de l'émission spontanée).</li>
+        <li>Dépasser le seuil de quelques mA seulement : la tache devient brillante et nette. Vérifier que le faisceau suit le trajet prévu et finit dans un piège.</li>
+        <li>Faire une première L-I-V courte (jusqu'à 1,2 × I<sub>seuil</sub>), la comparer à la fiche technique avant d'aller plus haut.</li>
+      </ol>
+      <p class="small"><b>critères</b> : tension directe et seuil cohérents avec la fiche (± 20 %) · aucun saut, aucun bruit anormal · <b>enregistrements</b> : n° de série, date, photo du montage, première L-I-V.</p>
+
+      <h2><span class="n">3</span>P1 · caractéristique L-I-V</h2>
+      <p class="small"><b>objet</b> : seuil, pente, rendement, tension et résistance série à 25 °C · <b>durée</b> : 10 minutes.</p>
+      <ol>
+        <li>Préchauffage de l'électronique : 15 minutes. Monture stabilisée à 25,00 °C depuis 2 minutes.</li>
+        <li>Offset de la photodiode : mesure laser éteint (moyenne de 64 lectures).</li>
+        <li><code>banclaser liv --debut 0 --fin 40 --pas 0.5</code> (montée), puis la même en descente.</li>
+        <li>Analyse : seuil par régression (20–80 %) et par dérivée seconde ; pente ; η<sub>ext</sub> ; résistance série au-dessus de 1,5 × I<sub>seuil</sub>.</li>
+        <li>Répéter 5 fois (en éteignant le laser entre deux séries) pour estimer la répétabilité.</li>
+      </ol>
+      <p class="small"><b>critères de validité</b> : R² &gt; 0,999 sur la fenêtre d'ajustement · écart montée/descente &lt; 1 % · les deux méthodes de seuil s'accordent à ± 0,5 mA.</p>
+
+      <h2><span class="n">4</span>P2 · température caractéristique T<sub>0</sub></h2>
+      <p>Le seuil d'une diode augmente avec la température, à peu près exponentiellement. La « température caractéristique » \(T_0\) résume cette sensibilité : plus elle est grande, plus la diode est stable.</p>
+      <div class="formule">
+        <span class="f-name">loi empirique du seuil</span>
+        <div class="f-eq">\[ I_{th}(T) = I_{th}(T_{ref})\,\exp\!\left(\frac{T - T_{ref}}{T_0}\right) \;\Rightarrow\; \ln I_{th} = \text{cste} + \frac{T}{T_0} \]</div>
+        <div class="f-where">Tracer \(\ln I_{th}\) en fonction de T donne une droite de pente \(1/T_0\) · ordre de grandeur : 50 à 100 K pour une diode rouge, 50 à 70 K à 1550 nm.</div>
+      </div>
+      <div class="lab" data-widget="liv">
+        <div class="lab-head"><h4>la L-I-V en fonction de la température</h4><span class="tag green">simulation</span></div>
+      </div>
+      <ol>
+        <li>Mesurer une L-I-V (protocole P1) à 15, 20, 25, 30, 35 et 40 °C — sans descendre sous le point de rosée de la pièce.</li>
+        <li>Extraire le seuil et la pente à chaque température.</li>
+        <li>Ajuster \(\ln I_{th}\) en fonction de T : pente = \(1/T_0\).</li>
+      </ol>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>calculer T<sub>0</sub> avec deux points</h4></div>
+        <p>Seuil de 20,0 mA à 25 °C et de 26,6 mA à 45 °C. Température caractéristique T<sub>0</sub>, en kelvins ?</p>
+        <div class="check-row" data-answer="70.1" data-tol="0.01" data-hint="T0 = ΔT / ln(I2 / I1)">
+          <input type="text" inputmode="decimal" placeholder="K" aria-label="T0 en kelvins"><span>K</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">5</span>P3 · longueur d'onde : λ(T) et λ(I)</h2>
+      <ol>
+        <li>Vérifier l'étalonnage du spectromètre sur une raie de référence (moins de 0,2 nm d'écart, sinon réétalonner).</li>
+        <li>À courant fixe (1,5 × I<sub>seuil</sub>), relever le pic pour T de 15 à 40 °C par pas de 1 °C, en montée puis en descente.</li>
+        <li>À température fixe (25 °C), relever le pic pour I de 1,1 à 2 × I<sub>seuil</sub>.</li>
+        <li>Tracer λ(T) : pente moyenne (nm/°C) et position des sauts de mode ; comparer montée et descente (hystérésis).</li>
+      </ol>
+      <p class="small"><b>critère</b> : pente moyenne comprise entre 0,15 et 0,35 nm/°C pour une diode Fabry-Perot rouge · <b>à noter</b> : les températures des sauts, pour éviter ces zones en utilisation.</p>
+
+      <h2><span class="n">6</span>P4 · profil du faisceau et M²</h2>
+      <ol>
+        <li>Faisceau collimaté, lentille f = 200 mm, densité choisie pour ne jamais saturer au col.</li>
+        <li>Caméra en manuel (exposition fixe, gain 1), image de fond laser éteint.</li>
+        <li>Balayage grossier de la platine pour trouver le col, estimer z<sub>R</sub>.</li>
+        <li>Mesure fine : au moins 10 positions, la moitié dans ± z<sub>R</sub>, l'autre au-delà de 2 z<sub>R</sub> de part et d'autre.</li>
+        <li>Analyse : D4σ (méthode ISO), ajustement de w²(z) séparément pour les axes x et y.</li>
+      </ol>
+      <p class="small"><b>critères de validité</b> : pic &lt; 80 % de la saturation à toutes les positions · résidus d'ajustement &lt; 3 % · centroïde stable sur la course (platine alignée) · <b>attendu</b> : M² entre 1 et 1,5 sur l'axe lent, faisceau astigmate (cols x et y à des positions différentes) typique des diodes.</p>
+
+      <h2><span class="n">7</span>P5 · polarisation (PER)</h2>
+      <ol>
+        <li>Polariseur motorisé, référencé (origine), avant la densité.</li>
+        <li>Offset de la photodiode laser éteint.</li>
+        <li>Rotation de 0 à 360° par pas de 5° ; 16 lectures moyennées par angle.</li>
+        <li>Ajustement de Malus, P<sub>max</sub>, P<sub>min</sub>, PER et orientation θ<sub>0</sub>.</li>
+        <li>Répéter à 1,2 et 2 × I<sub>seuil</sub> : le PER augmente avec le courant (l'émission stimulée, polarisée, domine l'émission spontanée).</li>
+      </ol>
+      <p class="small"><b>critère</b> : PER du polariseur lui-même bien supérieur à celui de la diode (sinon c'est lui qu'on mesure) · <b>attendu</b> : 15 à 25 dB pour une diode rouge au-dessus du seuil.</p>
+
+      <h2><span class="n">8</span>P6 · bruit et stabilité</h2>
+      <ol>
+        <li><strong>RIN</strong> : acquisition de la photodiode du banc (couplage continu, gamme adaptée), au moins 2<sup>14</sup> échantillons, à 1,5 × I<sub>seuil</sub> ; une acquisition laser éteint donne le plancher de la chaîne de mesure.</li>
+        <li><strong>Stabilité long terme</strong> : puissance et température enregistrées toutes les 10 s pendant 1 h, en courant constant (ACC). Si tu as codé la boucle de puissance (APC, avec la photodiode moniteur), refais l'essai et compare.</li>
+      </ol>
+      <p class="small"><b>critères</b> : le spectre du laser dépasse le plancher d'au moins 10 dB (sinon, on mesure l'électronique) · raies parasites identifiées (50 Hz, alimentation, moteur) · dérive de puissance exprimée en % par heure.</p>
+
+      <h2><span class="n">9</span>quand une mesure sort des clous</h2>
+      <ol>
+        <li><strong>Ne pas « corriger » le résultat</strong> : le garder, le noter, en chercher la cause.</li>
+        <li><strong>Vérifier la chaîne de mesure</strong> avant le composant : offset, saturation, alignement, étalonnage, température.</li>
+        <li><strong>Refaire</strong> la mesure une fois, à l'identique. Un écart qui disparaît était un défaut de mesure ; un écart qui reste est un résultat.</li>
+        <li><strong>Méthode de diagnostic</strong> : hypothèses, test le plus simple d'abord, une seule chose changée à la fois (voir <a href="../systemes/diagnostic.html">diagnostic et dépannage</a>).</li>
+        <li><strong>Tracer</strong> : ce qui a été observé, testé, conclu — dans le journal de bord.</li>
+      </ol>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Un protocole = objet, moyens, sécurité, préparation, mode opératoire, critères, enregistrements.</li>
+          <li>Mise en service : paliers, seuil d'abord, comparaison à la fiche avant de monter.</li>
+          <li>Chaque mesure a ses critères de validité : sans eux, on ne sait pas si on peut la croire.</li>
+          <li>Un résultat anormal se garde et s'explique ; il ne se corrige pas.</li>
+        </ul>
+      </div>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

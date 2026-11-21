@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>lasers impulsionnels · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="lasers/impulsions">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>lasers impulsionnels</h1>
+    <span class="hand">concentrer l'énergie dans le temps</span>
+    <p class="lead">Un laser de 10 W moyens peut délivrer des impulsions de plusieurs <mark>mégawatts crête</mark>. Déclenchement, verrouillage de modes, commutation de gain : comment on fabrique des impulsions, et comment on les mesure.</p>
+    <span class="sticker" data-s="eclair" style="--r:12deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>relier énergie, puissance moyenne, cadence, durée et puissance crête ;</li>
+          <li>expliquer le déclenchement (Q-switch) et le verrouillage de modes ;</li>
+          <li>calculer la cadence d'un laser à modes verrouillés ;</li>
+          <li>choisir un détecteur et un oscilloscope pour mesurer une impulsion ;</li>
+          <li>raisonner en fluence et intensité pour la tenue au flux des optiques.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>les grandeurs d'une impulsion</h2>
+      <div class="formule">
+        <span class="f-name">relations fondamentales</span>
+        <div class="f-eq">\[ E = \frac{\bar P}{f} \qquad P_{\text{crête}} \approx 0{,}94\,\frac{E}{\tau}\ \text{(gaussienne)} \qquad \text{rapport cyclique} = \tau f \qquad F = \frac{E}{S},\ I = \frac{P_{\text{crête}}}{S} \]</div>
+        <div class="f-where"><b>E</b> énergie par impulsion (J) · <b>P̄</b> puissance moyenne · <b>f</b> <dfn data-g="taux-repetition">cadence</dfn> · <b>τ</b> durée à mi-hauteur · <b>F</b> fluence (J/cm²) · <b>I</b> intensité (W/cm²) sur une surface S. Pour une impulsion carrée, le facteur 0,94 devient 1.</div>
+      </div>
+      <div class="lab" data-widget="impulsions">
+        <div class="lab-head"><h4>calculateur d'impulsions</h4><span class="tag green">calculateur</span></div>
+        <p class="small">Toutes les échelles sont logarithmiques : essaie un laser de marquage (10 W, 100 kHz, 10 ns), puis un oscillateur femtoseconde (1 W, 80 MHz, 100 fs).</p>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>un laser de marquage</h4></div>
+        <p>10 W moyens à 100 kHz, impulsions de 10 ns. a) Énergie par impulsion, en µJ ?</p>
+        <div class="check-row" data-answer="100" data-tol="0.01" data-hint="E = P/f">
+          <input type="text" inputmode="decimal" placeholder="µJ" aria-label="énergie en µJ"><span>µJ</span><button class="pill small" type="button">vérifier</button>
+        </div>
+        <p>b) Puissance crête (impulsion carrée), en kW ?</p>
+        <div class="check-row" data-answer="10" data-tol="0.01" data-hint="E/τ = 100 µJ / 10 ns">
+          <input type="text" inputmode="decimal" placeholder="kW" aria-label="puissance crête en kW"><span>kW</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">2</span>le déclenchement (Q-switch)</h2>
+      <p>On empêche le laser d'osciller (on « ferme » la cavité avec un modulateur) pendant que le pompage accumule une très forte inversion dans un milieu à longue durée de vie (Nd : 230 µs). Puis on ouvre brutalement : toute l'énergie stockée sort en une impulsion de quelques ns. Le <dfn data-g="q-switch">déclenchement</dfn> peut être :</p>
+      <ul>
+        <li><strong>actif</strong> : modulateur acousto-optique (AOM, cadence jusqu'à ~100 kHz) ou électro-optique (cellule de Pockels, haute tension, impulsions plus courtes) ;</li>
+        <li><strong>passif</strong> : absorbant saturable (cristal Cr:YAG) qui devient transparent quand l'intensité est assez forte. Simple et compact, mais moins contrôlable (gigue).</li>
+      </ul>
+      <p>Applications : marquage et gravure, LIDAR, télémétrie, détatouage, ablation, pompage d'oscillateurs paramétriques.</p>
+
+      <h2><span class="n">3</span>le verrouillage de modes</h2>
+      <p>Un laser oscille sur de nombreux modes longitudinaux (leçon <a href="cavite-modes.html">modes</a>). Si on force leurs phases à être égales, leurs ondes s'additionnent en un paquet très court qui fait l'aller-retour dans la cavité : c'est le <dfn data-g="verrouillage-modes">verrouillage de modes</dfn>.</p>
+      <div class="formule">
+        <span class="f-name">cadence et durée</span>
+        <div class="f-eq">\[ f_{\text{rép}} = \frac{c}{2nL} = \mathrm{ISL} \qquad\qquad \tau \sim \frac{1}{N\cdot\mathrm{ISL}} \sim \frac{0{,}44}{\Delta\nu_{gain}} \]</div>
+        <div class="f-where">Plus la bande de gain est large, plus l'impulsion peut être courte : Ti:saphir (~100 THz) → &lt; 10 fs ; fibre Yb → ~100 fs ; Nd:YVO₄ → ~10 ps. Moyens : modulateur intracavité (actif), absorbant saturable à semi-conducteur SESAM ou effet Kerr (passifs).</div>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>cadence d'un oscillateur</h4></div>
+        <p>Cavité linéaire de 1,875 m (air). Cadence, en MHz ?</p>
+        <div class="check-row" data-answer="80" data-tol="0.01" data-hint="c/2L">
+          <input type="text" inputmode="decimal" placeholder="MHz" aria-label="cadence en MHz"><span>MHz</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+      <p>Le spectre d'un tel laser est un <dfn data-g="peigne">peigne de fréquences</dfn> parfaitement régulier : stabilisé, il sert de « règle » pour mesurer des fréquences optiques à 10⁻¹⁸ près (prix Nobel 2005).</p>
+
+      <h2><span class="n">4</span>les diodes en impulsions</h2>
+      <p>Une diode s'allume et s'éteint en quelques centaines de ps : on la module directement par le courant (télécoms), ou on lui envoie de brèves impulsions de forte intensité (LIDAR à 905 nm : 20–100 A pendant quelques ns !). La <strong>commutation de gain</strong> (gain switching) donne des impulsions de 10–100 ps. Le driver doit alors avoir une très faible inductance : quelques nH de câblage suffisent à limiter le front montant (V = L·dI/dt).</p>
+
+      <h2><span class="n">5</span>mesurer une impulsion</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>grandeur</th><th>instrument</th><th>attention</th></tr></thead>
+        <tbody>
+          <tr><td>forme et durée (ns–ps)</td><td>photodiode rapide + oscilloscope</td><td>temps de montée du système \(t_r \approx 0{,}35/B\) ; combine-les : \(t_{mes} = \sqrt{t_{vrai}^2 + t_{pd}^2 + t_{osc}^2}\)</td></tr>
+          <tr><td>durée (fs–ps)</td><td>autocorrélateur, FROG</td><td>aucune électronique n'est assez rapide</td></tr>
+          <tr><td>énergie</td><td>joulemètre pyroélectrique</td><td>cadence max, seuil de dommage de la tête</td></tr>
+          <tr><td>puissance moyenne</td><td>puissance-mètre thermique</td><td>la tête doit supporter la crête !</td></tr>
+        </tbody>
+      </table></div>
+      <div class="box attention">
+        <p class="box-title">tenue au flux des optiques</p>
+        <p>Un traitement qui supporte 1 kW/cm² en continu peut claquer à 1 J/cm² en ns. Les fiches donnent un seuil de dommage (LIDT) en J/cm² pour une durée et une longueur d'onde données ; pour d'autres durées (ns), il varie à peu près comme \(\sqrt{\tau}\). Une poussière sur une optique abaisse énormément ce seuil.</p>
+      </div>
+      <div class="box terrain">
+        <p class="box-title">sur le terrain</p>
+        <ul>
+          <li>Les cellules de Pockels et leurs drivers fonctionnent sous plusieurs kV : consignation avant intervention.</li>
+          <li>Un laser déclenché dont l'énergie chute : diodes de pompe, alignement, température du cristal, ou optique endommagée (inspecter à la lampe).</li>
+          <li>Le danger oculaire d'un laser impulsionnel est bien supérieur à sa puissance moyenne : l'EMP en impulsions est très basse (leçon <a href="securite.html">sécurité</a>).</li>
+        </ul>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>E = P̄/f ; P<sub>crête</sub> ≈ E/τ ; fluence = E/S.</li>
+          <li>Q-switch : ns, énergie stockée dans un milieu à longue durée de vie.</li>
+          <li>Verrouillage de modes : ps–fs, cadence = c/2L, spectre en peigne.</li>
+          <li>Mesure : t<sub>r</sub> ≈ 0,35/B ; joulemètre pour l'énergie ; autocorrélateur pour les fs.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="lasers-impulsions">
+        <header><h3>quiz éclair</h3><span class="tag">4 questions</span></header>
+        <div class="q" data-a="b"><p>1. Un oscillateur fs : 1 W, 80 MHz. Énergie par impulsion ?</p><div class="opts">
+          <label><input type="radio" value="a"> 80 µJ</label><label><input type="radio" value="b"> 12,5 nJ</label><label><input type="radio" value="c"> 1 J</label></div>
+          <p class="explain">1 W / 8·10⁷ Hz = 1,25·10⁻⁸ J.</p></div>
+        <div class="q" data-a="c"><p>2. Pourquoi le Nd:YAG se prête-t-il bien au déclenchement ?</p><div class="opts">
+          <label><input type="radio" value="a"> il émet dans le visible</label><label><input type="radio" value="b"> sa bande de gain est très large</label><label><input type="radio" value="c"> sa longue durée de vie permet de stocker l'énergie</label></div>
+          <p class="explain">230 µs : l'inversion s'accumule pendant que la cavité est fermée.</p></div>
+        <div class="q" data-a="a"><p>3. Un oscilloscope de 200 MHz peut-il mesurer correctement une impulsion de 1 ns ?</p><div class="opts">
+          <label><input type="radio" value="a"> non : son temps de montée (~1,75 ns) est trop long</label><label><input type="radio" value="b"> oui sans problème</label><label><input type="radio" value="c"> seulement en mode moyenne</label></div>
+          <p class="explain">t<sub>r</sub> ≈ 0,35/200 MHz = 1,75 ns, plus long que l'impulsion.</p></div>
+        <div class="q" data-a="b"><p>4. On allonge la cavité d'un laser à modes verrouillés. Sa cadence…</p><div class="opts">
+          <label><input type="radio" value="a"> augmente</label><label><input type="radio" value="b"> diminue</label><label><input type="radio" value="c"> ne change pas</label></div>
+          <p class="explain">f = c/2L.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

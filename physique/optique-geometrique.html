@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>optique géométrique & fibres · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="physique/optique-geometrique">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>optique géométrique &amp; fibres</h1>
+    <span class="hand">suivre la lumière à la règle</span>
+    <p class="lead">Réfraction, réflexion, lentilles, fibres : avec quelques lois simples on prévoit où va un faisceau, combien il perd à chaque surface et pourquoi il reste <mark>piégé dans une fibre</mark> sur des centaines de kilomètres.</p>
+    <span class="sticker" data-s="photon" style="--r:-12deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>appliquer la loi de Snell-Descartes et calculer un angle critique ;</li>
+          <li>estimer la réflexion d'une surface (Fresnel) et l'intérêt d'un traitement antireflet ;</li>
+          <li>utiliser la relation de conjugaison et collimater une diode ;</li>
+          <li>calculer avec les matrices ABCD ;</li>
+          <li>décrire une fibre optique couche par couche (ON, monomode, connecteurs).</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>réflexion &amp; réfraction</h2>
+      <p>À la frontière entre deux milieux, un rayon se partage : une partie est <strong>réfléchie</strong> (angle de réflexion = angle d'incidence), le reste est <strong>réfracté</strong> et change de direction selon la loi de Snell-Descartes :</p>
+      <div class="formule">
+        <span class="f-name">loi de Snell-Descartes et angle critique</span>
+        <div class="f-eq">\[ n_1\sin\theta_1 = n_2\sin\theta_2 \qquad\qquad \sin\theta_c = \frac{n_2}{n_1}\quad(n_1 > n_2) \]</div>
+        <div class="f-where">Angles mesurés par rapport à la <b>normale</b> à la surface. Au-delà de θ<sub>c</sub>, il y a <dfn data-g="reflexion-totale">réflexion totale interne</dfn> : 100 % de la lumière est réfléchie, sans aucun traitement.</div>
+      </div>
+      <h3>combien est réfléchi ? les coefficients de Fresnel</h3>
+      <div class="formule">
+        <span class="f-name">réflexion en incidence normale</span>
+        <div class="f-eq">\[ R = \left(\frac{n_1 - n_2}{n_1 + n_2}\right)^2 \]</div>
+        <div class="f-where">Verre/air : 4 % par face (8 % pour une lentille non traitée !) · GaAs/air : ≈ 30 % — c'est pourquoi la face clivée d'une puce laser suffit à faire un miroir. En incidence oblique, s et p se comportent différemment ; la polarisation p n'est plus réfléchie à l'<dfn data-g="brewster">angle de Brewster</dfn>, tan θ<sub>B</sub> = n₂/n₁.</div>
+      </div>
+      <div class="lab" data-widget="snell">
+        <div class="lab-head"><h4>rayon à travers une interface</h4><span class="tag green">simulation</span></div>
+        <p class="small">Choisis les deux milieux et l'angle d'incidence. L'épaisseur de chaque rayon est proportionnelle à sa puissance. Essaie verre → air au-delà de 41,8°, puis cherche l'angle de Brewster.</p>
+      </div>
+      <p>Un <dfn data-g="traitement-ar">traitement antireflet</dfn> (couche quart d'onde d'indice intermédiaire, ou empilement multicouche) descend la réflexion sous 0,25 %, voire 0,01 % pour la facette d'une diode en cavité externe.</p>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>angle critique</h4></div>
+        <p>Verre (n = 1,5) vers air. Angle critique, en degrés ?</p>
+        <div class="check-row" data-answer="41.8" data-tol="0.005" data-hint="arcsin(1/1,5)">
+          <input type="text" inputmode="decimal" placeholder="°" aria-label="angle critique en degrés"><span>°</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">2</span>lentilles minces</h2>
+      <p>Une lentille convergente de focale \(f'\) fait converger un faisceau parallèle en son foyer image ; inversement, une source ponctuelle placée en son foyer objet ressort en faisceau parallèle : c'est la <strong>collimation</strong>, indispensable avec une diode laser qui diverge de 10 à 40°.</p>
+      <div class="formule">
+        <span class="f-name">relation de conjugaison (forme « distances positives »)</span>
+        <div class="f-eq">\[ \frac{1}{d_o} + \frac{1}{d_i} = \frac{1}{f} \qquad\qquad G = -\frac{d_i}{d_o} \]</div>
+        <div class="f-where"><b>d<sub>o</sub></b> distance objet-lentille · <b>d<sub>i</sub></b> distance lentille-image · <b>G</b> grandissement. Objet au foyer (d<sub>o</sub> = f) → image à l'infini : faisceau collimaté.</div>
+      </div>
+      <div class="box exemple">
+        <p class="box-title">collimater une diode laser</p>
+        <ol class="steps">
+          <li>On choisit une lentille asphérique de focale f = 4,5 mm et d'ouverture numérique 0,55 (elle doit « avaler » l'axe rapide qui diverge à ±15° ou plus).</li>
+          <li>Diamètre du faisceau collimaté ≈ 2 × f × tan(θ) : axe rapide ≈ 2 × 4,5 × tan 15° ≈ 2,4 mm ; axe lent (±4°) ≈ 0,6 mm → faisceau elliptique (rapport ~4 : 1).</li>
+          <li>On règle la distance diode-lentille en regardant la tache sur un mur à plusieurs mètres : elle doit rester de même taille de près comme de loin.</li>
+        </ol>
+      </div>
+
+      <h2><span class="n">3</span>les matrices ABCD</h2>
+      <p>Un rayon est décrit par sa hauteur \(y\) et son angle \(\theta\). Chaque élément (propagation, lentille, miroir) agit comme une matrice 2×2 ; un système complet est le produit des matrices, <em>de droite à gauche</em> dans l'ordre de traversée.</p>
+      <div class="formule">
+        <span class="f-name">matrices élémentaires</span>
+        <div class="f-eq">\[ \begin{pmatrix} y_2\\ \theta_2\end{pmatrix} = \begin{pmatrix} A & B\\ C & D\end{pmatrix}\begin{pmatrix} y_1\\ \theta_1\end{pmatrix} \qquad \text{espace } d:\ \begin{pmatrix} 1 & d\\ 0 & 1\end{pmatrix} \qquad \text{lentille } f:\ \begin{pmatrix} 1 & 0\\ -1/f & 1\end{pmatrix} \]</div>
+        <div class="f-where">Les mêmes matrices propagent un faisceau gaussien via son paramètre complexe q (leçon <a href="../lasers/faisceau-gaussien.html">faisceau gaussien</a>) et servent à vérifier la stabilité d'une cavité.</div>
+      </div>
+
+      <h2><span class="n">4</span>la fibre optique</h2>
+      <p>Une fibre est un cœur d'indice \(n_1\) entouré d'une gaine d'indice \(n_2\) légèrement plus faible (Δn ≈ 0,3 à 1 %). Les rayons assez rasants subissent une réflexion totale à l'interface et restent guidés. L'angle maximal d'entrée définit l'<dfn data-g="ouverture-numerique">ouverture numérique</dfn> :</p>
+      <div class="formule">
+        <span class="f-name">ouverture numérique et paramètre V</span>
+        <div class="f-eq">\[ \mathrm{ON} = \sin\theta_{\max} = \sqrt{n_1^2 - n_2^2} \qquad\qquad V = \frac{2\pi a}{\lambda}\,\mathrm{ON} \]</div>
+        <div class="f-where"><b>a</b> rayon du cœur. La fibre est <dfn data-g="monomode">monomode</dfn> si V &lt; 2,405. Exemple : a = 4,1 µm, ON ≈ 0,12 → longueur d'onde de coupure ≈ 1,29 µm : monomode à 1310 et 1550 nm, multimode dans le visible.</div>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>fibre</th><th>cœur / gaine</th><th>usage</th><th>remarque</th></tr></thead>
+        <tbody>
+          <tr><td>monomode (SMF-28, OS2)</td><td>8–9 / 125 µm</td><td>télécoms, lasers fibrés</td><td>gaine jaune, diamètre de mode ≈ 10,4 µm à 1550 nm</td></tr>
+          <tr><td>multimode (OM3/OM4)</td><td>50 / 125 µm</td><td>datacom courte distance</td><td>gaine aqua ou violette</td></tr>
+          <tr><td>à maintien de polarisation (PM)</td><td>≈ 8 / 125 µm + barreaux de contrainte</td><td>lasers polarisés, amplis</td><td>l'axe « lent » est repéré par une clé du connecteur</td></tr>
+          <tr><td>double gaine (dopée Yb, Er)</td><td>10–30 / 125–400 µm</td><td>lasers et amplis de puissance</td><td>la pompe multimode voyage dans la gaine interne</td></tr>
+        </tbody>
+      </table></div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>ouverture numérique</h4></div>
+        <p>n₁ = 1,4504 et n₂ = 1,4447. Calcule l'ON (3 décimales).</p>
+        <div class="check-row" data-answer="0.128" data-tol="0.02" data-hint="√(1,4504² − 1,4447²)">
+          <input type="text" inputmode="decimal" placeholder="ON" aria-label="ouverture numérique"><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+      <h3>la fibre en 3D, couche par couche</h3>
+      <div class="v3d" data-model="fibre">
+        <script type="application/json">{
+          "title": "fibre monomode et connecteur SC/APC",
+          "intro": "Une fibre dénudée comme le ferait un technicien avant une épissure. Le faisceau rouge animé représente la lumière guidée dans le cœur. Échelle exagérée pour la lisibilité.",
+          "view": [0.5, 0.45, 1.25],
+          "tour": ["hs_coeur", "hs_gaine_optique", "hs_revetement", "hs_tampon", "hs_aramide", "hs_gaine", "hs_connecteur", "hs_ferrule"],
+          "hotspots": {
+            "hs_coeur": {"t": "le cœur (8 µm)", "d": "Silice dopée au germanium, d'indice un peu plus élevé : c'est là que voyage la lumière. 8 µm, dix fois plus fin qu'un cheveu."},
+            "hs_gaine_optique": {"t": "la gaine optique (125 µm)", "d": "Silice pure, d'indice légèrement plus faible : elle assure la réflexion totale. Son diamètre de 125 µm est standard, ce qui permet d'aligner les fibres dans les connecteurs et les soudeuses."},
+            "hs_revetement": {"t": "le revêtement acrylate (250 µm)", "d": "Deux couches de polymère : l'une souple (amortit les micro-courbures), l'autre dure (protège). Il est coloré pour identifier les fibres dans un câble. On le retire à la pince à dénuder avant une épissure."},
+            "hs_tampon": {"t": "le tampon serré (900 µm)", "d": "Gaine plastique de protection mécanique pour les cordons de brassage ; elle facilite la manipulation et la pose des connecteurs."},
+            "hs_aramide": {"t": "les fils d'aramide", "d": "Fibres de renfort (type Kevlar) qui encaissent la traction : on ne tire jamais une fibre par la fibre elle-même."},
+            "hs_gaine": {"t": "la gaine extérieure jaune", "d": "Couleur normalisée : jaune = monomode (OS1/OS2), orange = multimode OM1/OM2, aqua = OM3/OM4. Rayon de courbure minimal à respecter (souvent 30 mm) sous peine de pertes, voire de casse."},
+            "hs_connecteur": {"t": "connecteur SC/APC (vert)", "d": "Vert = APC (poli en angle), bleu = UPC (poli droit). Ne jamais accoupler un APC avec un UPC : contact imparfait, pertes et risque d'endommager les faces."},
+            "hs_ferrule": {"t": "la ferrule polie à 8°", "d": "Cylindre de céramique qui centre la fibre au micron près. L'angle de 8° renvoie la réflexion parasite hors du cœur (réflexion < −60 dB). Toute poussière ici = pertes et brûlure possible : inspecter et nettoyer AVANT chaque connexion."}
+          }
+        }</script>
+      </div>
+
+      <div class="box terrain">
+        <p class="box-title">sur le terrain</p>
+        <ul>
+          <li>« Inspecter, nettoyer, inspecter, connecter » : la règle d'or des fibres (norme IEC 61300-3-35). Un microscope de connecteur coûte moins cher qu'une diode brûlée.</li>
+          <li>Les réflexions parasites (connecteur UPC, lentille non traitée) peuvent déstabiliser un laser : on utilise des APC et des isolateurs.</li>
+          <li>Une fibre trop courbée fuit : à 1550 nm, une boucle de 10 mm de rayon peut faire perdre plusieurs dB. Un « point chaud » rouge visible avec un laser de test (VFL) localise la fuite.</li>
+        </ul>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>n₁ sin θ₁ = n₂ sin θ₂ ; sin θ<sub>c</sub> = n₂/n₁ ; verre/air 41,8°.</li>
+          <li>R = ((n₁−n₂)/(n₁+n₂))² : 4 % verre/air, 30 % GaAs/air ; Brewster tan θ<sub>B</sub> = n₂/n₁.</li>
+          <li>Objet au foyer → faisceau collimaté ; ABCD : espace (1 d ; 0 1), lentille (1 0 ; −1/f 1).</li>
+          <li>Fibre : ON = √(n₁²−n₂²) ; monomode si V &lt; 2,405 ; vert = APC, bleu = UPC.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="physique-geo">
+        <header><h3>quiz éclair</h3><span class="tag">4 questions</span></header>
+        <div class="q" data-a="c"><p>1. Une lentille en verre non traitée transmet environ…</p><div class="opts">
+          <label><input type="radio" value="a"> 100 %</label><label><input type="radio" value="b"> 96 %</label><label><input type="radio" value="c"> 92 % (4 % perdus par face)</label></div>
+          <p class="explain">Deux faces à 4 % : 0,96² ≈ 0,92.</p></div>
+        <div class="q" data-a="a"><p>2. La réflexion totale interne est possible…</p><div class="opts">
+          <label><input type="radio" value="a"> quand la lumière va d'un milieu plus réfringent vers un milieu moins réfringent</label><label><input type="radio" value="b"> dans les deux sens</label><label><input type="radio" value="c"> seulement avec un traitement métallique</label></div>
+          <p class="explain">Il faut n₁ &gt; n₂ pour que sin θ<sub>c</sub> = n₂/n₁ &lt; 1.</p></div>
+        <div class="q" data-a="b"><p>3. Pour collimater une diode laser, on place la diode…</p><div class="opts">
+          <label><input type="radio" value="a"> à 2f de la lentille</label><label><input type="radio" value="b"> au foyer de la lentille</label><label><input type="radio" value="c"> contre la lentille</label></div>
+          <p class="explain">Une source au foyer objet donne une image à l'infini : faisceau parallèle.</p></div>
+        <div class="q" data-a="b"><p>4. Un cordon a des connecteurs verts. On peut le brancher…</p><div class="opts">
+          <label><input type="radio" value="a"> sur n'importe quel connecteur</label><label><input type="radio" value="b"> uniquement sur des APC (verts)</label><label><input type="radio" value="c"> uniquement sur des UPC (bleus)</label></div>
+          <p class="explain">APC contre APC : les deux faces à 8° doivent être complémentaires.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

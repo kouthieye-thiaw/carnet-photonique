@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>la polarisation · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="physique/polarisation">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>la polarisation</h1>
+    <span class="hand">dans quel sens vibre la lumière ?</span>
+    <p class="lead">Les diodes laser émettent une lumière polarisée, les amplis et les isolateurs en dépendent, et le taux d'extinction figure sur toutes les fiches de test. Ton banc le mesurera avec un <mark>polariseur motorisé</mark>.</p>
+    <span class="sticker" data-s="photon" style="--r:-10deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>distinguer polarisations rectiligne, circulaire, elliptique et lumière non polarisée ;</li>
+          <li>appliquer la loi de Malus et mesurer un taux d'extinction (PER) ;</li>
+          <li>utiliser des lames λ/2 et λ/4, et lire une matrice de Jones ;</li>
+          <li>expliquer le fonctionnement d'un isolateur optique ;</li>
+          <li>connaître les pièges de la polarisation dans les fibres.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>les états de polarisation</h2>
+      <p>La <dfn data-g="polarisation">polarisation</dfn> est la direction dans laquelle oscille le champ électrique. Si la pointe du vecteur \(\vec E\) décrit une droite, la polarisation est <strong>rectiligne</strong> ; un cercle, <strong>circulaire</strong> ; une ellipse, <strong>elliptique</strong>. Une lampe émet une lumière <strong>non polarisée</strong> (direction aléatoire et changeante).</p>
+      <figure class="fig">
+        <div class="fig-inner">
+          <svg viewBox="0 0 760 170" role="img" aria-label="Trajectoire du champ électrique : rectiligne, circulaire, elliptique, non polarisée.">
+            <g transform="translate(95 80)"><circle r="52" fill="none" stroke="#e9e0d8"/><path d="M-36 36 L36 -36" stroke="#e2372b" stroke-width="3.5" stroke-linecap="round"/><path d="M30 -30 L36 -36 L28 -37" fill="none" stroke="#e2372b" stroke-width="2.5"/></g>
+            <g transform="translate(285 80)"><circle r="40" fill="none" stroke="#e2372b" stroke-width="3.5"/><path d="M40 -6 L40 6 L48 0" fill="#e2372b"/></g>
+            <g transform="translate(475 80)"><ellipse rx="50" ry="22" transform="rotate(-25)" fill="none" stroke="#e2372b" stroke-width="3.5"/></g>
+            <g transform="translate(665 80)" stroke="#e2372b" stroke-width="2.4" stroke-linecap="round"><path d="M-40 0 L40 0"/><path d="M0 -40 L0 40"/><path d="M-28 -28 L28 28"/><path d="M-28 28 L28 -28"/><path d="M-37 -15 L37 15"/></g>
+            <g class="svg-txt" text-anchor="middle"><text x="95" y="160">rectiligne</text><text x="285" y="160">circulaire</text><text x="475" y="160">elliptique</text><text x="665" y="160">non polarisée</text></g>
+          </svg>
+        </div>
+        <figcaption><b>Figure 1 —</b> trajectoire de la pointe du champ électrique vue face au faisceau.</figcaption>
+      </figure>
+      <p>Une diode laser émet en polarisation rectiligne, parallèle au plan de la jonction (mode TE), avec un taux d'extinction de 20 à 30 dB. Un HeNe sans fenêtres de Brewster a une polarisation qui fluctue. Une fibre standard « mélange » la polarisation au gré des contraintes.</p>
+
+      <h2><span class="n">2</span>polariseurs &amp; loi de Malus</h2>
+      <p>Un polariseur ne transmet que la composante du champ parallèle à son axe. Pour une lumière rectiligne faisant un angle \(\theta\) avec cet axe :</p>
+      <div class="formule">
+        <span class="f-name">loi de Malus</span>
+        <div class="f-eq">\[ I = I_0\cos^2\theta \]</div>
+        <div class="f-where">Lumière non polarisée : il passe toujours 50 %. Types : films dichroïques (bon marché, 100–1000 : 1), cubes séparateurs (PBS, ~1000 : 1 en transmission), prismes de calcite Glan-Taylor (&gt; 100 000 : 1).</div>
+      </div>
+      <h3>mesurer le taux d'extinction (PER)</h3>
+      <p>On fait tourner un polariseur devant le laser et on relève la puissance maximale et minimale. Le <dfn data-g="per">PER</dfn> (taux d'extinction de polarisation) vaut :</p>
+      <div class="formule">
+        <span class="f-name">taux d'extinction</span>
+        <div class="f-eq">\[ \mathrm{PER} = 10\log_{10}\frac{P_{\max}}{P_{\min}} \quad [\text{dB}] \qquad P(\theta) = P_{\min} + (P_{\max}-P_{\min})\cos^2(\theta - \theta_0) \]</div>
+        <div class="f-where">En pratique on ajuste ce modèle sur tous les points mesurés (plus robuste que de lire le min au bruit près) : c'est l'étape « PER » de ton banc. Le polariseur doit avoir une extinction bien meilleure que le PER mesuré.</div>
+      </div>
+      <div class="lab" data-widget="malus">
+        <div class="lab-head"><h4>polariseur tournant &amp; lame λ/2</h4><span class="tag green">simulation</span></div>
+        <p class="small">Le polariseur tourne comme sur le banc motorisé. Baisse le PER du laser : le minimum remonte. Ajoute une lame λ/2 et tourne-la : tout le motif se décale de deux fois son angle.</p>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>Malus et PER</h4></div>
+        <p>a) Polariseur à 60° de la polarisation : quelle fraction passe, en % ?</p>
+        <div class="check-row" data-answer="25" data-tol="0.01" data-hint="cos² 60° = 0,25">
+          <input type="text" inputmode="decimal" placeholder="%" aria-label="fraction en %"><span>%</span><button class="pill small" type="button">vérifier</button>
+        </div>
+        <p>b) P<sub>max</sub> = 4,2 mW, P<sub>min</sub> = 21 µW. PER en dB ?</p>
+        <div class="check-row" data-answer="23.0" data-tol="0.01" data-hint="10 log(4,2/0,021) = 10 log 200">
+          <input type="text" inputmode="decimal" placeholder="dB" aria-label="PER en dB"><span>dB</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">3</span>lames d'onde &amp; matrices de Jones</h2>
+      <p>Un cristal <em>biréfringent</em> a deux indices selon l'axe : la composante sur l'axe lent prend du retard. Une <dfn data-g="lame-onde">lame</dfn> λ/2 retarde d'une demi-onde : elle fait tourner une polarisation rectiligne de <strong>2α</strong> (α = angle entre polarisation et axe de la lame). Une lame λ/4 à 45° transforme une rectiligne en circulaire, et inversement.</p>
+      <div class="formule">
+        <span class="f-name">matrices de Jones (champ = vecteur (E<sub>x</sub>, E<sub>y</sub>))</span>
+        <div class="f-eq">\[ \text{polariseur horizontal} \begin{pmatrix}1&0\\0&0\end{pmatrix} \quad \lambda/2 \text{ à } \alpha: \begin{pmatrix}\cos2\alpha&\sin2\alpha\\ \sin2\alpha&-\cos2\alpha\end{pmatrix} \quad \lambda/4 \text{ à } 0: \begin{pmatrix}1&0\\0&j\end{pmatrix} \]</div>
+        <div class="f-where">Comme en optique géométrique (ABCD), un système = produit des matrices dans l'ordre inverse de la traversée. L'intensité finale est |E<sub>x</sub>|² + |E<sub>y</sub>|².</div>
+      </div>
+      <p>Combinaison très utilisée : <strong>λ/2 + cube polariseur = atténuateur variable</strong> (et séparateur de faisceau à rapport réglable), sans pièce absorbante qui chauffe.</p>
+
+      <h2><span class="n">4</span>l'isolateur optique</h2>
+      <p>Une lumière réfléchie qui revient dans un laser le perturbe : sauts de mode, bruit, voire destruction pour un laser de puissance. L'<dfn data-g="isolateur">isolateur</dfn> laisse passer la lumière dans un sens seulement : polariseur d'entrée, <dfn data-g="faraday">rotateur de Faraday</dfn> (+45°), polariseur de sortie à 45°. Au retour, le Faraday tourne encore de +45° <em>dans le même sens</em> (effet non réciproque) : la lumière arrive à 90° du polariseur d'entrée et est bloquée. Isolation typique : 30–40 dB par étage. On le retrouve en sortie de presque toutes les diodes DFB fibrées, dans les EDFA et devant les amplis évasés.</p>
+
+      <h2><span class="n">5</span>polarisation &amp; fibres</h2>
+      <ul>
+        <li>Fibre standard : la polarisation de sortie dépend de la position de la fibre, de la température… Ne jamais compter dessus.</li>
+        <li>Fibre à maintien de polarisation (PM, type « PANDA ») : deux barreaux de contrainte créent un axe lent et un axe rapide ; il faut injecter la lumière <strong>alignée sur un axe</strong> (souvent le lent, repéré par la clé du connecteur). Une erreur d'angle de 3° donne un PER d'environ 25 dB au mieux.</li>
+        <li>Pertes dépendant de la polarisation (PDL) : un composant qui transmet différemment selon la polarisation. Spécifiée en dB.</li>
+      </ul>
+      <div class="box terrain">
+        <p class="box-title">sur le terrain</p>
+        <ul>
+          <li>Quand un PER mesuré est mauvais, suspecte d'abord le montage : polariseur de mauvaise qualité, connecteur PM mal clé, fibre PM tordue, réflexions parasites.</li>
+          <li>Repère l'axe d'un polariseur ou d'une lame au marqueur avant de le démonter : on perd vite une demi-heure à le retrouver.</li>
+          <li>Un isolateur se monte dans le bon sens (flèche gravée) et loin des aimants ; il chauffe un peu à forte puissance.</li>
+        </ul>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Malus : I = I₀ cos²θ ; non polarisé → 50 %.</li>
+          <li>PER = 10 log(P<sub>max</sub>/P<sub>min</sub>) ; diode : 20–30 dB.</li>
+          <li>λ/2 tourne la polarisation de 2α ; λ/4 à 45° : rectiligne ⇄ circulaire.</li>
+          <li>Isolateur = polariseur + Faraday 45° + polariseur : non réciproque.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="physique-polarisation">
+        <header><h3>quiz éclair</h3><span class="tag">4 questions</span></header>
+        <div class="q" data-a="b"><p>1. Lumière non polarisée à travers deux polariseurs croisés à 90° :</p><div class="opts">
+          <label><input type="radio" value="a"> 50 % passe</label><label><input type="radio" value="b"> quasiment rien ne passe</label><label><input type="radio" value="c"> 25 % passe</label></div>
+          <p class="explain">Le premier laisse 50 %, polarisé ; le second, à 90°, coupe tout (cos² 90° = 0).</p></div>
+        <div class="q" data-a="c"><p>2. Une lame λ/2 tournée de 22,5° par rapport à la polarisation la fait tourner de…</p><div class="opts">
+          <label><input type="radio" value="a"> 22,5°</label><label><input type="radio" value="b"> 11,25°</label><label><input type="radio" value="c"> 45°</label></div>
+          <p class="explain">Rotation de 2α.</p></div>
+        <div class="q" data-a="a"><p>3. Qu'est-ce qui rend un isolateur optique non réciproque ?</p><div class="opts">
+          <label><input type="radio" value="a"> le rotateur de Faraday (effet magnéto-optique)</label><label><input type="radio" value="b"> les polariseurs</label><label><input type="radio" value="c"> le traitement antireflet</label></div>
+          <p class="explain">Une lame d'onde, elle, est réciproque : seul l'effet Faraday tourne dans le même sens à l'aller et au retour.</p></div>
+        <div class="q" data-a="b"><p>4. Un laser donne P<sub>max</sub>/P<sub>min</sub> = 1000. Son PER vaut…</p><div class="opts">
+          <label><input type="radio" value="a"> 1000 dB</label><label><input type="radio" value="b"> 30 dB</label><label><input type="radio" value="c"> 3 dB</label></div>
+          <p class="explain">10 log 1000 = 30 dB.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

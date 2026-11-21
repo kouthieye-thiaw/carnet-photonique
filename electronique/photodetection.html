@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>détecter la lumière : photodiode & TIA · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="electronique/photodetection">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>détecter la lumière : photodiode &amp; TIA</h1>
+    <span class="hand">transformer des photons en volts propres</span>
+    <p class="lead">Mesurer une puissance laser, c'est mesurer un photocourant de quelques µA à quelques mA. Le circuit roi pour ça : l'<mark>amplificateur à transimpédance</mark>. C'est le capteur de puissance de ton banc.</p>
+    <span class="sticker" data-s="photon" style="--r:10deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>calculer le photocourant à partir de la sensibilité d'une photodiode ;</li>
+          <li>choisir entre mode photovoltaïque et photoconducteur ;</li>
+          <li>concevoir un TIA : résistance, capacité de compensation, bande passante ;</li>
+          <li>évaluer les bruits (grenaille, thermique, AOP) et le rapport signal/bruit ;</li>
+          <li>mesurer correctement une puissance (étalonnage, lumière ambiante, saturation).</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>la photodiode</h2>
+      <p>Une <dfn data-g="photodiode">photodiode</dfn> est une jonction PN (souvent PIN : avec une zone intrinsèque large) qui convertit chaque photon absorbé en une paire électron-trou. Le photocourant est proportionnel à la puissance :</p>
+      <div class="formule">
+        <span class="f-name">sensibilité (responsivité)</span>
+        <div class="f-eq">\[ I_{ph} = \mathcal{R}\,P \qquad \mathcal{R} = \eta\,\frac{q\lambda}{hc} \approx \eta\,\frac{\lambda\,[\text{nm}]}{1240}\ \ [\text{A/W}] \]</div>
+        <div class="f-where"><b>η</b> rendement quantique (0,6–0,9). Silicium : 400–1100 nm, ≈ 0,43 A/W à 650 nm, ≈ 0,55 A/W à 850 nm. InGaAs : 900–1700 nm, ≈ 0,95 A/W à 1550 nm. Germanium : 800–1800 nm (plus bruyant).</div>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>photocourant</h4></div>
+        <p>0,5 mW à 650 nm sur une photodiode silicium de 0,43 A/W. Photocourant, en µA ?</p>
+        <div class="check-row" data-answer="215" data-tol="0.01" data-hint="I = ℛ × P">
+          <input type="text" inputmode="decimal" placeholder="µA" aria-label="photocourant en µA"><span>µA</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+      <h3>deux façons de l'utiliser</h3>
+      <div class="two-col">
+        <div class="mini-card"><h5>photovoltaïque (0 V)</h5><p>Pas de tension de polarisation : pas de <dfn data-g="courant-obscurite">courant d'obscurité</dfn>, très linéaire, idéal pour mesurer une puissance continue avec précision. Plus de capacité, donc plus lent.</p></div>
+        <div class="mini-card"><h5>photoconducteur (inverse)</h5><p>Polarisée en inverse (5 à 30 V) : la zone de charge d'espace s'élargit, la capacité baisse, la détection devient rapide (MHz–GHz). Au prix d'un courant d'obscurité qui ajoute un décalage et du bruit.</p></div>
+      </div>
+
+      <h2><span class="n">2</span>l'amplificateur à transimpédance</h2>
+      <p>On branche la photodiode sur l'entrée inverseuse d'un AOP, avec une résistance \(R_f\) entre sortie et entrée. L'AOP maintient la photodiode à 0 V (masse virtuelle) et tout le photocourant passe dans \(R_f\) :</p>
+      <div class="formule">
+        <span class="f-name">TIA : gain, bande passante, compensation</span>
+        <div class="f-eq">\[ V_s = -R_f\,I_{ph} \qquad f_{-3\,dB} \approx \sqrt{\frac{GBW}{2\pi R_f C_{in}}} \qquad C_f \approx \sqrt{\frac{C_{in}}{2\pi R_f\,GBW}} \]</div>
+        <div class="f-where"><b>C<sub>in</sub></b> = capacité de la photodiode + entrée de l'AOP · <b>GBW</b> produit gain-bande de l'AOP · <b>C<sub>f</sub></b> petite capacité en parallèle sur R<sub>f</sub> : sans elle, le <dfn data-g="tia">TIA</dfn> sonne ou oscille (la capacité de la photodiode déphase la boucle). On peut aussi choisir C<sub>f</sub> plus grande pour réduire volontairement la bande (et donc le bruit).</div>
+      </div>
+      <div class="lab" data-widget="tia">
+        <div class="lab-head"><h4>concevoir le TIA de ton banc</h4><span class="tag green">calculateur</span></div>
+        <p class="small">Valeurs de départ réalistes : photodiode silicium de 7,5 mm² (~70 pF), AOP CMOS rail-à-rail de 38 MHz, R<sub>f</sub> = 10 kΩ, 0,5 mW reçus (≈ 10 % du laser prélevés par le cube séparateur).</p>
+      </div>
+      <div class="box exemple">
+        <p class="box-title">le choix pour le banc</p>
+        <ol class="steps">
+          <li>Photocourant max : 5 mW × 10 % × 0,43 A/W ≈ 0,22 mA ; ADC jusqu'à ~3 V → R<sub>f</sub> ≈ 10 kΩ (sortie ≈ 2,2 V à pleine puissance).</li>
+          <li>AOP : entrée CMOS (courant de polarisation de l'ordre du pA, négligeable devant les µA), rail-à-rail, alimenté en 3,3 ou 5 V selon l'ADC.</li>
+          <li>Pour mesurer la puissance moyenne, on n'a pas besoin de MHz : C<sub>f</sub> = 10 nF donne f<sub>c</sub> ≈ 1,6 kHz (moins de bruit). Pour mesurer le bruit du laser (RIN) on choisirait au contraire une bande large.</li>
+          <li>Comme le montage est inverseur, on polarise ou on monte la photodiode « à l'envers » pour obtenir une tension de sortie positive, compatible avec un ADC unipolaire.</li>
+        </ol>
+      </div>
+
+      <h2><span class="n">3</span>le bruit</h2>
+      <div class="formule">
+        <span class="f-name">sources de bruit (courants équivalents en entrée, bande B)</span>
+        <div class="f-eq">\[ i_{grenaille} = \sqrt{2q\,(I_{ph}+I_d)\,B} \qquad i_{thermique} = \sqrt{\frac{4k_BT\,B}{R_f}} \qquad \mathrm{NEP} = \frac{i_{n,tot}}{\mathcal R\sqrt{B}} \]</div>
+        <div class="f-where">Le <dfn data-g="bruit-grenaille">bruit de grenaille</dfn> est fondamental (nature discrète des électrons) ; le bruit thermique de R<sub>f</sub> diminue quand R<sub>f</sub> augmente ; le bruit en tension de l'AOP est amplifié par (1 + C<sub>in</sub>/C<sub>f</sub>) aux hautes fréquences. La <dfn data-g="nep">NEP</dfn> résume la performance.</div>
+      </div>
+      <p>Règle pratique : prends la plus grande R<sub>f</sub> compatible avec la tension de sortie maximale et la bande nécessaire, et limite la bande au strict besoin.</p>
+
+      <h2><span class="n">4</span>mesurer une puissance correctement</h2>
+      <ul>
+        <li><strong>Étalonnage</strong> : on compare la lecture du TIA à un puissance-mètre étalonné à la même longueur d'onde : on obtient un coefficient (mW/V) qui englobe ℛ, le prélèvement du cube et R<sub>f</sub>. On le vérifie régulièrement.</li>
+        <li><strong>Lumière ambiante</strong> : mesure « laser éteint » (offset) soustraite systématiquement ; capot du banc fermé ; tube ou diaphragme devant la photodiode.</li>
+        <li><strong>Saturation</strong> : jamais plus de ~80 % de la pleine échelle ; une densité optique ou un changement de gamme (R<sub>f</sub> commutable) si nécessaire.</li>
+        <li><strong>Géométrie</strong> : faisceau entièrement sur la zone active, pas en bord (non-uniformités), incidence légèrement inclinée pour éviter de renvoyer la réflexion vers le laser.</li>
+        <li><strong>Température</strong> : la sensibilité varie un peu avec la température, surtout près de la coupure (1000–1100 nm pour le silicium).</li>
+      </ul>
+      <div class="box terrain">
+        <p class="box-title">sur le terrain</p>
+        <ul>
+          <li>Une photodiode quatre quadrants (ou un PSD) mesure la position d'un faisceau : c'est l'outil des asservissements d'alignement automatiques.</li>
+          <li>Signal qui « ondule » à 100 Hz : éclairage ambiant (tubes, LED du plafond). Signal qui oscille à quelques MHz sans lumière : TIA mal compensé.</li>
+          <li>Les détecteurs amplifiés du commerce ont plusieurs gains : note toujours le gain utilisé avec la mesure.</li>
+        </ul>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>I = ℛP ; ℛ ≈ ηλ(nm)/1240 A/W.</li>
+          <li>Photovoltaïque = précis en continu ; photoconducteur = rapide.</li>
+          <li>TIA : V = R<sub>f</sub>I ; f ≈ √(GBW/2πR<sub>f</sub>C<sub>in</sub>) ; C<sub>f</sub> ≈ √(C<sub>in</sub>/2πR<sub>f</sub>GBW).</li>
+          <li>Bruits : grenaille, thermique (∝ 1/√R<sub>f</sub>), AOP ; étalonner, soustraire l'offset, éviter la saturation.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="elec-tia">
+        <header><h3>quiz éclair</h3><span class="tag">4 questions</span></header>
+        <div class="q" data-a="c"><p>1. Une photodiode silicium peut-elle mesurer un laser à 1550 nm ?</p><div class="opts">
+          <label><input type="radio" value="a"> oui, mieux qu'à 650 nm</label><label><input type="radio" value="b"> oui avec un TIA plus grand</label><label><input type="radio" value="c"> non, le silicium est transparent au-delà de ~1100 nm</label></div>
+          <p class="explain">Il faut de l'InGaAs ou du germanium.</p></div>
+        <div class="q" data-a="a"><p>2. Rôle de la petite capacité C<sub>f</sub> en parallèle sur R<sub>f</sub> ?</p><div class="opts">
+          <label><input type="radio" value="a"> stabiliser le TIA (et fixer sa bande)</label><label><input type="radio" value="b"> augmenter le gain</label><label><input type="radio" value="c"> polariser la photodiode</label></div>
+          <p class="explain">Elle compense le déphasage introduit par la capacité de la photodiode.</p></div>
+        <div class="q" data-a="b"><p>3. On double R<sub>f</sub>. Le bruit thermique ramené en courant…</p><div class="opts">
+          <label><input type="radio" value="a"> double</label><label><input type="radio" value="b"> est divisé par √2</label><label><input type="radio" value="c"> ne change pas</label></div>
+          <p class="explain">i<sub>th</sub> = √(4kTB/R<sub>f</sub>).</p></div>
+        <div class="q" data-a="c"><p>4. Le signal mesuré laser éteint n'est pas nul. Que faire ?</p><div class="opts">
+          <label><input type="radio" value="a"> l'ignorer</label><label><input type="radio" value="b"> changer de photodiode</label><label><input type="radio" value="c"> le mesurer et le soustraire (offset : lumière ambiante, courant d'obscurité, décalage de l'AOP)</label></div>
+          <p class="explain">Toujours une mesure de « zéro » avant une série.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

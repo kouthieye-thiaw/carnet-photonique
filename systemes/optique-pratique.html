@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>nettoyage, manipulation & alignement · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="systemes/optique-pratique">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>nettoyage, manipulation &amp; alignement</h1>
+    <span class="hand">les gestes du métier</span>
+    <p class="lead">Une empreinte de doigt sur un miroir, une poussière sur un connecteur, une vis tournée au hasard : c'est là que se perdent la plupart des watts. Les <mark>gestes justes</mark>, et un jeu pour apprendre à aligner un faisceau.</p>
+    <span class="sticker" data-s="cle" style="--r:9deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>manipuler et stocker des optiques sans les abîmer ;</li>
+          <li>inspecter et nettoyer une optique et un connecteur fibré selon la bonne méthode ;</li>
+          <li>monter une optique sur une table proprement ;</li>
+          <li>aligner un faisceau avec deux miroirs et deux diaphragmes ;</li>
+          <li>aligner une lentille et injecter dans une fibre.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>manipuler</h2>
+      <ul>
+        <li>Gants nitrile non poudrés ou doigtiers ; on tient l'optique <strong>par la tranche</strong>, jamais par une face traitée.</li>
+        <li>Ne pas parler ni respirer au-dessus d'une optique ouverte (postillons).</li>
+        <li>Repérer le sens : une flèche ou un trait sur la tranche indique souvent la face traitée ou le sens de passage ; conserver l'étiquette et la boîte.</li>
+        <li>Stocker dans du papier optique, dans une boîte fermée ; jamais deux optiques en contact.</li>
+        <li>Réseaux de diffraction, miroirs métalliques non protégés et films fins : <strong>ne jamais les toucher</strong>, même pour les nettoyer (soufflage seulement).</li>
+      </ul>
+
+      <h2><span class="n">2</span>inspecter, puis nettoyer</h2>
+      <p>On n'improvise pas un nettoyage : on inspecte d'abord (lampe en lumière rasante, loupe, microscope), et on choisit la méthode <strong>la plus douce qui suffit</strong>.</p>
+      <ol>
+        <li><strong>Souffler</strong> à l'air sec filtré ou à l'azote (bombe tenue droite, première giclée à côté — sinon le gaz propulseur se dépose).</li>
+        <li><strong>« Goutte et glisse »</strong> (drop and drag) : un papier optique posé sur la face, une goutte d'isopropanol (ou méthanol) de qualité analytique, on tire lentement le papier sur la surface sans appuyer, une seule fois. Papier neuf à chaque passage.</li>
+        <li><strong>Papier plié tenu par une pince</strong>, humecté, en un seul mouvement en spirale ou en ligne, pour les optiques montées.</li>
+        <li>On ne frotte jamais à sec ; jamais de coton-tige ordinaire ni de mouchoir ; l'acétone attaque plastiques et certains collages.</li>
+        <li>On réinspecte. Une tache qui résiste peut être une <strong>brûlure du traitement</strong> : l'optique est à remplacer.</li>
+      </ol>
+      <h3>les connecteurs fibrés</h3>
+      <p>Règle d'or (IEC 61300-3-35) : <strong>inspecter, nettoyer si nécessaire, réinspecter, connecter</strong>. Nettoyeur « un clic » ou cassette à ruban pour les <dfn data-g="ferrule">ferrules</dfn>, bâtonnets pour les traversées. Un sonde-microscope vidéo montre le cœur : la moindre particule dessus peut provoquer des pertes, des réflexions, et à forte puissance une brûlure qui détruit les deux connecteurs.</p>
+      <div class="box attention">
+        <p class="box-title">toujours couper la source avant</p>
+        <p>On n'inspecte jamais un connecteur ou une sortie fibrée sous tension avec un microscope optique direct : l'oculaire concentrerait la lumière dans l'œil. Sources coupées, ou sonde vidéo.</p>
+      </div>
+
+      <h2><span class="n">3</span>monter sur une table optique</h2>
+      <ul>
+        <li><strong>Hauteur de faisceau constante</strong> (par exemple 60 ou 75 mm) partout : on règle chaque monture avec une même pige.</li>
+        <li>Poteaux dans des porte-poteaux, fixés par brides ou vis M6 ; pas de montage « en l'air ».</li>
+        <li>Optiques serrées juste assez : une bague trop serrée crée des contraintes (biréfringence, déformation du front d'onde).</li>
+        <li>Montures cinématiques pour tout ce qui se règle ; vis de réglage à mi-course au départ.</li>
+        <li>Câbles fixés, pas de tension sur les montures ; table propre (pas de café, pas de clés).</li>
+        <li>Chaque faisceau terminé par un piège ; les réflexions parasites bloquées.</li>
+      </ul>
+
+      <h2><span class="n">4</span>aligner : le « beam walking »</h2>
+      <p>Un faisceau a deux défauts possibles dans chaque plan : une <strong>position</strong> et un <strong>angle</strong>. Avec deux miroirs, on a les deux réglages nécessaires. On matérialise l'axe voulu par deux diaphragmes, I1 (proche) et I2 (lointain) :</p>
+      <ol>
+        <li>tourner <strong>M1</strong> pour centrer le faisceau sur <strong>I1</strong> ;</li>
+        <li>ouvrir I1, tourner <strong>M2</strong> pour centrer sur <strong>I2</strong> ;</li>
+        <li>recommencer : chaque passe réduit l'écart. Deux à quatre passes suffisent en général. Puis l'autre axe (vertical).</li>
+      </ol>
+      <div class="lab" data-widget="beam-walk">
+        <div class="lab-head"><h4>à toi d'aligner</h4><span class="tag green">jeu</span></div>
+        <p class="small">Le faisceau doit passer au centre des deux diaphragmes (cercles verts quand c'est bon). Les angles du schéma sont exagérés ; les vues de face montrent où tombe le spot. Essaie aussi la mauvaise méthode (M2 sur I1) : tu verras qu'on tourne en rond.</p>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>bras de levier</h4></div>
+        <p>Une erreur d'angle de 0,1 mrad sur un faisceau : de combien de mm s'écarte-t-il au bout de 2 m ?</p>
+        <div class="check-row" data-answer="0.2" data-tol="0.01" data-hint="1 mrad = 1 mm à 1 m">
+          <input type="text" inputmode="decimal" placeholder="mm" aria-label="écart en mm"><span>mm</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+      <h3>aligner une lentille</h3>
+      <p>Une lentille mal centrée dévie le faisceau ; inclinée, elle crée de l'astigmatisme. Méthode : repérer la position du faisceau sur une cible lointaine <em>sans</em> lentille, insérer la lentille et la déplacer latéralement jusqu'à ce que le spot revienne au même endroit (centrage), puis l'incliner pour que la réflexion sur sa face revienne sur le faisceau incident (perpendicularité), sans la renvoyer dans le laser (léger décalage, isolateur).</p>
+      <h3>injecter dans une fibre</h3>
+      <p>On fixe le collimateur fibré et on « marche » le faisceau dedans avec deux miroirs (même principe que ci-dessus), en optimisant la puissance transmise lue sur un puissance-mètre. Astuce : injecter d'abord une lumière visible <em>depuis</em> l'autre bout de la fibre et superposer les deux faisceaux. Le rendement dépend surtout de l'accord des tailles de faisceau (col vs diamètre de mode) : un mauvais couplage n'est pas toujours un problème d'alignement.</p>
+      <div class="box terrain">
+        <p class="box-title">sur le terrain</p>
+        <ul>
+          <li>Avant de toucher une vis, marque sa position (feutre) : tu pourras revenir en arrière.</li>
+          <li>Petites rotations (1/16 de tour), en observant l'effet ; si rien ne change, reviens à la position initiale avant de tourner une autre vis.</li>
+          <li>Aligne à faible puissance, lunettes adaptées, cartes de visualisation (IR : phosphore).</li>
+        </ul>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Par la tranche, gants, jamais toucher un réseau ; boîte et papier optique.</li>
+          <li>Inspecter → souffler → goutte et glisse (IPA, papier neuf) → réinspecter.</li>
+          <li>Fibre : inspecter, nettoyer, réinspecter, connecter — source coupée.</li>
+          <li>Beam walking : M1 → I1, M2 → I2, itérer ; une vis à la fois, positions marquées.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="sys-optique">
+        <header><h3>quiz éclair</h3><span class="tag">4 questions</span></header>
+        <div class="q" data-a="c"><p>1. Comment nettoyer un réseau de diffraction poussiéreux ?</p><div class="opts">
+          <label><input type="radio" value="a"> papier optique et isopropanol</label><label><input type="radio" value="b"> coton-tige à sec</label><label><input type="radio" value="c"> uniquement par soufflage (jamais de contact)</label></div>
+          <p class="explain">Les sillons d'un réseau ne supportent aucun contact.</p></div>
+        <div class="q" data-a="a"><p>2. Dans le beam walking, quel miroir règle-t-on pour le diaphragme proche ?</p><div class="opts">
+          <label><input type="radio" value="a"> le miroir le plus éloigné des diaphragmes (M1)</label><label><input type="radio" value="b"> le miroir le plus proche (M2)</label><label><input type="radio" value="c"> peu importe</label></div>
+          <p class="explain">M1 a un grand bras de levier sur I1, M2 sert ensuite à corriger l'angle sur I2.</p></div>
+        <div class="q" data-a="b"><p>3. Après nettoyage, une tache reste sur un miroir HR. Hypothèse ?</p><div class="opts">
+          <label><input type="radio" value="a"> il faut frotter plus fort</label><label><input type="radio" value="b"> traitement brûlé ou abîmé : à remplacer</label><label><input type="radio" value="c"> c'est normal</label></div>
+          <p class="explain">Frotter aggraverait les choses.</p></div>
+        <div class="q" data-a="c"><p>4. Pourquoi tenir une bombe d'air sec bien droite ?</p><div class="opts">
+          <label><input type="radio" value="a"> pour souffler plus fort</label><label><input type="radio" value="b"> par habitude</label><label><input type="radio" value="c"> inclinée, elle projette du gaz propulseur liquide qui laisse des traces</label></div>
+          <p class="explain">Et première giclée à côté de l'optique.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

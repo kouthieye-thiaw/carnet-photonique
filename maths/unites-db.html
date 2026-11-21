@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>unités, puissances de 10 & décibels · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="maths/unites-db">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>unités, puissances de 10 &amp; décibels</h1>
+    <span class="hand">la langue maternelle du technicien</span>
+    <p class="lead">En photonique on passe du picomètre au kilomètre, du nanowatt au kilowatt. Pour ne pas se noyer, trois outils : les <mark>préfixes</mark>, la notation scientifique et les <mark>décibels</mark>.</p>
+    <span class="sticker" data-s="pi" style="--r:-10deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>lire et convertir n'importe quelle valeur avec les préfixes du SI ;</li>
+          <li>calculer avec des puissances de 10 sans calculatrice pour estimer un ordre de grandeur ;</li>
+          <li>passer de mW en dBm et inversement, de tête pour les valeurs courantes ;</li>
+          <li>faire un budget de liaison optique en additionnant des dB ;</li>
+          <li>éviter les deux pièges classiques : additionner des dBm, confondre dB optiques et électriques.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>les préfixes du système international</h2>
+      <p>Chaque préfixe vaut un facteur 1000 (10³) avec le suivant. Apprends le tableau par cœur : c'est rentable toute une carrière.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>préfixe</th><th>symbole</th><th class="num">facteur</th><th>exemple en photonique</th></tr></thead>
+        <tbody>
+          <tr><td>femto</td><td>f</td><td class="num">10⁻¹⁵</td><td>durée d'une impulsion d'un laser titane-saphir : 30 fs</td></tr>
+          <tr><td>pico</td><td>p</td><td class="num">10⁻¹²</td><td>largeur spectrale d'une diode DFB : 0,8 pm à 1550 nm</td></tr>
+          <tr><td>nano</td><td>n</td><td class="num">10⁻⁹</td><td>longueur d'onde : 650 nm ; impulsion déclenchée : 10 ns</td></tr>
+          <tr><td>micro</td><td>µ</td><td class="num">10⁻⁶</td><td>cœur d'une fibre monomode : 8 µm ; courant de photodiode : 300 µA</td></tr>
+          <tr><td>milli</td><td>m</td><td class="num">10⁻³</td><td>puissance d'une diode rouge : 5 mW ; courant de seuil : 25 mA</td></tr>
+          <tr><td>kilo</td><td>k</td><td class="num">10³</td><td>résistance de rétroaction d'un TIA : 10 kΩ ; laser de découpe : 6 kW</td></tr>
+          <tr><td>méga</td><td>M</td><td class="num">10⁶</td><td>bande passante d'un TIA : 10 MHz ; largeur de raie : 1 MHz</td></tr>
+          <tr><td>giga</td><td>G</td><td class="num">10⁹</td><td>écart entre modes d'une cavité de 15 cm : 1 GHz</td></tr>
+          <tr><td>téra</td><td>T</td><td class="num">10¹²</td><td>fréquence de la lumière à 1550 nm : 193,4 THz</td></tr>
+        </tbody>
+      </table></div>
+      <div class="box attention">
+        <p class="box-title">pièges de notation</p>
+        <ul>
+          <li><strong>m</strong> (milli) ≠ <strong>M</strong> (méga) : un facteur 10⁹ d'écart ! 1 mW et 1 MW, ce n'est pas le même laser…</li>
+          <li><strong>µ</strong> s'écrit parfois « u » dans les logiciels et les fiches techniques (uA, um).</li>
+          <li>Les unités ne prennent jamais de « s » et s'écrivent en minuscules, sauf celles issues d'un nom propre (W, A, V, Hz, K).</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">2</span>notation scientifique &amp; ordres de grandeur</h2>
+      <p>On écrit un nombre sous la forme \(a \times 10^n\) avec \(1 \le a < 10\). Les règles de calcul tiennent en trois lignes :</p>
+      <div class="formule">
+        <span class="f-name">règles des puissances de 10</span>
+        <div class="f-eq">\[ 10^a \times 10^b = 10^{a+b} \qquad \frac{10^a}{10^b} = 10^{a-b} \qquad \left(10^a\right)^b = 10^{ab} \]</div>
+      </div>
+      <div class="box exemple">
+        <p class="box-title">combien de photons dans 1 mW de lumière rouge ?</p>
+        <ol class="steps">
+          <li>Énergie d'un photon à 650 nm : \(E = \dfrac{hc}{\lambda} = \dfrac{6{,}63\cdot10^{-34} \times 3\cdot10^{8}}{650\cdot10^{-9}} \approx 3{,}06\cdot10^{-19}\) J.</li>
+          <li>Nombre de photons par seconde : \(N = \dfrac{P}{E} = \dfrac{10^{-3}}{3{,}06\cdot10^{-19}} \approx 3{,}3\cdot10^{15}\) photons/s.</li>
+          <li>Ordre de grandeur à retenir : <strong>un milliwatt, c'est quelques millions de milliards de photons par seconde</strong>.</li>
+        </ol>
+      </div>
+      <div class="box astuce">
+        <p class="box-title">astuce calculatrice</p>
+        <p>Mets ta calculatrice en mode <kbd>ENG</kbd> (ingénieur) : elle affiche les exposants multiples de 3, qui correspondent directement aux préfixes (3,06E−19 → 306E−21…). Sur une fiche de mesure, écris toujours l'unité avec le préfixe, jamais un nombre nu.</p>
+      </div>
+      <h3>grandeurs qu'on manipule tous les jours</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>grandeur</th><th>symbole</th><th>unité</th><th>à retenir</th></tr></thead>
+        <tbody>
+          <tr><td>puissance optique</td><td>P</td><td>W</td><td>énergie par seconde : 1 W = 1 J/s</td></tr>
+          <tr><td>énergie d'impulsion</td><td>E</td><td>J</td><td>E = P<sub>moyenne</sub> / cadence</td></tr>
+          <tr><td>éclairement (densité de puissance)</td><td>I</td><td>W/m² (souvent W/cm²)</td><td>1 W/cm² = 10⁴ W/m² ; c'est lui qui brûle, pas la puissance seule</td></tr>
+          <tr><td>longueur d'onde</td><td>λ</td><td>m (nm, µm)</td><td>visible 380–780 nm, télécom 1260–1675 nm</td></tr>
+          <tr><td>fréquence</td><td>ν (nu)</td><td>Hz (THz)</td><td>ν = c/λ ; 1550 nm ↔ 193,4 THz</td></tr>
+          <tr><td>température</td><td>T</td><td>K ou °C</td><td>T(K) = T(°C) + 273,15 ; un écart de 1 °C = 1 K</td></tr>
+        </tbody>
+      </table></div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>densité de puissance</h4></div>
+        <p>Une diode de 5 mW est focalisée sur une tache de 1 mm². Quel est l'éclairement, en W/cm² ?</p>
+        <div class="check-row" data-answer="0.5" data-tol="0.02" data-hint="1 mm² = 10⁻² cm² ; 5·10⁻³ W / 10⁻² cm²">
+          <input type="text" inputmode="decimal" placeholder="ta réponse" aria-label="éclairement en W/cm²"><span>W/cm²</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">3</span>les décibels, ou l'art d'additionner au lieu de multiplier</h2>
+      <p>Dans une chaîne (laser → connecteur → fibre → ampli → coupleur → détecteur), les gains et les pertes se <em>multiplient</em>. Les logarithmes transforment ces multiplications en additions : c'est tout l'intérêt du <dfn data-g="decibel">décibel</dfn>.</p>
+      <div class="formule">
+        <span class="f-name">gain ou perte en décibels (rapport de puissances)</span>
+        <div class="f-eq">\[ G_{\text{dB}} = 10\,\log_{10}\!\left(\frac{P_2}{P_1}\right) \qquad\Longleftrightarrow\qquad \frac{P_2}{P_1} = 10^{\,G_{\text{dB}}/10} \]</div>
+        <div class="f-where">Pour des <b>tensions ou courants</b> (puissance ∝ V²) : \(G_{\text{dB}} = 20\log_{10}(V_2/V_1)\).</div>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>dB</th><th class="num">rapport de puissance</th><th>dB</th><th class="num">rapport</th></tr></thead>
+        <tbody>
+          <tr><td>+0,1 dB</td><td class="num">× 1,023 (+2,3 %)</td><td>−0,1 dB</td><td class="num">× 0,977</td></tr>
+          <tr><td>+1 dB</td><td class="num">× 1,26</td><td>−1 dB</td><td class="num">× 0,79</td></tr>
+          <tr><td>+3 dB</td><td class="num">× 2</td><td>−3 dB</td><td class="num">÷ 2</td></tr>
+          <tr><td>+6 dB</td><td class="num">× 4</td><td>−6 dB</td><td class="num">÷ 4</td></tr>
+          <tr><td>+10 dB</td><td class="num">× 10</td><td>−10 dB</td><td class="num">÷ 10</td></tr>
+          <tr><td>+20 dB</td><td class="num">× 100</td><td>−30 dB</td><td class="num">÷ 1000</td></tr>
+        </tbody>
+      </table></div>
+      <p>Avec ces deux briques (« 3 dB = ×2 » et « 10 dB = ×10 ») tu décomposes tout de tête : 13 dB = 10 + 3 → × 20 ; 7 dB = 10 − 3 → × 5 ; 17 dB = 20 − 3 → × 50.</p>
+
+      <h3>le dBm : une puissance absolue</h3>
+      <p>Le décibel seul est un <em>rapport</em>. Le <dfn data-g="dbm">dBm</dfn> est une <em>puissance</em> : des dB au-dessus de 1 mW. C'est l'unité affichée par tous les puissance-mètres et analyseurs de spectre télécoms.</p>
+      <div class="formule">
+        <span class="f-name">conversion mW ⇄ dBm</span>
+        <div class="f-eq">\[ P_{\text{dBm}} = 10\,\log_{10}\!\left(\frac{P}{1\ \text{mW}}\right) \qquad\qquad P_{\text{mW}} = 10^{\,P_{\text{dBm}}/10} \]</div>
+        <div class="f-where">1 µW = −30 dBm · 10 µW = −20 dBm · 100 µW = −10 dBm · 1 mW = 0 dBm · 2 mW ≈ 3 dBm · 10 mW = 10 dBm · 100 mW = 20 dBm · 1 W = 30 dBm.</div>
+      </div>
+      <div class="box attention">
+        <p class="box-title">les deux pièges</p>
+        <ol>
+          <li><strong>dBm + dB = dBm</strong> (une puissance qui subit un gain) ; <strong>dB + dB = dB</strong> ; mais <strong>dBm + dBm n'a aucun sens</strong>. Deux lasers de 0 dBm combinés donnent 2 mW = 3 dBm, pas « 0 dBm ».</li>
+          <li><strong>dB optique ≠ dB électrique</strong>. Le photocourant est proportionnel à la puissance optique, mais la puissance électrique est proportionnelle au <em>carré</em> du courant. Une perte optique de 1 dB donne donc une perte de 2 dB sur le signal électrique mesuré à l'analyseur de spectre RF. Pense-y en mesure de bruit (RIN).</li>
+        </ol>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>conversions éclair</h4></div>
+        <p>a) 0,5 mW en dBm ?</p>
+        <div class="check-row" data-answer="-3.01" data-tol="0.01" data-abs="0.02" data-hint="moitié de 1 mW → −3 dB">
+          <input type="text" inputmode="decimal" placeholder="dBm" aria-label="0,5 mW en dBm"><span>dBm</span><button class="pill small" type="button">vérifier</button>
+        </div>
+        <p>b) 13 dBm en mW ?</p>
+        <div class="check-row" data-answer="19.95" data-tol="0.02" data-hint="13 = 10 + 3 → 10 × 2">
+          <input type="text" inputmode="decimal" placeholder="mW" aria-label="13 dBm en mW"><span>mW</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">4</span>le budget de liaison</h2>
+      <p>Pour savoir si une liaison fonctionne, on part de la puissance émise (dBm), on soustrait toutes les pertes (dB), on ajoute les gains (dB) et on compare à la sensibilité du récepteur (dBm). La différence est la <strong>marge</strong>. Valeurs typiques : fibre monomode 0,2 dB/km à 1550 nm (0,35 dB/km à 1310 nm), connecteur 0,2–0,5 dB, épissure par fusion 0,02–0,1 dB, coupleur 1 vers N : 10·log(N) + 0,5 dB d'excès.</p>
+      <div class="lab" data-widget="db-convert">
+        <div class="lab-head"><h4>convertisseur &amp; budget de liaison</h4><span class="tag green">simulation</span></div>
+        <p class="small">En haut : convertis dans les deux sens. En dessous : construis une liaison et regarde la puissance descendre « en escalier » le long de la chaîne.</p>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>une vraie liaison</h4></div>
+        <p>Laser de 2 mW, 25 km de fibre à 0,22 dB/km, 4 connecteurs à 0,3 dB. Quelle puissance reçue, en dBm ?</p>
+        <div class="check-row" data-answer="-3.69" data-tol="0.01" data-abs="0.03" data-hint="2 mW = 3,01 dBm ; pertes = 25 × 0,22 + 4 × 0,3 = 6,7 dB">
+          <input type="text" inputmode="decimal" placeholder="dBm" aria-label="puissance reçue en dBm"><span>dBm</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">5</span>sur le terrain</h2>
+      <div class="box terrain">
+        <p class="box-title">au poste de mesure</p>
+        <ul>
+          <li>Un puissance-mètre affiche souvent les deux unités : choisis <strong>dBm</strong> pour un budget, <strong>mW</strong> pour une caractérisation de diode.</li>
+          <li>Pour mesurer une <em>perte d'insertion</em>, on fait une « référence » : on mesure d'abord la source seule avec un cordon (bouton REF ou « set 0 dB »), puis on insère le composant ; l'appareil affiche directement la perte en dB.</li>
+          <li>La longueur d'onde réglée sur le puissance-mètre doit être celle du laser : la sensibilité d'une tête photodiode change avec λ (voir <a href="../electronique/photodetection.html">photodétection</a>).</li>
+          <li>Note toujours : valeur + unité + longueur d'onde + conditions (température, courant). Une mesure sans contexte est inutilisable six mois plus tard.</li>
+        </ul>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Préfixes de 10³ en 10³ : f p n µ m · k M G T.</li>
+          <li>3 dB = × 2 ; 10 dB = × 10 ; 0 dBm = 1 mW ; 30 dBm = 1 W.</li>
+          <li>Budget : P<sub>reçue</sub> (dBm) = P<sub>émise</sub> (dBm) − Σ pertes (dB) + Σ gains (dB).</li>
+          <li>On n'additionne jamais deux dBm ; 1 dB optique = 2 dB électriques.</li>
+        </ul>
+      </div>
+
+      <section class="quiz" data-quiz="maths-unites-db">
+        <header><h3>quiz éclair</h3><span class="tag">5 questions</span></header>
+        <div class="q" data-a="c"><p>1. 250 µW, c'est…</p><div class="opts">
+          <label><input type="radio" value="a"> 2,5 mW</label><label><input type="radio" value="b"> 0,025 mW</label><label><input type="radio" value="c"> 0,25 mW</label></div>
+          <p class="explain">µ = 10⁻⁶ et m = 10⁻³ : 250·10⁻⁶ W = 0,25·10⁻³ W.</p></div>
+        <div class="q" data-a="b"><p>2. Un ampli a un gain de 20 dB. Il multiplie la puissance par…</p><div class="opts">
+          <label><input type="radio" value="a"> 20</label><label><input type="radio" value="b"> 100</label><label><input type="radio" value="c"> 40</label></div>
+          <p class="explain">20 dB = 10 dB + 10 dB = × 10 × 10.</p></div>
+        <div class="q" data-a="a"><p>3. −20 dBm, c'est…</p><div class="opts">
+          <label><input type="radio" value="a"> 10 µW</label><label><input type="radio" value="b"> 0,2 mW</label><label><input type="radio" value="c"> −20 mW</label></div>
+          <p class="explain">−20 dB sous 1 mW = 1 mW ÷ 100 = 10 µW. Une puissance n'est jamais négative ; seul son niveau en dBm peut l'être.</p></div>
+        <div class="q" data-a="c"><p>4. Deux lasers de 0 dBm sont combinés sans perte. La puissance totale vaut…</p><div class="opts">
+          <label><input type="radio" value="a"> 0 dBm</label><label><input type="radio" value="b"> 0 dB</label><label><input type="radio" value="c"> 3 dBm</label></div>
+          <p class="explain">1 mW + 1 mW = 2 mW = 3 dBm. On convertit en mW pour additionner des puissances.</p></div>
+        <div class="q" data-a="b"><p>5. La puissance optique sur une photodiode baisse de 3 dB. Sur l'analyseur de spectre électrique, le signal baisse de…</p><div class="opts">
+          <label><input type="radio" value="a"> 3 dB</label><label><input type="radio" value="b"> 6 dB</label><label><input type="radio" value="c"> 1,5 dB</label></div>
+          <p class="explain">Le courant est divisé par 2 ; la puissance électrique (∝ I²) est divisée par 4, soit −6 dB.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

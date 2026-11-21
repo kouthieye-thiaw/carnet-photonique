@@ -1,0 +1,35 @@
+/* Raccord des pages de révision BUT3 au carnet photonique :
+   barre de retour, polices et couleurs de la charte (thème clair uniquement). */
+@import url("../assets/css/fonts.css");
+
+:root[data-theme="light"] {
+  --bg: #fdfbf9; --page: #fdfbf9; --surface: #ffffff; --surface2: #f7efe9; --paper: #fffdfb; --panel: #ffffff; --card: #ffffff;
+  --ink: #171717; --strong: #2b1a07; --line: #e9e0d8; --line2: #d9cdc2; --line-strong: #d9cdc2; --faint: #e9e0d8; --wash: #f7efe9;
+  --accent: #ce500a; --accent-soft: #fdeee4;
+  --sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --serif: "Fraunces", Georgia, serif;
+}
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --bg: #fdfbf9; --page: #fdfbf9; --surface: #ffffff; --surface2: #f7efe9; --paper: #fffdfb; --panel: #ffffff; --card: #ffffff;
+    --ink: #171717; --strong: #2b1a07; --line: #e9e0d8; --line2: #d9cdc2; --line-strong: #d9cdc2; --faint: #e9e0d8; --wash: #f7efe9;
+    --accent: #ce500a; --accent-soft: #fdeee4;
+    --sans: "Geist", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    --serif: "Fraunces", Georgia, serif;
+  }
+}
+
+.carnet-bar {
+  position: relative; z-index: 60;
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px;
+  padding: 10px 16px; background: #fdfbf9; color: #171717;
+  border-bottom: 1.5px solid #171717;
+  font: 500 15px/1.2 "Geist", ui-sans-serif, system-ui, sans-serif;
+}
+.carnet-bar a { color: #171717; text-decoration: none; }
+.carnet-bar .cb-pill { border: 1.5px solid #171717; border-radius: 20px; padding: 6px 14px; background: #fdfbf9; transition: background .2s ease; }
+.carnet-bar .cb-pill:hover, .carnet-bar .cb-pill:focus-visible { background: #f7efe9; }
+.carnet-bar .cb-hand { font: 600 22px/1 "Caveat", cursive; color: #ff6f1e; }
+.carnet-bar .cb-brand { font: 600 18px/1.2 "Fraunces", Georgia, serif; color: #2b1a07; }
+@media (max-width: 520px) { .carnet-bar .cb-hand { display: none; } }
+@media print { .carnet-bar { display: none; } }

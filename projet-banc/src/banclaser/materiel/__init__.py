@@ -1,0 +1,1 @@
+"""Interfaces matérielles (fourni)."""

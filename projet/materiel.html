@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>le matériel & la nomenclature · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="projet/materiel">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>le matériel &amp; la nomenclature</h1>
+    <span class="hand">chaque composant a une raison d'être</span>
+    <p class="lead">Avant d'acheter, on <mark>justifie chaque choix</mark> : quelle diode, quelle photodiode, quel convertisseur, quelle caméra, quelle mécanique. La nomenclature interactive calcule ton budget en version économique ou « labo ».</p>
+    <span class="sticker" data-s="framboise" style="--r:-8deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette page, tu sauras…</h4>
+        <ul>
+          <li>justifier le choix de chaque composant du banc ;</li>
+          <li>lire une fiche technique pour vérifier la compatibilité (brochage, tensions, adresses) ;</li>
+          <li>établir et chiffrer une nomenclature ;</li>
+          <li>savoir où acheter, et quoi emprunter.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>la diode à tester</h2>
+      <ul>
+        <li><strong>Rouge 650 nm, 5–7 mW, boîtier TO-56, avec photodiode moniteur</strong> : visible (alignement facile), bon marché, classe 3R au maximum. On en prend <strong>deux</strong> : la première peut mourir pendant l'apprentissage, c'est normal.</li>
+        <li>Vérifier sur la fiche : courant max, tension inverse max, <strong>brochage</strong> (boîtier relié à l'anode ou à la cathode ?), courant de seuil et pente typiques — tes futures valeurs de comparaison.</li>
+        <li>Plus tard : une diode 780 nm ou 850 nm (invisible : précautions renforcées), ou une diode fibrée 1550 nm avec une photodiode InGaAs pour te rapprocher des télécoms.</li>
+      </ul>
+
+      <h2><span class="n">2</span>l'électronique</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>fonction</th><th>choix</th><th>pourquoi</th></tr></thead>
+        <tbody>
+          <tr><td>consigne de courant</td><td>DAC MCP4725 (12 bits, I²C)</td><td>simple, résolution ≈ 15 µA avec le diviseur ; EEPROM à programmer à 0</td></tr>
+          <tr><td>source de courant</td><td>AOP CMOS rail-à-rail + MOSFET logique + shunt 10 Ω 0,1 %</td><td>montage étudié en module 05, compliance confortable sous 5 V</td></tr>
+          <tr><td>protections</td><td>relais NF, Schottky, diviseur de consigne, chien de garde 74HC123</td><td>défense en profondeur</td></tr>
+          <tr><td>mesures</td><td>2 × ADS1115 (16 bits, PGA)</td><td>assez précis pour P, I, V et T ; 860 éch./s max (suffisant sauf pour le bruit rapide)</td></tr>
+          <tr><td>photodiodes</td><td>Si PIN grande surface + TIA 10 kΩ</td><td>linéaire, peu chère, ≈ 0,43 A/W à 650 nm</td></tr>
+          <tr><td>température</td><td>CTN 10 kΩ + pont, Peltier 15 × 15 mm, DRV8871 + LC</td><td>régulation au centième de degré possible</td></tr>
+          <tr><td>moteurs</td><td>TMC2209 (NEMA 17), ULN2003 (28BYJ-48)</td><td>silencieux, micro-pas ; simple pour le polariseur</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2><span class="n">3</span>l'optique et la mécanique</h2>
+      <ul>
+        <li><strong>Hauteur de faisceau</strong> fixée une fois pour toutes (60 mm dans le modèle) : tous les supports sont réglés dessus.</li>
+        <li><strong>Prélèvement</strong> : une lame de verre à 45° renvoie ~8 % (mélange des réflexions des deux faces) ; une séparatrice 90:10 non polarisante est plus propre. Dans les deux cas, l'<a href="validation.html">étalonnage</a> donne le vrai rapport.</li>
+        <li><strong>Caméra HQ sans objectif</strong> : capteur 7,9 mm de diagonale, pixels de 1,55 µm ; les densités neutres évitent la saturation.</li>
+        <li><strong>Spectromètre maison</strong> : fente + réseau 1000 traits/mm + Camera Module 3 ; résolution visée ≈ 0,5 nm, suffisante pour suivre la longueur d'onde avec la température (0,2 nm/°C), pas pour séparer les modes (0,2 nm d'écart).</li>
+        <li><strong>Mécanique</strong> : plaque M6 au pas de 25 mm, supports imprimés en 3D (PLA noir mat) ou standards du commerce.</li>
+      </ul>
+
+      <h2><span class="n">4</span>la nomenclature chiffrée</h2>
+      <div class="lab" data-widget="bom">
+        <div class="lab-head"><h4>nomenclature interactive</h4><span class="tag green">outil</span></div>
+        <p class="small">Prix indicatifs (2026), à vérifier au moment de la commande. Coche ce que tu possèdes déjà ou que l'école peut prêter : le total se met à jour et ta sélection est gardée dans ce navigateur.</p>
+      </div>
+
+      <h2><span class="n">5</span>acheter malin</h2>
+      <ul>
+        <li><strong>Fournisseurs d'optique pour labos</strong> : composants documentés et traçables, chers mais fiables (diodes avec fiche complète, lentilles traitées, montures).</li>
+        <li><strong>Distributeurs d'électronique</strong> : résistances de précision, AOP, régulateurs, connecteurs, avec fiches techniques.</li>
+        <li><strong>Revendeurs grand public</strong> : modules ADS1115/MCP4725/DRV8871, moteurs, rails — très bon marché, qualité variable : teste chaque module à réception.</li>
+        <li><strong>Emprunter</strong> : puissance-mètre de référence (étalonnage), oscilloscope, alimentation de labo, multimètre — à l'IUT ou en entreprise.</li>
+        <li><strong>Ne jamais économiser</strong> sur les lunettes (certifiées EN 207 pour 650 nm) ni sur le poste ESD.</li>
+      </ul>
+      <div class="box terrain">
+        <p class="box-title">contrôle à réception</p>
+        <ul class="checklist" data-id="reception-materiel">
+          <li><input type="checkbox"><label>Les diodes sont arrivées en sachet antistatique, broches protégées ; je ne les ouvre que sur le poste ESD.</label></li>
+          <li><input type="checkbox"><label>Les modules I²C répondent à <code>i2cdetect</code> à l'adresse attendue.</label></li>
+          <li><input type="checkbox"><label>Le DAC sort bien 0 → 3,3 V ; son EEPROM est programmée à 0.</label></li>
+          <li><input type="checkbox"><label>Le Peltier : résistance mesurée conforme, sens de pompage repéré (face froide marquée).</label></li>
+          <li><input type="checkbox"><label>La CTN : ≈ 10 kΩ à température ambiante.</label></li>
+          <li><input type="checkbox"><label>Les lunettes : marquage EN 207 lu et compris (longueur d'onde, DO, type).</label></li>
+        </ul>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Diode rouge 650 nm TO-56 avec photodiode, en double exemplaire.</li>
+          <li>DAC + source de courant + protections ; 2 ADS1115 ; TIA ; CTN + Peltier + DRV8871 ; caméras ; moteurs.</li>
+          <li>Budget éco ≈ 400–500 € ; emprunter les instruments de référence ; jamais d'économie sur la sécurité.</li>
+        </ul>
+      </div>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

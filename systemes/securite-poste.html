@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>sécurité au poste de travail · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="systemes/securite-poste">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>sécurité au poste de travail</h1>
+    <span class="hand">rentrer chez soi entier, tous les soirs</span>
+    <p class="lead">Au-delà du laser, le poste d'un technicien photonique cumule <mark>électricité, électrostatique, solvants, fibres, chaleur</mark>. Les règles, les habilitations et les check-lists à connaître avant d'intervenir.</p>
+    <span class="sticker" data-s="coeur" style="--r:10deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>lister les risques d'un poste photonique et leurs protections ;</li>
+          <li>situer ton habilitation électrique et ce qu'elle autorise ;</li>
+          <li>dérouler une consignation électrique ;</li>
+          <li>organiser un poste protégé contre les décharges électrostatiques ;</li>
+          <li>manipuler les solvants et réagir en cas d'accident.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>la carte des risques</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>risque</th><th>exemples</th><th>protections</th></tr></thead>
+        <tbody>
+          <tr><td>laser</td><td>faisceaux directs, réflexions, IR invisible</td><td>voir <a href="../lasers/securite.html">sécurité laser</a> : capotage, interlocks, lunettes</td></tr>
+          <tr><td>électrique</td><td>alimentations secteur, haute tension (HeNe, Pockels, piézo), condensateurs chargés</td><td>habilitation, consignation, VAT, outils isolés</td></tr>
+          <tr><td>électrostatique (pour le matériel)</td><td>diodes laser, circuits CMOS</td><td>zone EPA, bracelet, tapis, sachets</td></tr>
+          <tr><td>chimique</td><td>isopropanol, méthanol, acétone, colles, fumées de soudure</td><td>fiches de données de sécurité, gants adaptés, ventilation</td></tr>
+          <tr><td>mécanique</td><td>éclats de fibre, tables lourdes, outils tranchants</td><td>poubelle à éclats, lunettes, gestes et postures</td></tr>
+          <tr><td>thermique / incendie</td><td>surfaces chaudes, faisceau de classe 4 sur un matériau inflammable</td><td>pièges à faisceau ininflammables, rangement, extincteur adapté</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2><span class="n">2</span>l'habilitation électrique (NF C18-510)</h2>
+      <p>En France, travailler sur ou près d'installations électriques exige une <strong>habilitation</strong> délivrée par l'employeur après formation. Elle se lit comme un code : une lettre pour le domaine de tension (B = basse tension, H = haute tension), un chiffre ou une lettre pour la nature des opérations, et éventuellement V (voisinage).</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>symbole</th><th>autorise</th></tr></thead>
+        <tbody>
+          <tr><td>B0 / H0(V)</td><td>travaux non électriques dans un environnement électrique (exécutant non électricien)</td></tr>
+          <tr><td>B1, B1V</td><td>exécutant de travaux électriques (hors tension), sous la conduite d'un chargé de travaux</td></tr>
+          <tr><td>B2, B2V</td><td>chargé de travaux électriques</td></tr>
+          <tr><td>BR</td><td>chargé d'intervention générale en basse tension (dépannage, raccordement, mesurage)</td></tr>
+          <tr><td>BC</td><td>chargé de consignation</td></tr>
+          <tr><td>BE (essai, mesurage, vérification)</td><td>opérations spécifiques d'essais et de mesures</td></tr>
+          <tr><td>BS</td><td>interventions élémentaires (remplacement à l'identique d'un fusible, d'une lampe…)</td></tr>
+        </tbody>
+      </table></div>
+      <p class="small">Domaines de tension : TBT jusqu'à 50 V alternatif / 120 V continu ; BT jusqu'à 1000 V AC / 1500 V DC. Une alimentation de laser HeNe ou de cellule de Pockels (kV) relève de règles particulières même si l'appareil est branché sur une prise.</p>
+
+      <h2><span class="n">3</span>la consignation, étape par étape</h2>
+      <p>La <dfn data-g="consignation">consignation</dfn> garantit qu'un équipement ne peut pas être remis sous tension pendant l'intervention :</p>
+      <ol>
+        <li><strong>Séparer</strong> l'équipement de toute source d'énergie (sectionneur, débrancher la prise — et penser aux autres énergies : batteries, condensateurs, air comprimé, eau sous pression).</li>
+        <li><strong>Condamner</strong> l'organe de séparation en position ouverte (cadenas personnel, prise sous capot verrouillé).</li>
+        <li><strong>Identifier</strong> : pancarte « ne pas manœuvrer — intervention en cours », nom, date.</li>
+        <li><strong>Vérifier l'absence de tension</strong> (VAT) avec un appareil adapté, testé sur une source connue avant <em>et</em> après.</li>
+        <li><strong>Mettre à la terre et en court-circuit</strong> si nécessaire (HT, condensateurs : décharger avec un outil prévu).</li>
+      </ol>
+      <p>La déconsignation se fait dans l'ordre inverse, après avoir vérifié que tout le monde est sorti de la zone et que les protections sont remises.</p>
+
+      <h2><span class="n">4</span>le poste protégé contre l'électrostatique (EPA)</h2>
+      <ul class="checklist" data-id="poste-esd">
+        <li><input type="checkbox"><label>Tapis dissipatif relié à la terre ; bracelet au poignet relié au point de terre (résistance de sécurité ~1 MΩ intégrée).</label></li>
+        <li><input type="checkbox"><label>Bracelet testé chaque jour (testeur de bracelet) ; blouse et chaussures ESD si la zone l'exige.</label></li>
+        <li><input type="checkbox"><label>Composants sensibles transportés dans des sachets métallisés (blindés), jamais dans un plastique ordinaire.</label></li>
+        <li><input type="checkbox"><label>Pas de polystyrène, gobelets plastiques ou papiers isolants sur le plan de travail.</label></li>
+        <li><input type="checkbox"><label>Fer à souder relié à la terre ; outils dissipatifs.</label></li>
+        <li><input type="checkbox"><label>Zone délimitée et signalée (norme IEC 61340-5-1).</label></li>
+      </ul>
+
+      <h2><span class="n">5</span>solvants &amp; produits</h2>
+      <ul>
+        <li>Lire la <strong>fiche de données de sécurité</strong> (FDS) de chaque produit : dangers, EPI, conduite en cas d'accident.</li>
+        <li>Isopropanol : inflammable (flacon fermé, loin des sources de chaleur) ; méthanol : toxique (absorption cutanée, vapeurs) ; acétone : très inflammable, attaque les plastiques.</li>
+        <li>Petites quantités au poste (flacons doseurs), stockage en armoire ventilée, élimination en filière déchets dangereux.</li>
+        <li>Gants adaptés au produit (le nitrile ne protège pas de tout), ventilation pour les fumées de soudure.</li>
+      </ul>
+
+      <h2><span class="n">6</span>avant chaque intervention</h2>
+      <ul class="checklist" data-id="avant-intervention">
+        <li><input type="checkbox"><label>J'ai la procédure, la documentation et l'historique de l'équipement.</label></li>
+        <li><input type="checkbox"><label>Je connais la classe du laser et j'ai les lunettes adaptées à sa longueur d'onde.</label></li>
+        <li><input type="checkbox"><label>Je suis habilité pour les opérations électriques prévues ; consignation faite si nécessaire.</label></li>
+        <li><input type="checkbox"><label>Poste ESD en place ; bracelet testé.</label></li>
+        <li><input type="checkbox"><label>Personnes présentes prévenues ; zone laser signalée.</label></li>
+        <li><input type="checkbox"><label>Je sais où sont l'arrêt d'urgence, l'extincteur, la trousse de secours, et qui appeler.</label></li>
+      </ul>
+      <div class="box attention">
+        <p class="box-title">en cas d'accident</p>
+        <ul>
+          <li>Protéger (couper l'énergie : arrêt d'urgence, disjoncteur — sans se mettre en danger), alerter, secourir (sauveteur secouriste du travail).</li>
+          <li>Numéros d'urgence en France : <strong>15</strong> (SAMU), <strong>18</strong> (pompiers), <strong>112</strong> (urgence européenne).</li>
+          <li>Électrisation : ne jamais toucher la victime avant d'avoir coupé le courant ; consultation médicale même si tout semble aller bien.</li>
+          <li>Exposition laser : consultation ophtalmologique urgente (voir sécurité laser).</li>
+          <li>Déclarer l'accident et analyser ses causes.</li>
+        </ul>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Laser, électrique, ESD, chimique, mécanique, thermique : chaque risque a ses protections.</li>
+          <li>Habilitation : B0, B1(V), B2(V), BR, BC, BE, BS — agir dans les limites de la sienne.</li>
+          <li>Consignation : séparer, condamner, identifier, VAT, MALT-CCT.</li>
+          <li>EPA : tapis, bracelet testé, sachets blindés ; FDS pour chaque produit.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="sys-securite">
+        <header><h3>quiz éclair</h3><span class="tag">4 questions</span></header>
+        <div class="q" data-a="c"><p>1. Quelle étape vient juste avant la vérification d'absence de tension ?</p><div class="opts">
+          <label><input type="radio" value="a"> la mise à la terre</label><label><input type="radio" value="b"> la séparation</label><label><input type="radio" value="c"> l'identification (pancarte), après séparation et condamnation</label></div>
+          <p class="explain">Séparer → condamner → identifier → VAT → MALT-CCT.</p></div>
+        <div class="q" data-a="a"><p>2. Pourquoi tester l'appareil de VAT avant et après la vérification ?</p><div class="opts">
+          <label><input type="radio" value="a"> pour être sûr qu'il fonctionnait (un appareil en panne affiche « 0 V » partout)</label><label><input type="radio" value="b"> pour l'étalonner</label><label><input type="radio" value="c"> ce n'est pas utile</label></div>
+          <p class="explain">Un « pas de tension » n'a de valeur que si l'appareil marche.</p></div>
+        <div class="q" data-a="b"><p>3. Comment transporter une diode laser hors de sa monture ?</p><div class="opts">
+          <label><input type="radio" value="a"> dans un sachet plastique ordinaire</label><label><input type="radio" value="b"> broches court-circuitées, dans un sachet métallisé ESD</label><label><input type="radio" value="c"> dans la poche</label></div>
+          <p class="explain">Le sachet blindé protège des champs ; le court-circuit des broches empêche toute différence de potentiel.</p></div>
+        <div class="q" data-a="c"><p>4. Une victime d'électrisation reste en contact avec un conducteur. Premier geste ?</p><div class="opts">
+          <label><input type="radio" value="a"> la tirer par le bras</label><label><input type="radio" value="b"> lui verser de l'eau</label><label><input type="radio" value="c"> couper l'alimentation sans se mettre en danger, puis alerter</label></div>
+          <p class="explain">Sinon le sauveteur devient la deuxième victime.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

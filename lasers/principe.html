@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>le principe du laser · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="lasers/principe">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>le principe du laser</h1>
+    <span class="hand">la lumière qui se photocopie elle-même</span>
+    <p class="lead">Un laser n'est pas « une lampe très puissante » : c'est un <mark>amplificateur de lumière bouclé sur lui-même</mark>. Trois ingrédients, une condition — le seuil — et un faisceau aux propriétés hors du commun.</p>
+    <span class="sticker" data-s="diode" style="--r:12deg;top:34px;right:0"></span>
+  </header>
+
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>citer et expliquer les trois ingrédients d'un laser ;</li>
+          <li>écrire la condition de seuil et l'appliquer à une cavité réelle ;</li>
+          <li>expliquer pourquoi la puissance de sortie est une droite au-dessus du seuil ;</li>
+          <li>relier monochromaticité, cohérence et directivité à leur origine physique ;</li>
+          <li>savoir où part l'énergie (rendements, défaut quantique) et pourquoi on refroidit.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>LASER, l'acronyme</h2>
+      <p><strong>L</strong>ight <strong>A</strong>mplification by <strong>S</strong>timulated <strong>E</strong>mission of <strong>R</strong>adiation : amplification de la lumière par <dfn data-g="emission-stimulee">émission stimulée</dfn> de rayonnement. Tout est dans le nom : le laser <em>amplifie</em> de la lumière grâce à un phénomène quantique prédit par Einstein en 1917.</p>
+      <p>Petit historique : le <strong>maser</strong> (micro-ondes) fonctionne en 1954 ; Theodore Maiman allume le premier laser en 1960 (un cristal de rubis, 694 nm, pompé par une lampe flash). Suivent le laser hélium-néon (1961), la diode laser (1962), le laser CO₂ (1964)… Aujourd'hui les lasers lisent les codes-barres, transportent Internet dans les fibres, découpent l'acier, opèrent les yeux et pilotent les ordinateurs quantiques.</p>
+
+      <h2><span class="n">2</span>les trois ingrédients</h2>
+      <figure class="fig">
+        <div class="fig-inner">
+          <svg viewBox="0 0 760 270" role="img" aria-label="Schéma d'un laser : pompage, milieu amplificateur entre un miroir HR et un coupleur de sortie, faisceau sortant.">
+            <defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#171717"/></marker>
+            <marker id="ahr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#e2372b"/></marker></defs>
+            <g stroke="#ff6f1e" stroke-width="2.5" fill="none" stroke-linecap="round">
+              <path d="M290 30 V78" marker-end="url(#ah)"/><path d="M350 30 V78" marker-end="url(#ah)"/><path d="M410 30 V78" marker-end="url(#ah)"/><path d="M470 30 V78" marker-end="url(#ah)"/>
+            </g>
+            <text x="500" y="40" class="svg-hand">pompage (courant, lumière…)</text>
+            <rect x="230" y="95" width="300" height="72" rx="12" fill="rgba(255,111,30,.08)" class="svg-ink"/>
+            <text x="380" y="190" text-anchor="middle" class="svg-txt">milieu amplificateur (gain)</text>
+            <path d="M150 62 Q 138 131 150 200" stroke="#171717" stroke-width="7" fill="none" stroke-linecap="round"/>
+            <path d="M612 62 Q 624 131 612 200" stroke="#8b8580" stroke-width="7" fill="none" stroke-linecap="round"/>
+            <rect x="156" y="125" width="452" height="12" rx="6" fill="rgba(226,55,43,.35)"/>
+            <path d="M200 120 H 300" stroke="#e2372b" stroke-width="2" marker-end="url(#ahr)"/><path d="M560 142 H 460" stroke="#e2372b" stroke-width="2" marker-end="url(#ahr)"/>
+            <rect x="618" y="126" width="120" height="10" rx="5" fill="#e2372b"/><path d="M700 131 H 752" stroke="#e2372b" stroke-width="2" marker-end="url(#ahr)"/>
+            <text x="150" y="232" text-anchor="middle" class="svg-txt">miroir HR</text><text x="150" y="250" text-anchor="middle" class="svg-txt" style="fill:rgba(43,26,7,.6)">R ≈ 99,9 %</text>
+            <text x="614" y="232" text-anchor="middle" class="svg-txt">coupleur de sortie</text><text x="614" y="250" text-anchor="middle" class="svg-txt" style="fill:rgba(43,26,7,.6)">R ≈ 90–99 %</text>
+            <text x="690" y="110" text-anchor="middle" class="svg-hand" style="fill:#e2372b">faisceau</text>
+            <text x="64" y="118" class="svg-hand" style="font-size:18px">aller-retour</text><text x="64" y="138" class="svg-hand" style="font-size:18px">× des milliers</text>
+          </svg>
+        </div>
+        <figcaption><b>Figure 1 —</b> un laser = un milieu qui amplifie la lumière, une source d'énergie qui le « pompe », et deux miroirs qui renvoient la lumière dedans encore et encore.</figcaption>
+      </figure>
+      <ol>
+        <li><strong>Le <dfn data-g="milieu-gain">milieu amplificateur</dfn></strong> : des atomes, ions, molécules ou un semi-conducteur capables d'émission stimulée. Exemples : ions Nd³⁺ dans un cristal de YAG, néon dans un gaz, ions Er³⁺ dans une fibre de silice, jonction InGaAs d'une diode.</li>
+        <li><strong>Le <dfn data-g="pompage">pompage</dfn></strong> : l'énergie qui met ces atomes dans un état excité et crée l'<dfn data-g="inversion-population">inversion de population</dfn>. Courant électrique (diode laser), décharge électrique (gaz), lumière d'une lampe ou d'un autre laser (lasers solides et à fibre).</li>
+        <li><strong>La <dfn data-g="cavite">cavité optique</dfn></strong> (résonateur) : deux miroirs face à face. Elle renvoie la lumière dans le milieu, ce qui transforme l'amplificateur en <em>oscillateur</em> ; elle choisit aussi la direction du faisceau et les fréquences possibles.</li>
+      </ol>
+      <div class="box astuce">
+        <p class="box-title">l'analogie de l'électronicien</p>
+        <p>Tu connais l'<strong>effet Larsen</strong> : un micro près de son haut-parleur, et le système se met à siffler. Un amplificateur + une rétroaction positive = un <strong>oscillateur</strong>. Le critère de Barkhausen dit qu'il oscille quand le gain de boucle vaut 1 et que la phase revient identique après un tour. Le laser, c'est exactement ça, en optique : le milieu est l'ampli, les miroirs font la boucle, et la condition de seuil est le critère de Barkhausen.</p>
+      </div>
+
+      <h2><span class="n">3</span>l'émission stimulée, le photocopieur à photons</h2>
+      <p>Un atome excité peut redescendre de deux façons : <strong>spontanément</strong> (il émet un photon au hasard, dans n'importe quelle direction, à n'importe quel moment) ou de façon <strong>stimulée</strong> : un photon de la bonne énergie passe à côté et « déclenche » l'émission d'un second photon <mark>identique</mark> — même fréquence, même direction, même phase, même polarisation. Un photon en entre, deux en sortent : c'est l'amplification.</p>
+      <p>Problème : un photon peut aussi être <em>absorbé</em> par un atome au repos. Pour gagner plus qu'on ne perd, il faut plus d'atomes excités que d'atomes au repos sur la transition laser : c'est l'inversion de population, impossible à l'équilibre thermique — d'où le pompage. Tout le détail (coefficients d'Einstein, systèmes à 3 et 4 niveaux) est dans la leçon <a href="../physique/atome-emission.html">atomes &amp; émission stimulée</a>.</p>
+
+      <h2><span class="n">4</span>démarrer un laser : du bruit au faisceau</h2>
+      <p>Que se passe-t-il quand on allume ? Le pompage excite les atomes ; quelques-uns se désexcitent spontanément. La plupart de ces photons partent de travers et sont perdus. Mais ceux qui partent <em>pile dans l'axe</em> rebondissent sur les miroirs, retraversent le milieu, déclenchent d'autres émissions identiques… C'est une avalanche, qui grossit jusqu'à ce que le gain soit exactement compensé par les pertes. Joue avec la simulation :</p>
+      <div class="lab" data-widget="laser-cavite">
+        <div class="lab-head"><h4>allumer un laser</h4><span class="tag green">simulation</span></div>
+        <p class="small">En haut : les atomes (pleins = excités) et les photons. En bas à gauche : la puissance de sortie en fonction du pompage. À droite : la sortie en fonction de la réflectivité du coupleur. Monte doucement le pompage et observe le nombre d'atomes excités…</p>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">ce que la simulation montre</p>
+        <ul>
+          <li>Sous le seuil, la sortie est quasi nulle : seule l'émission spontanée existe (une « lueur »).</li>
+          <li>Au-dessus, la sortie croît <strong>linéairement</strong> avec le pompage.</li>
+          <li>Le nombre d'atomes excités <strong>cesse d'augmenter</strong> au seuil : le gain est « verrouillé » (<em>gain clamping</em>) à la valeur des pertes. Tout pompage supplémentaire part en photons.</li>
+          <li>Il existe une <strong>réflectivité optimale</strong> du coupleur : trop haute, la lumière ne sort pas ; trop basse, on n'atteint plus le seuil.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">5</span>la condition de seuil</h2>
+      <p>Suivons une intensité \(I_0\) qui fait un aller-retour dans une cavité de longueur \(L\). Elle traverse deux fois le milieu (gain \(g\) par unité de longueur, pertes internes \(\alpha\)), et se réfléchit sur les deux miroirs \(R_1\) et \(R_2\) :</p>
+      <div class="formule">
+        <span class="f-name">après un aller-retour</span>
+        <div class="f-eq">\[ I_1 = I_0 \, R_1 R_2 \, \mathrm{e}^{2(g-\alpha)L} \]</div>
+      </div>
+      <p>Le laser oscille dès que la lumière revient au moins aussi forte qu'au départ (\(I_1 \geq I_0\)). Au seuil, égalité :</p>
+      <div class="formule">
+        <span class="f-name">gain au seuil</span>
+        <div class="f-eq">\[ g_{\text{seuil}} = \alpha + \frac{1}{2L}\ln\!\left(\frac{1}{R_1R_2}\right) \]</div>
+        <div class="f-where"><b>α</b> pertes internes (diffusion, absorption) · <b>ln(1/R₁R₂)/2L</b> pertes « utiles » par les miroirs, réparties sur la longueur. Tout ce qui augmente les pertes (miroir sale, désaligné, mal traité) augmente le <dfn data-g="seuil">seuil</dfn>.</div>
+      </div>
+      <div class="box exemple">
+        <p class="box-title">exemple chiffré</p>
+        <p>Cavité de 5 cm, R₁ = 99,9 %, R₂ = 95 %, α = 0,01 cm⁻¹.</p>
+        <ol class="steps">
+          <li>Produit des réflectivités : \(R_1R_2 = 0{,}999 \times 0{,}95 = 0{,}949\).</li>
+          <li>\(\ln(1/0{,}949) = 0{,}0523\) ; divisé par \(2L = 10\) cm → 0,00523 cm⁻¹.</li>
+          <li>\(g_{\text{seuil}} = 0{,}01 + 0{,}00523 \approx 0{,}0152\) cm⁻¹ : il faut que le milieu amplifie de 1,5 % par cm.</li>
+        </ol>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>calcule le gain de seuil</h4></div>
+        <p>L = 10 cm, R₁ = 99,9 %, R₂ = 80 %, α = 0,005 cm⁻¹. Donne \(g_{\text{seuil}}\) en cm⁻¹ (3 chiffres significatifs).</p>
+        <div class="check-row" data-answer="0.0162" data-tol="0.01" data-hint="ln(1/(0,999×0,8)) ≈ 0,224 ; divise par 20 cm, ajoute α">
+          <input type="text" inputmode="decimal" placeholder="ta réponse" aria-label="gain de seuil en cm⁻¹"><span>cm⁻¹</span>
+          <button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+      <h3>au-dessus du seuil : une droite</h3>
+      <p>Comme le gain reste bloqué à \(g_{\text{seuil}}\), chaque watt de pompage supplémentaire se transforme (avec un certain rendement) en lumière laser. La caractéristique sortie/pompe est donc une droite qui démarre au seuil :</p>
+      <div class="formule">
+        <span class="f-name">caractéristique au-dessus du seuil</span>
+        <div class="f-eq">\[ P_{\text{sortie}} = \eta_s \,(P_{\text{pompe}} - P_{\text{seuil}}) \qquad\text{diode : }\; P = \eta_d\,\frac{h\nu}{q}\,(I - I_{\text{seuil}}) \]</div>
+        <div class="f-where"><b>η<sub>s</sub></b> <dfn data-g="rendement-differentiel">rendement différentiel</dfn> (pente) · pour une diode, la pente s'exprime en W/A : une diode rouge de 5 mW a typiquement un seuil de 20–30 mA et une pente de 0,5 à 1 W/A.</div>
+      </div>
+      <p>C'est exactement la courbe <strong>L-I</strong> (lumière-courant) que ton banc de test mesurera. Sa pente et son seuil sont les deux premiers chiffres d'une fiche de test de diode laser.</p>
+
+      <h2><span class="n">6</span>pourquoi la lumière laser est si spéciale</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>propriété</th><th>origine physique</th><th>ordre de grandeur</th></tr></thead>
+        <tbody>
+          <tr><td><strong>monochromatique</strong></td><td>l'émission stimulée copie la fréquence ; la cavité ne garde que quelques fréquences</td><td>laser DFB : Δν ≈ 1 MHz, soit Δλ ≈ 8 fm à 1550 nm</td></tr>
+          <tr><td><strong>cohérente</strong></td><td>les photons émis sont en phase avec ceux qui les ont déclenchés</td><td>longueur de cohérence de quelques cm (HeNe multimode) à des km</td></tr>
+          <tr><td><strong>directive</strong></td><td>seuls les photons dans l'axe de la cavité sont amplifiés</td><td>HeNe : divergence ≈ 0,5 mrad → 5 cm de rayon à 100 m</td></tr>
+          <tr><td><strong>brillante</strong></td><td>beaucoup de puissance dans un tout petit angle solide</td><td>1 mW focalisé peut dépasser la luminance du Soleil</td></tr>
+          <tr><td><strong>polarisée</strong> (souvent)</td><td>la structure (diode, fenêtres de Brewster) favorise une polarisation</td><td>taux d'extinction de 20 à 30 dB</td></tr>
+        </tbody>
+      </table></div>
+      <div class="formule">
+        <span class="f-name">cohérence & divergence</span>
+        <div class="f-eq">\[ L_c = \frac{c}{\Delta\nu} = \frac{\lambda^2}{\Delta\lambda} \qquad\qquad \theta \approx \frac{\lambda}{\pi w_0} \]</div>
+        <div class="f-where"><b>L<sub>c</sub></b> <dfn data-g="longueur-coherence">longueur de cohérence</dfn> : une ECDL de largeur 100 kHz a L<sub>c</sub> = 3·10⁸/10⁵ = 3 km ! · <b>θ</b> demi-angle de <dfn data-g="divergence">divergence</dfn> d'un faisceau gaussien de rayon minimal w₀ (voir <a href="faisceau-gaussien.html">le faisceau gaussien</a>).</div>
+      </div>
+
+      <h2><span class="n">7</span>où part l'énergie ? les rendements</h2>
+      <p>Le <dfn data-g="rendement-prise">rendement à la prise</dfn> (puissance laser / puissance électrique) varie énormément : diodes 30–70 %, lasers à fibre 30–50 %, lasers solides pompés par diode 10–25 %, CO₂ 10–20 %, hélium-néon 0,1 %. Une partie de la perte est incompressible : le <dfn data-g="defaut-quantique">défaut quantique</dfn>, l'écart d'énergie entre le photon de pompe et le photon laser.</p>
+      <div class="formule">
+        <span class="f-name">défaut quantique</span>
+        <div class="f-eq">\[ \text{chaleur minimale} = 1 - \frac{\lambda_{\text{pompe}}}{\lambda_{\text{laser}}} \]</div>
+        <div class="f-where">Nd:YAG (808 → 1064 nm) : 24 % · fibre ytterbium (976 → 1030 nm) : 5 % · erbium (980 → 1550 nm) : 37 %.</div>
+      </div>
+      <p>Cette chaleur doit être évacuée : sinon la longueur d'onde dérive, le seuil monte, le faisceau se déforme (lentille thermique) et la durée de vie chute. C'est pour ça que tu verras partout des <strong>Peltier (TEC)</strong>, des dissipateurs et des circuits d'eau — et un module entier de ce carnet sur la régulation de température.</p>
+
+      <h2><span class="n">8</span>en 3D : une cavité pompée par diode</h2>
+      <p>Voici un laser solide « DPSS » classique : une diode à 808 nm pompe un barreau de Nd:YAG par l'arrière, à travers un miroir <dfn data-g="dichroique">dichroïque</dfn>. Lance la visite guidée, puis ouvre le bloc de refroidissement avec la vue éclatée.</p>
+      <div class="v3d" data-model="cavite">
+        <script type="application/json">{
+          "title": "laser Nd:YAG pompé par diode",
+          "intro": "Fais tourner (clic-glisser), zoome (molette) et clique sur une étiquette — ou lance la visite guidée. Les faisceaux sont animés : rouge foncé = pompe 808 nm, rouge = laser 1064 nm (invisible en vrai !).",
+          "view": [0.45, 0.55, 1.25],
+          "tour": ["hs_pompe", "hs_lentille", "hs_miroir_hr", "hs_milieu", "hs_refroidissement", "hs_faisceau", "hs_coupleur", "hs_reglage", "hs_sortie"],
+          "hotspots": {
+            "hs_pompe": {"t": "diode de pompe 808 nm", "d": "Un laser à semi-conducteur fournit l'énergie. 808 nm tombe pile sur une bande d'absorption du néodyme. Attention : si la diode chauffe, sa longueur d'onde dérive (≈ 0,3 nm/°C) et la pompe n'est plus absorbée — d'où la régulation de température."},
+            "hs_lentille": {"t": "lentille de focalisation", "d": "Concentre la pompe dans le barreau pour que le volume pompé recouvre le mode laser. Bon recouvrement = seuil bas et bon rendement."},
+            "hs_miroir_hr": {"t": "miroir HR dichroïque", "d": "Réfléchit plus de 99,9 % à 1064 nm mais laisse passer le 808 nm de la pompe. C'est un empilement de couches minces diélectriques : ne jamais le toucher avec les doigts."},
+            "hs_milieu": {"t": "barreau de Nd:YAG", "d": "Grenat d'yttrium-aluminium dopé à environ 1 % de néodyme. Les ions Nd³⁺ forment un système à 4 niveaux : l'inversion de population est facile, l'émission principale est à 1064 nm."},
+            "hs_refroidissement": {"t": "bloc de cuivre refroidi à l'eau", "d": "Environ un quart de la pompe devient chaleur (défaut quantique). Sans refroidissement : lentille thermique, chute du rendement, voire fracture du cristal. Utilise « vue éclatée » pour soulever le demi-bloc."},
+            "hs_faisceau": {"t": "onde stationnaire dans la cavité", "d": "Les photons font des milliers d'allers-retours ; l'aller et le retour se superposent en une onde stationnaire. Seules les longueurs d'onde qui « tiennent » un nombre entier de demi-longueurs d'onde entre les miroirs survivent : ce sont les modes longitudinaux."},
+            "hs_coupleur": {"t": "coupleur de sortie", "d": "Miroir partiellement réfléchissant (par exemple R = 95 %). Il garde assez de lumière pour entretenir l'oscillation et laisse sortir le reste : c'est le faisceau utile. Son R est un compromis (voir l'optimum dans la simulation)."},
+            "hs_reglage": {"t": "vis de réglage des montures", "d": "Montures cinématiques : deux vis inclinent le miroir horizontalement et verticalement, au micro-radian près. Quelques dizaines de µrad de désalignement suffisent à faire chuter la puissance, voire à éteindre le laser."},
+            "hs_sortie": {"t": "faisceau de sortie, 1064 nm", "d": "Infrarouge invisible, dessiné en rouge ici. Très dangereux : l'œil le focalise sur la rétine sans réflexe de clignement. Lunettes adaptées à 1064 nm obligatoires."}
+          }
+        }</script>
+      </div>
+
+      <h2><span class="n">9</span>sur le terrain</h2>
+      <div class="box terrain">
+        <p class="box-title">ce que vérifie un technicien sur un laser qui « baisse »</p>
+        <ul>
+          <li><strong>La puissance et le courant de pompe</strong> : si le courant a dû monter pour garder la même puissance, le seuil a augmenté → pertes en hausse (optique sale, désalignement) ou pompe vieillissante.</li>
+          <li><strong>La propreté des optiques</strong> : une poussière brûlée sur un miroir HR ajoute des pertes… et peut détruire le traitement. Inspection à la lampe, nettoyage selon la procédure (module 06).</li>
+          <li><strong>L'alignement de la cavité</strong> : on retouche les vis par petites rotations en suivant la puissance, jamais au hasard.</li>
+          <li><strong>Le refroidissement</strong> : débit et température d'eau, état du Peltier, ventilateurs. Un laser qui chauffe dérive.</li>
+          <li><strong>Les heures de fonctionnement</strong> : les diodes de pompe s'usent ; leur suivi fait partie de la maintenance préventive.</li>
+        </ul>
+      </div>
+
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Laser = milieu amplificateur + pompage + cavité. C'est un <strong>oscillateur optique</strong>.</li>
+          <li>Il faut une <strong>inversion de population</strong> pour que l'émission stimulée l'emporte sur l'absorption.</li>
+          <li>Seuil : \(R_1R_2\,\mathrm{e}^{2(g-\alpha)L}=1\). Au-dessus, le gain est verrouillé et \(P\) croît linéairement.</li>
+          <li>Monochromatique, cohérent, directif, brillant : tout vient de l'émission stimulée + la cavité.</li>
+          <li>Une partie de l'énergie devient forcément chaleur (défaut quantique) → refroidir.</li>
+        </ul>
+      </div>
+
+      <section class="quiz" data-quiz="lasers-principe">
+        <header><h3>quiz éclair</h3><span class="tag">6 questions</span></header>
+        <div class="q" data-a="b"><p>1. Quel ingrédient transforme un amplificateur de lumière en oscillateur ?</p><div class="opts">
+          <label><input type="radio" value="a"> le pompage</label><label><input type="radio" value="b"> la cavité (les miroirs)</label><label><input type="radio" value="c"> l'émission spontanée</label></div>
+          <p class="explain">Les miroirs renvoient la lumière dans le milieu : c'est la rétroaction (comme le micro et le haut-parleur de l'effet Larsen).</p></div>
+        <div class="q" data-a="c"><p>2. Un photon issu d'émission stimulée est, par rapport au photon incident…</p><div class="opts">
+          <label><input type="radio" value="a"> de même fréquence mais de direction aléatoire</label><label><input type="radio" value="b"> d'énergie double</label><label><input type="radio" value="c"> identique : même fréquence, direction, phase et polarisation</label></div>
+          <p class="explain">C'est le « photocopieur à photons » : c'est ce qui donne la cohérence du laser.</p></div>
+        <div class="q" data-a="a"><p>3. Au-dessus du seuil, quand on augmente le pompage, le gain du milieu…</p><div class="opts">
+          <label><input type="radio" value="a"> reste égal aux pertes (verrouillé)</label><label><input type="radio" value="b"> augmente proportionnellement</label><label><input type="radio" value="c"> diminue</label></div>
+          <p class="explain">Le gain est « clampé » à la valeur qui compense les pertes ; l'énergie en plus devient lumière, d'où la droite L-I.</p></div>
+        <div class="q" data-a="b"><p>4. Un miroir HR se salit et ses pertes augmentent. Conséquence sur la courbe L-I ?</p><div class="opts">
+          <label><input type="radio" value="a"> le seuil baisse</label><label><input type="radio" value="b"> le seuil monte (et souvent la pente baisse)</label><label><input type="radio" value="c"> rien, seul le coupleur compte</label></div>
+          <p class="explain">Plus de pertes → g<sub>seuil</sub> plus élevé → il faut plus de pompe pour démarrer ; et la lumière perdue dans le miroir sale ne sort pas, donc la pente diminue.</p></div>
+        <div class="q" data-a="c"><p>5. Défaut quantique d'un laser pompé à 940 nm et émettant à 1030 nm ?</p><div class="opts">
+          <label><input type="radio" value="a"> 91 %</label><label><input type="radio" value="b"> 0,9 %</label><label><input type="radio" value="c"> environ 9 %</label></div>
+          <p class="explain">1 − 940/1030 = 0,087 ≈ 9 % de l'énergie de pompe devient au minimum de la chaleur.</p></div>
+        <div class="q" data-a="a,c"><p>6. Pourquoi régule-t-on la température d'une diode de pompe ? (plusieurs réponses)</p><div class="opts">
+          <label><input type="checkbox" value="a"> sa longueur d'onde dérive avec la température</label><label><input type="checkbox" value="b"> pour qu'elle émette dans le visible</label><label><input type="checkbox" value="c"> chaleur = seuil plus haut et durée de vie plus courte</label></div>
+          <p class="explain">≈ 0,3 nm/°C de dérive pour une diode Fabry-Pérot : hors de la bande d'absorption du milieu, la pompe ne sert plus à rien. Et une diode chaude vieillit beaucoup plus vite.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

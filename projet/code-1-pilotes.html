@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>code 1 · pilotes des instruments · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="projet/code-1-pilotes">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>code 1 · pilotes des instruments</h1>
+    <span class="hand">parler aux composants, octet par octet</span>
+    <p class="lead">Quatre fichiers à écrire toi-même : le convertisseur analogique-numérique, le convertisseur numérique-analogique, le driver de la diode et la régulation de température. Pour chacun : ce que dit la fiche technique, ce que tes fonctions doivent faire, les tests qui te jugent, et des <mark>indices progressifs</mark> — jamais la solution.</p>
+    <span class="sticker" data-s="framboise" style="--r:8deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette page, tu auras…</h4>
+        <ul>
+          <li>écrit un pilote I²C complet (registres, trames, entiers signés, temps de conversion) ;</li>
+          <li>programmé un DAC et compris pourquoi son EEPROM doit contenir 0 ;</li>
+          <li>codé un driver de diode laser <strong>sûr</strong> : états, rampe, interlock, arrêt garanti ;</li>
+          <li>mesuré une température avec une CTN et écrit un PID robuste (dérivée sur la mesure, anti-windup) ;</li>
+          <li>fait passer les tests <code>test_01</code> à <code>test_04</code>, puis validé chaque pilote sur le vrai matériel.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>la méthode</h2>
+      <p>Un <strong>pilote</strong> (driver) est une petite classe qui traduit des demandes simples (« lis la tension du canal 2 ») en échanges d'octets avec un composant. Toute l'information vient de la <strong>fiche technique</strong> : les docstrings de tes fichiers en contiennent l'essentiel, mais garde le vrai PDF du composant ouvert à côté — c'est un réflexe de technicien.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>étape</th><th>fichier à compléter</th><th>commande de test</th><th>durée indicative</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td><code>instruments/ads1115.py</code></td><td><code>pytest tests/test_01_ads1115.py</code></td><td>2 à 3 h</td></tr>
+          <tr><td>2</td><td><code>instruments/mcp4725.py</code></td><td><code>pytest tests/test_02_mcp4725.py</code></td><td>1 à 2 h</td></tr>
+          <tr><td>3</td><td><code>instruments/laser.py</code></td><td><code>pytest tests/test_03_laser.py</code></td><td>3 à 4 h</td></tr>
+          <tr><td>4</td><td><code>instruments/temperature.py</code></td><td><code>pytest tests/test_04_temperature.py</code></td><td>3 à 4 h</td></tr>
+        </tbody>
+      </table></div>
+      <div class="code"><pre data-label="les options de pytest qui servent tous les jours"><code class="language-bash">cd projet-banc && source .venv/bin/activate
+pytest tests/test_01_ads1115.py -x        # s'arrête au premier échec
+pytest tests/test_01_ads1115.py -k signe   # seulement les tests dont le nom contient « signe »
+pytest -x -q                               # tout le projet, résumé court
+pytest tests/test_03_laser.py -x -l        # -l : affiche les variables locales en cas d'échec</code></pre></div>
+      <div class="box astuce">
+        <p class="box-title">espionner le bus simulé</p>
+        <p>Le faux bus garde un journal de tout ce que ton code envoie : une liste de triplets <code>(type, adresse, octets)</code>, avec <code>"w"</code> pour une écriture et <code>"wr"</code> pour une écriture suivie d'une lecture. Quand un test échoue, affiche-le :</p>
+        <div class="code"><pre data-label="dans un terminal python"><code class="language-python">from banclaser.simulation import creer_banc_simule
+banc = creer_banc_simule(bruit=False)
+# … utilise ton pilote …
+for t, a, o in banc.bus.journal[-5:]:
+    print(t, hex(a), o.hex(" "))      # ex. : w 0x48 01 c3 83</code></pre></div>
+      </div>
+
+      <h2><span class="n">2</span>le convertisseur ADS1115</h2>
+      <p>Deux <dfn data-g="adc">ADC</dfn> ADS1115 (16 bits, 4 entrées, gain programmable) mesurent tout le banc : à l'adresse <code>0x48</code> la photodiode, la photodiode moniteur, le shunt et la tension de drain ; à l'adresse <code>0x49</code> la CTN et l'alimentation du driver. Le composant a quatre registres ; on n'en utilise que deux : <strong>conversion</strong> (<code>0x00</code>) et <strong>configuration</strong> (<code>0x01</code>).</p>
+
+      <h3>une mesure, trois temps</h3>
+      <figure class="fig">
+        <div class="fig-inner">
+          <svg viewBox="0 0 760 250" role="img" aria-label="Trames I²C d'une mesure : écrire la configuration (adresse 0x90, pointeur 0x01, octets C3 et 83), patienter la durée de conversion, puis écrire le pointeur 0x00 et relire deux octets avec un redémarrage.">
+            <g class="svg-ink" fill="#fff">
+              <rect x="140" y="40" width="26" height="34" rx="5" fill="#fff"/><rect x="170" y="40" width="76" height="34" rx="5" fill="#fff"/><rect x="250" y="40" width="26" height="34" rx="5" fill="#f7efe9"/><rect x="280" y="40" width="56" height="34" rx="5" fill="#fff"/><rect x="340" y="40" width="26" height="34" rx="5" fill="#f7efe9"/><rect x="370" y="40" width="64" height="34" rx="5" fill="#fff"/><rect x="438" y="40" width="26" height="34" rx="5" fill="#f7efe9"/><rect x="468" y="40" width="64" height="34" rx="5" fill="#fff"/><rect x="536" y="40" width="26" height="34" rx="5" fill="#f7efe9"/><rect x="566" y="40" width="26" height="34" rx="5" fill="#fff"/>
+              <rect x="140" y="150" width="26" height="34" rx="5" fill="#fff"/><rect x="170" y="150" width="76" height="34" rx="5" fill="#fff"/><rect x="250" y="150" width="26" height="34" rx="5" fill="#f7efe9"/><rect x="280" y="150" width="56" height="34" rx="5" fill="#fff"/><rect x="340" y="150" width="26" height="34" rx="5" fill="#f7efe9"/><rect x="370" y="150" width="30" height="34" rx="5" fill="#fff"/><rect x="404" y="150" width="76" height="34" rx="5" fill="#fff"/><rect x="484" y="150" width="26" height="34" rx="5" fill="#f7efe9"/><rect x="514" y="150" width="64" height="34" rx="5" fill="#f7efe9"/><rect x="582" y="150" width="26" height="34" rx="5" fill="#fff"/><rect x="612" y="150" width="64" height="34" rx="5" fill="#f7efe9"/><rect x="680" y="150" width="30" height="34" rx="5" fill="#fff"/><rect x="714" y="150" width="26" height="34" rx="5" fill="#fff"/>
+              <rect x="140" y="222" width="18" height="14" rx="3" fill="#fff"/><rect x="330" y="222" width="18" height="14" rx="3" fill="#f7efe9"/>
+            </g>
+            <g class="svg-txt" text-anchor="middle" style="font-size:13px;font-family:var(--font-mono)">
+              <text x="153" y="62">S</text><text x="208" y="62">0x90</text><text x="263" y="62">A</text><text x="308" y="62">0x01</text><text x="353" y="62">A</text><text x="402" y="62">0xC3</text><text x="451" y="62">A</text><text x="500" y="62">0x83</text><text x="549" y="62">A</text><text x="579" y="62">P</text>
+              <text x="153" y="172">S</text><text x="208" y="172">0x90</text><text x="263" y="172">A</text><text x="308" y="172">0x00</text><text x="353" y="172">A</text><text x="385" y="172">Sr</text><text x="442" y="172">0x91</text><text x="497" y="172">A</text><text x="546" y="172">MSB</text><text x="595" y="172">A</text><text x="644" y="172">LSB</text><text x="695" y="172">NA</text><text x="727" y="172">P</text>
+            </g>
+            <g class="svg-txt" text-anchor="middle" style="font-size:11px;fill:rgba(43,26,7,.72)">
+              <text x="208" y="90">0x48 + écriture</text><text x="308" y="90">pointeur</text><text x="402" y="90">config. fort</text><text x="500" y="90">config. faible</text>
+              <text x="208" y="200">0x48 + écriture</text><text x="308" y="200">pointeur</text><text x="442" y="200">0x48 + lecture</text><text x="546" y="200">poids fort</text><text x="644" y="200">poids faible</text>
+            </g>
+            <g class="svg-txt" style="font-size:14px;font-weight:600">
+              <text x="10" y="62">1 · configurer</text><text x="10" y="122">2 · patienter</text><text x="10" y="172">3 · relire</text>
+            </g>
+            <text x="140" y="124" class="svg-hand" style="font-size:19px">la conversion dure 1/DR : 7,8 ms à 128 éch./s… on attend un peu plus</text>
+            <g class="svg-txt" style="font-size:12px"><text x="164" y="233">maître (la Raspberry Pi)</text><text x="354" y="233">esclave (l'ADS1115) : acquittements A et données</text></g>
+          </svg>
+        </div>
+        <figcaption><b>Figure 1 —</b> ce que verrait un analyseur logique. S = start, Sr = redémarrage, A = acquittement, NA = non-acquittement (« j'ai fini de lire »), P = stop. Le bit de lecture/écriture est ajouté par la bibliothèque : tu donnes toujours l'adresse 7 bits (<code>0x48</code>). Côté Python : étape 1 = <code>bus.ecrire(0x48, …)</code>, étape 3 = <code>bus.ecrire_lire(0x48, …, 2)</code>.</figcaption>
+      </figure>
+
+      <h3>le mot de configuration</h3>
+      <p>Seize bits répartis en six <strong>champs</strong>. Pour fabriquer le mot, on place chaque champ à sa position avec un décalage à gauche (<code>&lt;&lt;</code>) et on les assemble avec un OU binaire (<code>|</code>). Manipule le registre ci-dessous jusqu'à savoir retrouver <code>0xC383</code> à la main : c'est exactement ce que fera ta méthode <code>mot_config</code>.</p>
+      <div class="lab" data-widget="trame-i2c" data-mode="ads">
+        <div class="lab-head"><h4>registre de configuration de l'ADS1115</h4><span class="tag green">manipulation</span></div>
+      </div>
+      <div class="formule">
+        <span class="f-name">conversion du code en tension</span>
+        <div class="f-eq">\[ V = N \times \frac{FS}{32\,768} \qquad N \in [-32\,768\,;\ 32\,767] \]</div>
+        <div class="f-where">\(N\) : entier <strong>signé</strong> lu dans le registre de conversion · \(FS\) : pleine échelle du PGA (4,096 V ici). Un pas (1 LSB) vaut \(FS/32\,768 = 125\ \mu\text{V}\) en ±4,096 V.</div>
+      </div>
+
+      <h3>ce que tes méthodes doivent faire</h3>
+      <div class="table-wrap"><table>
+        <thead><tr><th>méthode</th><th>comportement attendu</th><th>vérifié par</th></tr></thead>
+        <tbody>
+          <tr><td><code>__init__</code></td><td>refuse une gamme ou une cadence inconnue (<code>ValueError</code>) ; mémorise bus, adresse, paramètres, horloge</td><td><code>test_parametres_invalides</code></td></tr>
+          <tr><td><code>mot_config(canal)</code></td><td>OS = 1, MUX = 4 + canal, PGA, MODE = 1, DR, COMP = 00011 ; canal hors 0…3 → <code>ValueError</code></td><td><code>test_mot_config_reference</code>, <code>…_autre_gamme</code></td></tr>
+          <tr><td><code>lire_brut(canal)</code></td><td>écrit <code>[0x01, fort, faible]</code>, patiente, relit 2 octets au pointeur <code>0x00</code>, renvoie un entier signé</td><td><code>test_trame_de_configuration</code>, <code>test_entier_signe</code></td></tr>
+          <tr><td><code>lire_tension(canal)</code></td><td>brut × gamme / 32 768</td><td><code>test_tension_reelle_attend_la_conversion</code></td></tr>
+          <tr><td><code>lire_moyenne(canal, n)</code></td><td>moyenne de n lectures</td><td><code>test_moyenne</code> (banc bruité)</td></tr>
+        </tbody>
+      </table></div>
+      <details class="reveal hint"><summary>indice 1 — valider les paramètres</summary><div class="reveal-body"><p>Les dictionnaires <code>GAMMES</code> et <code>CADENCES</code> sont déjà dans le fichier : une gamme est valide si elle en est une <em>clé</em> (<code>in</code>). Garde aussi le <em>code</em> du champ (la valeur du dictionnaire) : tu en auras besoin pour le mot de configuration.</p></div></details>
+      <details class="reveal hint"><summary>indice 2 — assembler les champs</summary><div class="reveal-body"><p>Le champ MUX commence au bit 12 et vaut <code>0b100 + canal</code> (100 = AIN0/masse, 101 = AIN1/masse…). Pour le placer : <code>(0b100 + canal) &lt;&lt; 12</code>. Fais pareil pour chaque champ avec son propre bit de départ (OS : 15, PGA : 9, MODE : 8, DR : 5, COMP : 0), puis assemble-les avec <code>|</code>. Vérifie ton résultat en l'affichant avec <code>hex()</code> et compare au widget.</p></div></details>
+      <details class="reveal hint"><summary>indice 3 — découper et recoller des octets</summary><div class="reveal-body"><p>Un mot de 16 bits se découpe en <code>mot &gt;&gt; 8</code> (poids fort) et <code>mot &amp; 0xFF</code> (poids faible). Dans l'autre sens, Python sait convertir deux octets reçus en entier signé : regarde <code>int.from_bytes</code> et son paramètre <code>signed</code>. Pour comprendre le principe, refais le calcul à la main dans la partie « lecture » du widget : FF 38 → −200.</p></div></details>
+      <details class="reveal hint"><summary>indice 4 — pourquoi je lis 0 V ?</summary><div class="reveal-body"><p>Comme le vrai composant, l'ADS1115 simulé renvoie l'<em>ancienne</em> conversion si tu lis avant la fin de la nouvelle. Entre l'écriture de la configuration et la lecture, il faut patienter au moins <code>1 / cadence</code> secondes, plus une petite marge (1 à 2 ms). Utilise <code>self.horloge.dormir(…)</code> et jamais <code>time.sleep</code> : en simulation, le temps est virtuel. (Variante pro : relire le registre de configuration jusqu'à ce que le bit OS repasse à 1.)</p></div></details>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>vérifie ta compréhension</h4></div>
+        <p>Gamme ±4,096 V. Quel code brut \(N\) l'ADS1115 renvoie-t-il pour 1,5 V ?</p>
+        <div class="check-row" data-answer="12000" data-tol="0.0005" data-hint="N = V × 32 768 / FS">
+          <input type="text" inputmode="decimal" placeholder="N" aria-label="code brut"><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">3</span>le convertisseur MCP4725</h2>
+      <p>Le <dfn data-g="dac">DAC</dfn> MCP4725 (12 bits) fabrique la <strong>consigne</strong> du driver de courant : \(V = \text{code}/4096 \times V_{DD}\), avec \(V_{DD} = 3{,}3\) V. Deux façons de lui écrire : l'<strong>écriture rapide</strong> (2 octets, utilisée en permanence) et l'écriture <strong>registre + EEPROM</strong> (3 octets, utilisée une seule fois).</p>
+      <div class="box attention">
+        <p class="box-title">l'EEPROM, une question de sécurité</p>
+        <p>À chaque mise sous tension, le MCP4725 recharge la valeur de son EEPROM <em>avant même que ton programme démarre</em>. Un module neuf peut contenir 2048 (moitié de l'échelle) : sans relais ni limite, la diode recevrait ≈ 30 mA dès le branchement. On programme donc l'EEPROM à <strong>0</strong> une fois pour toutes, et on le vérifie à réception (<a href="materiel.html">contrôle à réception</a>).</p>
+      </div>
+      <div class="lab" data-widget="trame-i2c" data-mode="dac">
+        <div class="lab-head"><h4>du courant voulu aux octets envoyés</h4><span class="tag green">manipulation</span></div>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>méthode</th><th>comportement attendu</th><th>vérifié par</th></tr></thead>
+        <tbody>
+          <tr><td><code>ecrire_code(code)</code></td><td>2 octets ; hors de 0…4095 → <code>ValueError</code> et <strong>rien n'est envoyé</strong></td><td><code>test_fast_write</code>, <code>test_code_hors_limites_rien_envoye</code></td></tr>
+          <tr><td><code>code_pour_tension(v)</code></td><td>arrondi au plus proche, plafonné à 4095 ; v hors de [0 ; vref] → <code>ValueError</code></td><td><code>test_conversions_tension</code></td></tr>
+          <tr><td><code>ecrire_tension(v)</code></td><td>combine les deux, renvoie le code</td><td><code>test_conversions_tension</code></td></tr>
+          <tr><td><code>programmer_demarrage(code)</code></td><td>3 octets : <code>0x60</code>, D11…D4, D3…D0 suivis de 0000</td><td><code>test_eeprom</code></td></tr>
+          <tr><td><code>dernier_code</code></td><td>propriété : <code>None</code> tant que rien n'a été écrit</td><td><code>test_fast_write</code></td></tr>
+        </tbody>
+      </table></div>
+      <details class="reveal hint"><summary>indice — masques et décalages</summary><div class="reveal-body"><p>Pour isoler les 4 bits de poids fort d'un code 12 bits : décale de 8 vers la droite puis garde 4 bits avec <code>&amp; 0x0F</code>. Les 8 bits de poids faible : <code>&amp; 0xFF</code>. Pour l'EEPROM, le code est « coupé » autrement (8 bits puis 4 bits) : relis le schéma du widget. Et pense à vérifier les limites <em>avant</em> tout appel au bus.</p></div></details>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>un calcul de code</h4></div>
+        <p>V<sub>DD</sub> = 3,3 V. Quel code faut-il écrire pour obtenir 2,0 V en sortie ?</p>
+        <div class="check-row" data-answer="2482" data-tol="0" data-abs="0.5" data-hint="code = arrondi(V / VDD × 4096)">
+          <input type="text" inputmode="decimal" placeholder="code" aria-label="code DAC"><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">4</span>le driver de la diode : la sécurité d'abord</h2>
+      <p>C'est le fichier le plus important du projet : une erreur ici peut détruire une diode, ou pire, l'allumer quand quelqu'un regarde le banc. Rappel de la chaîne (voir <a href="../electronique/driver-courant.html">source de courant</a> et <a href="electronique-banc.html">schémas du banc</a>) : le DAC donne \(V_{dac}\), un diviseur la réduit à \(V_{set}\), et l'asservissement AOP + MOSFET impose \(I = V_{set}/R_s\).</p>
+      <div class="formule">
+        <span class="f-name">du code DAC au courant</span>
+        <div class="f-eq">\[ I = \frac{\text{code}}{4096}\,V_{ref}\;\frac{k}{R_s} \qquad I_{max,\,\text{matériel}} = \frac{4095}{4096}\times 3{,}3 \times \frac{0{,}18}{10\ \Omega} \approx 59{,}4\ \text{mA} \]</div>
+        <div class="f-where">\(k = 0{,}18\) : diviseur de consigne · \(R_s = 10\ \Omega\) : shunt · la limite logicielle (<code>i_max_ma</code> = 45 mA) est plus basse que la limite matérielle, elle-même sous le maximum absolu de la diode.</div>
+      </div>
+      <h3>une machine à états</h3>
+      <figure class="fig">
+        <div class="fig-inner">
+          <svg viewBox="0 0 760 270" role="img" aria-label="Machine à états du driver : inactif, actif à 0 mA, actif à I mA ; activer, régler le courant par rampe, désactiver ; toute ouverture de l'interlock ramène à inactif.">
+            <defs><marker id="fl1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#171717"/></marker>
+            <marker id="fl2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#ce500a"/></marker></defs>
+            <g class="svg-ink">
+              <rect x="20" y="100" width="170" height="70" rx="12" fill="#f7efe9"/><rect x="295" y="100" width="170" height="70" rx="12" fill="#fff"/><rect x="570" y="100" width="170" height="70" rx="12" fill="#fff"/>
+              <path d="M190 135 H293" marker-end="url(#fl1)"/><path d="M465 135 H568" marker-end="url(#fl1)"/>
+              <path d="M655 170 C655 250 105 250 105 172" marker-end="url(#fl1)"/>
+              <path d="M655 100 C655 20 105 20 105 98" stroke="#ce500a" stroke-dasharray="6 5" marker-end="url(#fl2)"/>
+              <path d="M380 100 C380 62 140 70 120 98" stroke="#ce500a" stroke-dasharray="6 5"/>
+            </g>
+            <g class="svg-txt" text-anchor="middle">
+              <text x="105" y="130" style="font-weight:600">inactif</text><text x="105" y="150" style="font-size:12px">relais fermé · DAC = 0</text>
+              <text x="380" y="130" style="font-weight:600">actif · 0 mA</text><text x="380" y="150" style="font-size:12px">relais ouvert</text>
+              <text x="655" y="130" style="font-weight:600">actif · I mA</text><text x="655" y="150" style="font-size:12px">consigne atteinte</text>
+              <text x="242" y="124" style="font-size:12px;font-family:var(--font-mono)">activer()</text><text x="242" y="156" style="font-size:11px">si interlock fermé</text>
+              <text x="517" y="124" style="font-size:12px;font-family:var(--font-mono)">regler_courant(i)</text><text x="517" y="156" style="font-size:11px">rampe de 1 mA</text>
+              <text x="380" y="236" style="font-size:12px"><tspan style="font-family:var(--font-mono)">desactiver()</tspan> : rampe vers 0, DAC = 0, relais fermé</text>
+            </g>
+            <text x="380" y="40" text-anchor="middle" class="svg-hand" style="font-size:19px">interlock ouvert, à tout moment → tout à 0 + InterlockOuvert</text>
+          </svg>
+        </div>
+        <figcaption><b>Figure 2 —</b> les trois états du driver. Une transition n'a lieu que si ses conditions sont vérifiées ; sinon, une exception explicite. L'état sûr (à gauche) est l'état de départ et l'état de repli.</figcaption>
+      </figure>
+      <div class="table-wrap"><table>
+        <thead><tr><th>méthode</th><th>règle de sécurité</th><th>vérifié par</th></tr></thead>
+        <tbody>
+          <tr><td><code>__init__</code></td><td>ne touche à rien : inactif, consigne 0, relais fermé</td><td><code>test_etat_initial_sur</code></td></tr>
+          <tr><td><code>courant_max_materiel_ma</code>, <code>code_pour_courant</code></td><td>conversions ; consigne &lt; 0 ou &gt; 45 mA → <code>ValueError</code></td><td><code>test_conversions</code></td></tr>
+          <tr><td><code>activer</code></td><td>interlock ouvert → <code>InterlockOuvert</code> et rien ne bouge ; sinon DAC à 0, attendre 0,1 s, ouvrir le relais</td><td><code>test_activation_refusee_interlock_ouvert</code></td></tr>
+          <tr><td><code>regler_courant(i, rampe)</code></td><td>inactif → <code>ErreurSecurite</code> ; hors limites → <code>ValueError</code> sans rien changer ; rampe de 1 mA en 1 mA, interlock vérifié <strong>à chaque pas</strong></td><td><code>test_rampe</code>, <code>test_valeur_interdite_ne_change_rien</code>, <code>test_interlock_pendant_la_rampe</code></td></tr>
+          <tr><td><code>desactiver</code></td><td>rampe vers 0, DAC à 0, relais fermé, inactif ; <strong>ne lève jamais</strong> d'exception, même appelée deux fois</td><td><code>test_desactiver</code></td></tr>
+          <tr><td><code>mesurer_courant_ma</code>, <code>mesurer_tension_diode</code></td><td>I = V<sub>shunt</sub> / R<sub>s</sub> ; V<sub>diode</sub> = V<sub>+</sub> − 2 × V<sub>drain lue</sub></td><td><code>test_courant_et_mesures</code></td></tr>
+        </tbody>
+      </table></div>
+      <details class="reveal hint"><summary>indice 1 — la rampe, en pseudo-code</summary><div class="reveal-body">
+        <div class="code"><pre data-label="pseudo-code (à traduire en Python)"><code>vérifier : actif ? consigne dans les limites ? interlock fermé ?
+courant ← consigne actuelle
+tant que courant ≠ cible :
+    avancer courant d'un pas vers la cible (sans la dépasser)
+    vérifier l'interlock
+    écrire le code DAC correspondant
+    patienter delai_rampe_s
+mémoriser la nouvelle consigne</code></pre></div>
+        <p>Le test compte les écritures du DAC : de 0 à 30 mA, il en attend au moins 25, toujours croissantes.</p>
+      </div></details>
+      <details class="reveal hint"><summary>indice 2 — le piège de la récursion</summary><div class="reveal-body"><p><code>verifier_interlock</code> appelle <code>desactiver</code>, qui fait une rampe vers 0… Si cette rampe descendante vérifie à son tour l'interlock, tu tournes en rond. Dans <code>desactiver</code>, la descente ne vérifie <em>pas</em> l'interlock (de toute façon, le matériel a déjà coupé). Écris une petite méthode privée commune, avec un paramètre qui dit s'il faut vérifier l'interlock.</p></div></details>
+      <details class="reveal hint"><summary>indice 3 — « ne jamais lever d'exception »</summary><div class="reveal-body"><p>Dans <code>desactiver</code>, chaque étape peut échouer (bus I²C débranché, par exemple). Protège chaque étape séparément : si la rampe échoue, on essaie quand même de mettre le DAC à 0 ; si ça échoue aussi, on ferme quand même le relais. La fermeture du relais vient en dernier et ne doit dépendre de rien. Et l'état « inactif » est mémorisé quoi qu'il arrive.</p></div></details>
+      <div class="box terrain">
+        <p class="box-title">premier essai sur le vrai matériel : une charge factice</p>
+        <p>Ne branche jamais la diode laser pour tester ton pilote. Remplace-la par une <strong>charge factice</strong> : une LED rouge ordinaire (ou deux diodes 1N4148 en série) qui a une tension de seuil comparable. Multimètre en série, essaie 5, 10, 20, 40 mA : l'écart entre consigne, mesure du shunt et multimètre doit rester sous 1 %. Teste aussi l'interlock (ouvrir le capot pendant une rampe) et un arrêt brutal du programme (<kbd>Ctrl</kbd> + <kbd>C</kbd>) : le relais doit se refermer.</p>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>limite matérielle</h4></div>
+        <p>On remplace le shunt de 10 Ω par un shunt de 12 Ω, sans toucher au diviseur (0,18). Quel devient le courant maximal (code 4095), en mA ?</p>
+        <div class="check-row" data-answer="49.49" data-tol="0.002" data-hint="I = 4095/4096 × 3,3 × 0,18 / Rs">
+          <input type="text" inputmode="decimal" placeholder="mA" aria-label="courant maximal en mA"><span>mA</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">5</span>la température : CTN et PID</h2>
+      <p>La monture de la diode est régulée par un module Peltier (voir <a href="../physique/thermique.html">thermique</a> et <a href="../electronique/tec-pid.html">TEC &amp; PID</a>). Trois briques : convertir la tension du pont en résistance, la résistance en degrés, puis calculer la commande du pont en H.</p>
+      <div class="formule">
+        <span class="f-name">pont diviseur et modèle β de la CTN</span>
+        <div class="f-eq">\[ V = V_{alim}\,\frac{R_{CTN}}{R_{CTN} + R_{fixe}} \;\Rightarrow\; R_{CTN} = R_{fixe}\,\frac{V}{V_{alim} - V} \qquad \frac{1}{T} = \frac{1}{298{,}15} + \frac{1}{\beta}\ln\frac{R_{CTN}}{R_{25}} \]</div>
+        <div class="f-where">T en kelvins · \(R_{25} = 10\ \text{k}\Omega\), \(\beta = 3950\ \text{K}\) · si V vaut 0 ou V<sub>alim</sub>, le capteur est en court-circuit ou débranché : <code>ValueError</code>, surtout pas une température fantaisiste.</div>
+      </div>
+      <div class="formule">
+        <span class="f-name">PID numérique « de terrain »</span>
+        <div class="f-eq">\[ u_k = K_p\,e_k + K_i \sum_j e_j\,\Delta t - K_d\,\frac{y_k - y_{k-1}}{\Delta t} \qquad e_k = c_k - y_k \]</div>
+        <div class="f-where">\(y\) : mesure, \(c\) : consigne · dérivée sur la <strong>mesure</strong> (pas de « coup de pied » quand la consigne change) · pas d'intégration quand \(u\) est saturé et que l'erreur pousse dans le même sens (<strong>anti-windup</strong>) · sortie bornée à ±<code>commande_max</code>.</div>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>fonction / méthode</th><th>comportement attendu</th><th>vérifié par</th></tr></thead>
+        <tbody>
+          <tr><td><code>ctn_resistance</code>, <code>ctn_vers_celsius</code></td><td>formules ci-dessus ; tensions impossibles → <code>ValueError</code></td><td><code>test_ctn_resistance</code>, <code>test_ctn_celsius</code></td></tr>
+          <tr><td><code>PID.calculer</code></td><td>P, I, D sur la mesure (0 au premier appel), anti-windup, bornes</td><td><code>test_pid_*</code> (4 tests)</td></tr>
+          <tr><td><code>PID.reinitialiser</code></td><td>intégrale à 0, oublie la mesure précédente</td><td><code>test_pid_integral</code></td></tr>
+          <tr><td><code>RegulateurTemperature.stabiliser</code></td><td>boucle jusqu'à ±tolérance pendant <code>duree_stable</code> s d'affilée → <code>True</code> ; <code>timeout</code> → <code>False</code></td><td><code>test_regulation_simulee</code> (25 → 20 °C)</td></tr>
+        </tbody>
+      </table></div>
+      <details class="reveal hint"><summary>indice 1 — l'anti-windup en une phrase</summary><div class="reveal-body"><p>Calcule d'abord la commande <em>avec</em> la nouvelle intégrale ; si elle dépasse une borne <em>et</em> que l'erreur est du même signe que ce dépassement, annule l'ajout à l'intégrale (garde l'ancienne valeur). Puis borne la sortie.</p></div></details>
+      <details class="reveal hint"><summary>indice 2 — mesurer une durée « stable »</summary><div class="reveal-body"><p>Retiens l'instant où la température est entrée dans la tolérance (<code>horloge.maintenant()</code>) ; remets-le à <code>None</code> dès qu'elle en sort. C'est stable quand <code>maintenant − instant_entrée ≥ duree_stable</code>. Le timeout se compte depuis le début de l'appel.</p></div></details>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>lire une CTN</h4></div>
+        <p>À 40 °C, la CTN vaut 5 301 Ω. Quelle tension lit l'ADC au point milieu du pont (R<sub>fixe</sub> = 10 kΩ, V<sub>alim</sub> = 3,3 V) ?</p>
+        <div class="check-row" data-answer="1.1433" data-tol="0.003" data-hint="V = Valim × R / (R + Rfixe)">
+          <input type="text" inputmode="decimal" placeholder="V" aria-label="tension en volts"><span>V</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+      <div class="box terrain">
+        <p class="box-title">premier essai réel de la régulation</p>
+        <ol>
+          <li>Sans laser. Vérifie d'abord la <strong>polarité</strong> : commande +0,2 pendant 10 s, la température doit monter (ou descendre, selon ton câblage — note-le, et inverse le signe si besoin).</li>
+          <li>Réglage prudent : commence avec les gains du fichier de configuration, observe 5 minutes, enregistre la courbe.</li>
+          <li>Consigne 25 °C, puis 20, puis 30 : temps de stabilisation, dépassement, bruit résiduel (objectif ±0,02 °C).</li>
+        </ol>
+      </div>
+
+      <h2><span class="n">6</span>quand tout est vert</h2>
+      <ul class="checklist" data-id="code1-pilotes">
+        <li><input type="checkbox"><label><code>pytest tests/test_01_ads1115.py tests/test_02_mcp4725.py</code> : tout passe.</label></li>
+        <li><input type="checkbox"><label><code>pytest tests/test_03_laser.py tests/test_04_temperature.py</code> : tout passe.</label></li>
+        <li><input type="checkbox"><label>Code relu : noms clairs, docstrings, aucune valeur « magique » (tout vient de <code>banc.toml</code>).</label></li>
+        <li><input type="checkbox"><label><code>git commit</code> avec un message qui dit ce qui marche.</label></li>
+        <li><input type="checkbox"><label>Sur la Pi : V<sub>+</sub>/2 ≈ 2,5 V et température ambiante plausible lues avec tes pilotes.</label></li>
+        <li><input type="checkbox"><label>Driver validé sur charge factice (5 à 40 mA, écart &lt; 1 %), interlock et <kbd>Ctrl</kbd>+<kbd>C</kbd> testés.</label></li>
+        <li><input type="checkbox"><label>EEPROM du DAC programmée à 0 et vérifiée après une coupure d'alimentation.</label></li>
+        <li><input type="checkbox"><label>Régulation : polarité vérifiée, stabilisation à 20, 25 et 30 °C enregistrée.</label></li>
+      </ul>
+      <section class="quiz" data-quiz="projet-code1">
+        <header><h3>quiz éclair</h3><span class="tag">4 questions</span></header>
+        <div class="q" data-a="c"><p>1. Ton pilote ADS1115 lit toujours 0 V sur le premier appel, puis la bonne valeur au suivant. Cause la plus probable ?</p><div class="opts">
+          <label><input type="radio" value="a"> mauvais octet de poids fort</label><label><input type="radio" value="b"> gamme trop petite</label><label><input type="radio" value="c"> lecture avant la fin de la conversion</label></div>
+          <p class="explain">On lit l'ancienne conversion : il faut patienter au moins 1/cadence après avoir écrit la configuration.</p></div>
+        <div class="q" data-a="b"><p>2. Pourquoi programmer l'EEPROM du MCP4725 à 0 ?</p><div class="opts">
+          <label><input type="radio" value="a"> pour économiser de l'énergie</label><label><input type="radio" value="b"> parce qu'elle fixe la consigne à la mise sous tension, avant le programme</label><label><input type="radio" value="c"> parce que l'écriture rapide ne fonctionne pas sinon</label></div>
+          <p class="explain">À l'allumage, le DAC sort la valeur de son EEPROM : elle doit correspondre à 0 mA.</p></div>
+        <div class="q" data-a="a"><p>3. Pendant une rampe, l'interlock s'ouvre. Que doit faire ton code ?</p><div class="opts">
+          <label><input type="radio" value="a"> tout remettre en sécurité puis lever InterlockOuvert</label><label><input type="radio" value="b"> finir la rampe puis s'arrêter</label><label><input type="radio" value="c"> attendre que l'interlock se referme</label></div>
+          <p class="explain">On ne continue jamais : DAC à 0, relais fermé, état inactif, et une exception explicite pour l'appelant.</p></div>
+        <div class="q" data-a="c"><p>4. Le PID calcule sa dérivée sur la mesure plutôt que sur l'erreur. Pourquoi ?</p><div class="opts">
+          <label><input type="radio" value="a"> c'est plus rapide à calculer</label><label><input type="radio" value="b"> cela supprime le bruit de mesure</label><label><input type="radio" value="c"> pour éviter un à-coup de commande quand la consigne change</label></div>
+          <p class="explain">Un saut de consigne crée une dérivée d'erreur énorme ; la mesure, elle, varie continûment.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>ADS1115 : configurer (<code>0x01</code>), patienter 1/DR, relire (<code>0x00</code>) un entier signé ; V = N × FS / 32 768.</li>
+          <li>MCP4725 : écriture rapide pour régler, EEPROM à 0 pour démarrer sans courant.</li>
+          <li>Driver : états explicites, rampe, interlock à chaque pas, <code>desactiver()</code> infaillible.</li>
+          <li>CTN : pont + modèle β ; PID : dérivée sur la mesure, anti-windup, bornes.</li>
+          <li>Toujours : simulateur d'abord, puis charge factice, puis la vraie diode.</li>
+        </ul>
+      </div>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

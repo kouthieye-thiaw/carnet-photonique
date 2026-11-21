@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>fibres de puissance & mesures sur ampli · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="amplis/puissance-mesures">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>fibres de puissance &amp; mesures sur ampli</h1>
+    <span class="hand">le banc de test d'un amplificateur</span>
+    <p class="lead">Gain, facteur de bruit, puissance, stabilité, suppression des modes latéraux, épissures : les mesures qu'on fait <mark>tous les jours</mark> en production et en SAV d'amplificateurs et de lasers fibrés.</p>
+    <span class="sticker" data-s="fusee" style="--r:-8deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>régler et lire un analyseur de spectre optique (OSA) ;</li>
+          <li>mesurer le gain et le facteur de bruit d'un ampli par la méthode d'interpolation ;</li>
+          <li>mesurer une suppression de modes latéraux (SMSR) et une perte d'épissure ;</li>
+          <li>mesurer de fortes puissances sans rien détruire ;</li>
+          <li>préparer, souder et protéger des fibres pour la puissance.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>l'analyseur de spectre optique</h2>
+      <p>L'<dfn data-g="osa">OSA</dfn> balaie un réseau de diffraction et mesure la puissance tombant dans une petite fenêtre de longueur d'onde, la <strong>bande de résolution</strong> (RBW). Paramètres à maîtriser :</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>réglage</th><th>valeurs typiques</th><th>effet</th></tr></thead>
+        <tbody>
+          <tr><td>RBW</td><td>0,02 à 1 nm</td><td>fine = sépare des raies proches mais plus lent et plus bruité ; les niveaux d'un fond large (ASE) dépendent de la RBW (en dBm/RBW)</td></tr>
+          <tr><td>sensibilité</td><td>−60 à −90 dBm</td><td>plus sensible = balayage plus lent</td></tr>
+          <tr><td>portée / dynamique</td><td>40 à 70 dB près d'une raie</td><td>limite la mesure d'un SMSR ou d'un fond d'ASE sous un signal fort</td></tr>
+          <tr><td>exactitude en λ</td><td>±10 à ±20 pm</td><td>à vérifier avec une référence (lampe, laser stabilisé)</td></tr>
+        </tbody>
+      </table></div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>suppression des modes latéraux</h4></div>
+        <p>Sur une diode DFB, le pic principal est à +3 dBm et le plus grand mode latéral à −38 dBm. SMSR, en dB ? (Spécification usuelle : &gt; 35–40 dB.)</p>
+        <div class="check-row" data-answer="41" data-tol="0.01" data-hint="3 − (−38)">
+          <input type="text" inputmode="decimal" placeholder="dB" aria-label="SMSR en dB"><span>dB</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">2</span>gain et facteur de bruit</h2>
+      <p>À l'OSA, la sortie d'un ampli montre la raie du signal posée sur le fond d'ASE. On mesure la puissance du signal en entrée et en sortie (gain), et on <strong>interpole</strong> le niveau d'ASE sous le signal à partir de points pris de part et d'autre (±0,5 à ±1 nm).</p>
+      <div class="formule">
+        <span class="f-name">facteur de bruit par interpolation</span>
+        <div class="f-eq">\[ G = \frac{P_{s,\text{sortie}} - P_{ASE}}{P_{s,\text{entrée}}} \qquad NF = \frac{P_{ASE}}{h\nu\,G\,B} + \frac{1}{G} \]</div>
+        <div class="f-where"><b>P<sub>ASE</sub></b> puissance d'ASE (deux polarisations) dans la bande <b>B</b> (en Hz) de l'OSA : B = cΔλ/λ² (0,1 nm à 1550 nm = 12,5 GHz). Toute émission parasite de la source (SSE) qui passe sous le signal fausse le résultat.</div>
+      </div>
+      <div class="lab" data-widget="osa-nf">
+        <div class="lab-head"><h4>mesurer un NF à l'analyseur de spectre</h4><span class="tag green">simulation</span></div>
+        <p class="small">Trace d'OSA simulée en sortie d'ampli. Les points bleus servent à interpoler l'ASE sous le signal. Augmente l'émission parasite du laser source : la mesure se met à mentir.</p>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>calcul de NF</h4></div>
+        <p>G = 25 dB, ASE interpolée = −28 dBm dans 0,1 nm (B = 12,5 GHz) à 1550 nm (hν = 1,282·10⁻¹⁹ J). NF en dB ?</p>
+        <div class="check-row" data-answer="4.96" data-tol="0.015" data-hint="1,585·10⁻⁶ / (1,282·10⁻¹⁹ × 316 × 1,25·10¹⁰) + 1/316 ≈ 3,13">
+          <input type="text" inputmode="decimal" placeholder="dB" aria-label="NF en dB"><span>dB</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">3</span>mesurer de fortes puissances</h2>
+      <ul>
+        <li><strong>Têtes thermiques</strong> (thermopile) : du mW au kW, réponse plate en longueur d'onde, lentes (secondes). Refroidies par convection, ventilateur ou eau au-delà de quelques dizaines de W.</li>
+        <li><strong>Sphères intégrantes</strong> : la lumière est diffusée, une photodiode n'en voit qu'une fraction connue ; insensibles à la position et à la divergence (idéal pour les sorties fibrées).</li>
+        <li><strong>Prélèvement étalonné</strong> : coupleur 99/1 ou lame en verre qui renvoie ~4 %, puis un détecteur sensible ; il faut étalonner le rapport à la longueur d'onde et à la polarisation.</li>
+        <li>Respecter la densité de puissance maximale de la tête (W/cm²) : un faisceau trop focalisé la marque définitivement.</li>
+      </ul>
+
+      <h2><span class="n">4</span>stabilité, retours, polarisation</h2>
+      <ul>
+        <li><strong>Stabilité de puissance</strong> : enregistrement sur une heure à plusieurs jours, exprimé en % crête-crête ou écart-type ; on enregistre la température ambiante en parallèle (corrélations).</li>
+        <li><strong>Affaiblissement de réflexion / ORL</strong> : lumière renvoyée vers la source (connecteurs, épissures) ; mesuré avec un circulateur ou un coupleur et un détecteur.</li>
+        <li><strong>Polarisation</strong> (amplis PM) : taux d'extinction en sortie, avec un polariseur tournant (comme sur ton banc).</li>
+        <li><strong>Seuil Brillouin</strong> (monofréquence) : on surveille la puissance rétrodiffusée en fonction de la puissance de sortie ; elle décolle brutalement au seuil.</li>
+      </ul>
+
+      <h2><span class="n">5</span>fibres : cliver, souder, protéger</h2>
+      <ol>
+        <li><strong>Dénuder</strong> le revêtement (pince calibrée ou dénudage thermique pour les fibres spéciales), nettoyer la silice nue à l'alcool isopropylique.</li>
+        <li><strong>Cliver</strong> avec une cliveuse : angle &lt; 0,5° pour une soudure (ou 8° pour une terminaison anti-réflexion).</li>
+        <li><strong>Souder</strong> à la soudeuse à arc : alignement automatique des cœurs, estimation de la perte (&lt; 0,05 dB pour deux monomodes identiques ; plus pour des fibres différentes : programme adapté).</li>
+        <li><strong>Protéger</strong> : manchon thermorétractable ou re-revêtement (recoating) pour les fibres de puissance, avec un polymère d'indice adapté.</li>
+        <li><strong>Vérifier</strong> : mesure de puissance avant/après, ou réflectomètre (OTDR) sur les grandes longueurs.</li>
+      </ol>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>perte d'une épissure</h4></div>
+        <p>Puissance avant soudure : 10,00 mW ; après : 9,89 mW. Perte, en dB ?</p>
+        <div class="check-row" data-answer="0.048" data-tol="0.04" data-hint="10 log(10,00/9,89)">
+          <input type="text" inputmode="decimal" placeholder="dB" aria-label="perte en dB"><span>dB</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+      <div class="box attention">
+        <p class="box-title">la fibre nue est un danger</p>
+        <p>Les éclats de fibre clivée sont des aiguilles de verre presque invisibles qui pénètrent la peau et ne ressortent pas : poubelle dédiée (bouchon), tapis sombre pour les voir, jamais sur la table ni dans la poubelle ordinaire, lunettes de protection.</p>
+      </div>
+      <div class="box terrain">
+        <p class="box-title">sur le terrain : une fiche de test d'ampli</p>
+        <ul class="checklist" data-id="fiche-test-ampli">
+          <li><input type="checkbox"><label>Identification (référence, n° de série), date, opérateur, instruments et leurs dates d'étalonnage.</label></li>
+          <li><input type="checkbox"><label>Conditions : température, courant(s) de pompe, mode (ACC/APC/AGC).</label></li>
+          <li><input type="checkbox"><label>Puissance de sortie et stabilité ; gain et NF à la (aux) longueur(s) d'onde spécifiée(s).</label></li>
+          <li><input type="checkbox"><label>Spectre (capture OSA avec RBW notée), SMSR ou OSNR selon le produit.</label></li>
+          <li><input type="checkbox"><label>PER (si PM), réflexion, alarmes et sécurités testées.</label></li>
+          <li><input type="checkbox"><label>Verdict conforme / non conforme, écarts commentés, signature.</label></li>
+        </ul>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>OSA : RBW, sensibilité, dynamique ; les niveaux d'ASE s'expriment par RBW.</li>
+          <li>NF = P<sub>ASE</sub>/(hνGB) + 1/G, ASE interpolée sous le signal ; attention à la SSE de la source.</li>
+          <li>Fortes puissances : tête thermique, sphère ou prélèvement étalonné ; respecter la densité max.</li>
+          <li>Cliver &lt; 0,5°, souder &lt; 0,05 dB, protéger, vérifier ; éclats de fibre à la poubelle dédiée.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="amplis-mesures">
+        <header><h3>quiz éclair</h3><span class="tag">4 questions</span></header>
+        <div class="q" data-a="b"><p>1. On passe la RBW de l'OSA de 0,1 à 1 nm. Le niveau affiché de l'ASE…</p><div class="opts">
+          <label><input type="radio" value="a"> ne change pas</label><label><input type="radio" value="b"> monte d'environ 10 dB</label><label><input type="radio" value="c"> baisse de 10 dB</label></div>
+          <p class="explain">Fond large : 10 fois plus de bande = 10 fois plus de puissance dans la fenêtre.</p></div>
+        <div class="q" data-a="c"><p>2. Pourquoi l'émission parasite du laser source fausse-t-elle la mesure de NF ?</p><div class="opts">
+          <label><input type="radio" value="a"> elle change le gain</label><label><input type="radio" value="b"> elle sature l'OSA</label><label><input type="radio" value="c"> amplifiée, elle s'ajoute à l'ASE interpolée</label></div>
+          <p class="explain">On l'attribue à tort à l'ampli : NF surestimé.</p></div>
+        <div class="q" data-a="a"><p>3. Quel détecteur pour 50 W en sortie fibrée ?</p><div class="opts">
+          <label><input type="radio" value="a"> tête thermique refroidie ou sphère intégrante adaptée</label><label><input type="radio" value="b"> photodiode silicium nue</label><label><input type="radio" value="c"> la caméra du banc</label></div>
+          <p class="explain">Seules les têtes thermiques/sphères de puissance supportent ces niveaux.</p></div>
+        <div class="q" data-a="b"><p>4. Angle de clivage visé pour une soudure ?</p><div class="opts">
+          <label><input type="radio" value="a"> 8°</label><label><input type="radio" value="b"> moins de 0,5°</label><label><input type="radio" value="c"> 45°</label></div>
+          <p class="explain">8° sert aux terminaisons anti-réflexion, pas aux soudures.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

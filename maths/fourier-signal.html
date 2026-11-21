@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>fourier, spectres & échantillonnage · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="maths/fourier-signal">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>fourier, spectres &amp; échantillonnage</h1>
+    <span class="hand">regarder un signal « en fréquences »</span>
+    <p class="lead">Un bruit sur ta mesure de puissance : d'où vient-il ? Le ventilateur, l'alimentation à découpage, le secteur ? Le spectre répond en un coup d'œil. Et pour le calculer avec la Raspberry Pi, il faut <mark>échantillonner correctement</mark>.</p>
+    <span class="sticker" data-s="eclair" style="--r:-10deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>expliquer ce qu'est un spectre et lire un signal comme une somme de sinusoïdes ;</li>
+          <li>relier durée d'une impulsion et largeur de son spectre ;</li>
+          <li>choisir une fréquence d'échantillonnage (Nyquist-Shannon) et éviter le repliement ;</li>
+          <li>régler une FFT : nombre de points, résolution, fenêtre ;</li>
+          <li>identifier les sources de bruit typiques d'un banc laser (50 Hz, découpage, 1/f).</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>un signal = une somme de sinusoïdes</h2>
+      <p>Joseph Fourier (1807) a montré que tout signal périodique s'écrit comme une somme de sinusoïdes de fréquences multiples de la fondamentale : les <strong>harmoniques</strong>. Un signal carré de fréquence f contient f, 3f, 5f… avec des amplitudes 1, 1/3, 1/5… Le <strong>spectre</strong>, c'est le graphe amplitude (ou puissance) en fonction de la fréquence.</p>
+      <div class="formule">
+        <span class="f-name">série de Fourier d'un signal carré d'amplitude 1</span>
+        <div class="f-eq">\[ s(t) = \frac{4}{\pi}\left(\sin\omega t + \frac{\sin 3\omega t}{3} + \frac{\sin 5\omega t}{5} + \dots\right) \]</div>
+      </div>
+      <p>Pour un signal non périodique (une impulsion, un bruit), on utilise la <strong>transformée de Fourier</strong>, qui donne un spectre continu. Elle obéit à une règle d'or : <em>plus un signal est court, plus son spectre est large</em>.</p>
+      <div class="formule">
+        <span class="f-name">produit durée × largeur spectrale (impulsion gaussienne, limitée par transformée de Fourier)</span>
+        <div class="f-eq">\[ \Delta t \cdot \Delta\nu \geq 0{,}441 \]</div>
+        <div class="f-where">Une impulsion de 100 fs à 800 nm a au minimum Δν ≈ 4,4 THz, soit Δλ ≈ 9,4 nm. Un laser continu monofréquence (Δν ~ kHz) est l'extrême inverse : une « impulsion » infiniment longue.</div>
+      </div>
+
+      <h2><span class="n">2</span>échantillonner sans se tromper</h2>
+      <p>Un convertisseur (ADC) ne lit le signal qu'à des instants discrets, \(f_e\) fois par seconde. Le théorème de <strong>Nyquist-Shannon</strong> dit qu'on peut reconstruire un signal si \(f_e\) est plus de deux fois sa plus haute fréquence. Au-delà de \(f_e/2\) (la <dfn data-g="nyquist">fréquence de Nyquist</dfn>), les composantes ne disparaissent pas : elles se <dfn data-g="repliement">replient</dfn> et apparaissent à une fausse fréquence.</p>
+      <div class="formule">
+        <span class="f-name">critère et repliement</span>
+        <div class="f-eq">\[ f_e > 2 f_{\max} \qquad\qquad f_{\text{apparente}} = \left| f - k\,f_e \right| \ \text{(le plus petit possible)} \]</div>
+        <div class="f-where">Remède : un <b>filtre passe-bas anti-repliement</b> analogique avant l'ADC (un simple RC suffit souvent), coupant sous f<sub>e</sub>/2.</div>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>où apparaît le 700 Hz ?</h4></div>
+        <p>On échantillonne à 1000 Hz un signal à 700 Hz, sans filtre. À quelle fréquence le verra-t-on dans le spectre ?</p>
+        <div class="check-row" data-answer="300" data-tol="0.01" data-hint="|700 − 1000|">
+          <input type="text" inputmode="decimal" placeholder="Hz" aria-label="fréquence apparente en Hz"><span>Hz</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">3</span>la FFT en pratique</h2>
+      <p>La <dfn data-g="fft">FFT</dfn> (transformée de Fourier rapide) calcule le spectre de N échantillons. Trois paramètres à maîtriser :</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>paramètre</th><th>formule</th><th>conséquence</th></tr></thead>
+        <tbody>
+          <tr><td>fréquence max visible</td><td>f<sub>e</sub>/2</td><td>monter f<sub>e</sub> pour voir plus haut</td></tr>
+          <tr><td>résolution en fréquence</td><td>Δf = f<sub>e</sub>/N = 1/T<sub>acquisition</sub></td><td>acquérir plus longtemps pour séparer deux raies proches</td></tr>
+          <tr><td>fenêtre</td><td>Hann, Blackman…</td><td>réduit les « fuites » d'un pic sur ses voisins (au prix d'un pic un peu plus large)</td></tr>
+        </tbody>
+      </table></div>
+      <div class="lab" data-widget="fourier">
+        <div class="lab-head"><h4>échantillonner &amp; analyser</h4><span class="tag green">simulation</span></div>
+        <p class="small">En haut : le vrai signal (gris), les échantillons (points) et ce que voit l'ADC (orange). En bas : le spectre calculé par FFT sur 512 points. Monte la fréquence du signal au-dessus de f<sub>e</sub>/2 et regarde le pic « revenir » à l'envers.</p>
+      </div>
+      <div class="code"><pre data-label="python : spectre d'un signal mesuré"><code class="language-python">import numpy as np
+from scipy import signal
+
+fe = 860                      # Hz, cadence max d'un ADS1115
+x = np.loadtxt("mesure.csv")  # tes échantillons
+x = x - x.mean()              # on retire la composante continue
+
+# densité spectrale de puissance (méthode de Welch : moyenne de plusieurs FFT fenêtrées)
+f, dsp = signal.welch(x, fs=fe, window="hann", nperseg=1024)
+pic = f[np.argmax(dsp)]
+print(f"raie dominante : {pic:.1f} Hz")</code></pre></div>
+
+      <h2><span class="n">4</span>les bruits d'un banc laser</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>signature dans le spectre</th><th>coupable probable</th><th>remède</th></tr></thead>
+        <tbody>
+          <tr><td>raies à 50 Hz, 150, 250…</td><td>secteur, boucle de masse</td><td>masse en étoile, alim linéaire, câble blindé</td></tr>
+          <tr><td>raie à 100 Hz</td><td>redressement double alternance d'une alimentation</td><td>meilleur filtrage, régulateur</td></tr>
+          <tr><td>raies à 20–500 kHz</td><td>alimentation à découpage, PWM du ventilateur ou du Peltier</td><td>filtre LC, éloigner, fréquence de PWM hors bande</td></tr>
+          <tr><td>remontée vers les basses fréquences (« 1/f »)</td><td>bruit de scintillement, dérives thermiques</td><td>régulation de température, modulation + détection synchrone</td></tr>
+          <tr><td>plancher plat</td><td>bruit blanc : thermique (résistances), grenaille (photons)</td><td>réduire la bande, plus de signal</td></tr>
+        </tbody>
+      </table></div>
+      <p>Le bruit d'intensité d'un laser se quantifie par le <dfn data-g="rin">RIN</dfn> : la <dfn data-g="dsp">densité spectrale</dfn> des fluctuations de puissance divisée par la puissance moyenne au carré, en dB/Hz. Tu le mesureras avec ton banc (photodiode + TIA + ADC + Welch).</p>
+      <div class="formule">
+        <span class="f-name">bruit relatif d'intensité</span>
+        <div class="f-eq">\[ \mathrm{RIN}(f) = \frac{S_{\delta P}(f)}{\bar P^{\,2}} \quad [\mathrm{Hz}^{-1}] \qquad \mathrm{RIN}_{\text{dB/Hz}} = 10\log_{10}\mathrm{RIN} \]</div>
+      </div>
+
+      <div class="box terrain">
+        <p class="box-title">sur le terrain</p>
+        <ul>
+          <li>Avant de chercher un bruit dans le laser, mesure le banc <strong>sans lumière</strong> (photodiode masquée) : tout ce que tu vois vient alors de l'électronique.</li>
+          <li>Un oscilloscope en mode FFT ou un analyseur de spectre RF fait la même chose, en bien plus rapide ; la Raspberry Pi convient pour les basses fréquences (jusqu'à quelques kHz avec un bon ADC, ~96 kHz avec une carte son USB).</li>
+          <li>Note toujours f<sub>e</sub>, N, la fenêtre et la bande de résolution avec un spectre : sans eux, les niveaux ne sont pas comparables.</li>
+        </ul>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Spectre = signal vu en fréquences ; impulsion courte ⇔ spectre large (Δt·Δν ≥ 0,44).</li>
+          <li>f<sub>e</sub> &gt; 2 f<sub>max</sub>, sinon repliement — filtre anti-repliement avant l'ADC.</li>
+          <li>FFT : f<sub>max</sub> = f<sub>e</sub>/2, Δf = f<sub>e</sub>/N, fenêtre de Hann par défaut.</li>
+          <li>50 Hz = secteur/masse ; kHz = découpage/PWM ; 1/f = dérives.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="maths-fourier">
+        <header><h3>quiz éclair</h3><span class="tag">4 questions</span></header>
+        <div class="q" data-a="b"><p>1. Un ADS1115 échantillonne à 860 Hz. Jusqu'à quelle fréquence peut-on analyser un signal sans repliement ?</p><div class="opts">
+          <label><input type="radio" value="a"> 860 Hz</label><label><input type="radio" value="b"> 430 Hz</label><label><input type="radio" value="c"> 1720 Hz</label></div>
+          <p class="explain">f<sub>e</sub>/2 = 430 Hz (et en pratique un peu moins, le filtre n'étant pas parfait).</p></div>
+        <div class="q" data-a="c"><p>2. Pour séparer deux raies distantes de 0,5 Hz, il faut acquérir pendant au moins…</p><div class="opts">
+          <label><input type="radio" value="a"> 0,5 s</label><label><input type="radio" value="b"> 1 s</label><label><input type="radio" value="c"> 2 s (et plutôt plus)</label></div>
+          <p class="explain">Δf = 1/T : T = 2 s donne Δf = 0,5 Hz ; avec une fenêtre, il faut un peu plus.</p></div>
+        <div class="q" data-a="a"><p>3. Ton spectre de bruit montre des raies à 50, 150 et 250 Hz. Premier suspect ?</p><div class="opts">
+          <label><input type="radio" value="a"> le secteur / une boucle de masse</label><label><input type="radio" value="b"> le laser lui-même</label><label><input type="radio" value="c"> la FFT</label></div>
+          <p class="explain">Harmoniques impaires du 50 Hz : signature d'un couplage secteur.</p></div>
+        <div class="q" data-a="b"><p>4. On raccourcit une impulsion laser d'un facteur 10. Sa largeur spectrale minimale…</p><div class="opts">
+          <label><input type="radio" value="a"> est divisée par 10</label><label><input type="radio" value="b"> est multipliée par 10</label><label><input type="radio" value="c"> ne change pas</label></div>
+          <p class="explain">Δt·Δν ≥ constante.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>thermique, effet peltier & thermistances · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="physique/thermique">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>thermique, effet Peltier &amp; thermistances</h1>
+    <span class="hand">un laser, c'est d'abord un radiateur</span>
+    <p class="lead">Une diode laser transforme la moitié de son énergie en chaleur, et sa longueur d'onde dérive de 0,3 nm par degré. Mesurer et <mark>maîtriser la température</mark> est donc la moitié du métier d'intégrateur laser.</p>
+    <span class="sticker" data-s="eclair" style="--r:10deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>calculer un échauffement avec la notion de résistance thermique ;</li>
+          <li>expliquer l'effet Peltier et les limites d'un module TEC ;</li>
+          <li>convertir la résistance d'une thermistance CTN en température (modèle β, Steinhart-Hart) ;</li>
+          <li>dimensionner un pont diviseur pour lire une CTN avec un ADC ;</li>
+          <li>choisir un dissipateur et éviter les erreurs de montage thermique.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>la chaleur circule comme un courant</h2>
+      <p>Il y a une analogie très pratique entre thermique et électricité : la puissance thermique \(P\) (W) joue le rôle du courant, l'écart de température \(\Delta T\) (K) celui de la tension, et chaque élément (puce, embase, pâte thermique, dissipateur, air) a une <strong>résistance thermique</strong> \(R_{th}\) (K/W). Les résistances en série s'additionnent.</p>
+      <div class="formule">
+        <span class="f-name">« loi d'Ohm thermique »</span>
+        <div class="f-eq">\[ \Delta T = R_{th}\,P \qquad\qquad R_{th,\text{total}} = R_{\text{jonction-boîtier}} + R_{\text{interface}} + R_{\text{dissipateur-air}} \]</div>
+      </div>
+      <div class="box exemple">
+        <p class="box-title">la jonction d'une diode de 200 mW</p>
+        <ol class="steps">
+          <li>Puissance électrique : 2,2 V × 0,25 A = 0,55 W ; puissance optique 0,2 W → <strong>0,35 W de chaleur</strong>.</li>
+          <li>R<sub>th</sub> jonction → boîtier TO = 30 K/W ; boîtier → monture (pâte) = 2 K/W ; monture → air = 8 K/W. Total : 40 K/W.</li>
+          <li>ΔT = 40 × 0,35 = 14 K : à 25 °C ambiant, la jonction est à 39 °C, soit environ +4 nm de dérive et un seuil plus élevé. D'où l'intérêt d'un Peltier qui impose la température de la monture.</li>
+        </ol>
+      </div>
+      <p>Une capacité thermique \(C_{th}\) (J/K) donne l'inertie : le système répond en premier ordre avec \(\tau = R_{th}C_{th}\) (voir <a href="../maths/derivees-equadiff.html">équations différentielles</a>).</p>
+
+      <h2><span class="n">2</span>l'effet Peltier et le module TEC</h2>
+      <p>Faire passer un courant à travers une jonction de deux matériaux semi-conducteurs (dopés N et P) transporte de la chaleur d'une face à l'autre : c'est l'<dfn data-g="peltier">effet Peltier</dfn>. Un module <dfn data-g="tec">TEC</dfn> empile des dizaines de couples N/P entre deux plaques céramiques. Inverser le courant inverse le sens : on peut donc <strong>refroidir ou chauffer</strong> — idéal pour réguler autour de 25 °C quelle que soit l'ambiance.</p>
+      <div class="formule">
+        <span class="f-name">bilan d'un module Peltier</span>
+        <div class="f-eq">\[ Q_{\text{froid}} = \alpha I T_f - \tfrac12 R I^2 - K\,\Delta T \qquad\qquad Q_{\text{chaud}} = Q_{\text{froid}} + V I \]</div>
+        <div class="f-where"><b>α I T<sub>f</sub></b> chaleur pompée (Peltier) · <b>½RI²</b> effet Joule (qui revient côté froid) · <b>KΔT</b> conduction parasite. Conséquence clé : la face chaude doit évacuer <em>la chaleur pompée + toute la puissance électrique du Peltier</em>. Un TEC sans bon dissipateur chauffe tout.</div>
+      </div>
+      <ul>
+        <li>Un module a un courant optimal : au-delà, l'effet Joule l'emporte et il refroidit <em>moins</em>.</li>
+        <li>ΔT maximal typique : 60–70 K à vide ; en pratique on vise des écarts de 10–30 K.</li>
+        <li>On le pilote avec un pont en H (courant dans les deux sens), commandé par un régulateur PID (<a href="../electronique/tec-pid.html">TEC &amp; PID</a>).</li>
+        <li>Attention à la condensation si on descend sous le point de rosée : eau sur les optiques et l'électronique.</li>
+      </ul>
+
+      <h2><span class="n">3</span>mesurer la température : la thermistance CTN</h2>
+      <p>Une <dfn data-g="thermistance">thermistance CTN</dfn> (coefficient de température négatif) voit sa résistance chuter quand la température monte : typiquement 10 kΩ à 25 °C, −4 %/K. Petite, bon marché et très sensible, c'est le capteur standard des montures laser.</p>
+      <div class="formule">
+        <span class="f-name">modèle β (simple) et équation de Steinhart-Hart (précise)</span>
+        <div class="f-eq">\[ R(T) = R_{25}\,\exp\!\left[\beta\left(\frac1T - \frac{1}{298{,}15}\right)\right] \qquad\qquad \frac1T = A + B\ln R + C(\ln R)^3 \]</div>
+        <div class="f-where"><b>T</b> en kelvins ! Le modèle β est juste à ± 0,5 °C sur ± 25 °C autour de 25 °C. <dfn data-g="steinhart">Steinhart-Hart</dfn>, avec trois coefficients tirés de trois points d'étalonnage, atteint ± 0,01 °C.</div>
+      </div>
+      <h3>la lire avec un ADC : le pont diviseur</h3>
+      <p>On place la CTN en série avec une résistance fixe \(R_f\) entre 3,3 V et la masse ; l'ADC lit la tension au milieu : \(V = 3{,}3 \cdot R_{CTN}/(R_{CTN}+R_f)\). La sensibilité est maximale quand \(R_f \approx R_{CTN}\) à la température de travail.</p>
+      <div class="lab" data-widget="ntc">
+        <div class="lab-head"><h4>thermistance &amp; pont diviseur</h4><span class="tag green">calculateur</span></div>
+        <p class="small">Bouge la température et regarde la résistance (bleu) et la tension lue (orange). Le dernier indicateur donne la plus petite variation de température qu'un ADC 16 bits peut voir.</p>
+      </div>
+      <div class="code"><pre data-label="python : de la tension lue à la température"><code class="language-python">import math
+
+R25, BETA, R_FIXE, VCC = 10_000, 3950, 10_000, 3.3
+
+def temperature_ctn(v_mesure: float) -> float:
+    """Tension au milieu du pont (CTN entre ce point et la masse) -> température en °C (modèle β)."""
+    r_ctn = R_FIXE * v_mesure / (VCC - v_mesure)
+    inv_t = 1 / 298.15 + math.log(r_ctn / R25) / BETA
+    return 1 / inv_t - 273.15
+
+print(round(temperature_ctn(1.65), 2))   # pont équilibré -> 25.0 °C</code></pre></div>
+      <p class="small">Attention au montage : ici la CTN est en <em>bas</em> du pont (entre le point milieu et la masse), la résistance fixe en haut — inverse les formules si tu câbles l'inverse. À toi de vérifier quand tu coderas le pilote (module projet).</p>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>résistance à 40 °C</h4></div>
+        <p>CTN 10 kΩ, β = 3950 K. Résistance à 40 °C, en kΩ ?</p>
+        <div class="check-row" data-answer="5.30" data-tol="0.015" data-hint="10 × exp(3950 × (1/313,15 − 1/298,15))">
+          <input type="text" inputmode="decimal" placeholder="kΩ" aria-label="résistance en kΩ"><span>kΩ</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">4</span>bien monter thermiquement</h2>
+      <ul>
+        <li><strong>Pâte ou film thermique</strong> en couche fine entre surfaces planes : l'air est un isolant (R<sub>th</sub> énorme). Trop de pâte est aussi un isolant.</li>
+        <li><strong>Serrage</strong> régulier et modéré du Peltier (céramique fragile) : plusieurs passes en croix.</li>
+        <li><strong>Placer la CTN au plus près de la diode</strong>, dans le même bloc : on régule ce qu'on mesure. Une CTN loin de la diode régule… autre chose.</li>
+        <li><strong>Isoler</strong> la partie régulée du reste (entretoises plastique, mousse) pour que le Peltier ne combatte pas tout le banc.</li>
+      </ul>
+      <div class="box terrain">
+        <p class="box-title">sur le terrain</p>
+        <ul>
+          <li>Une température qui oscille : PID mal réglé ou CTN trop loin du Peltier (retard). Une température qui n'atteint pas la consigne : dissipateur saturé (face chaude brûlante), Peltier sous-dimensionné ou en court-circuit.</li>
+          <li>La lecture CTN affiche −40 °C ou +150 °C : capteur débranché ou en court-circuit. Un logiciel bien conçu le détecte et coupe le laser (on le codera).</li>
+          <li>Thermomètre infrarouge et caméra thermique : très utiles pour trouver un point chaud, mais attention à l'émissivité des surfaces métalliques brillantes (mesure fausse).</li>
+        </ul>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>ΔT = R<sub>th</sub>·P ; résistances thermiques en série s'additionnent ; τ = R<sub>th</sub>C<sub>th</sub>.</li>
+          <li>Peltier : pompe la chaleur dans un sens ou l'autre ; la face chaude évacue chaleur pompée + VI.</li>
+          <li>CTN : R(T) = R₂₅·exp[β(1/T − 1/298,15)], T en K ; pont avec R<sub>f</sub> ≈ R<sub>CTN</sub>.</li>
+          <li>On mesure au plus près de ce qu'on veut réguler.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="physique-thermique">
+        <header><h3>quiz éclair</h3><span class="tag">4 questions</span></header>
+        <div class="q" data-a="b"><p>1. Un Peltier refroidit une diode qui dissipe 1 W ; il consomme lui-même 4 W. Le dissipateur côté chaud doit évacuer…</p><div class="opts">
+          <label><input type="radio" value="a"> 1 W</label><label><input type="radio" value="b"> 5 W</label><label><input type="radio" value="c"> 3 W</label></div>
+          <p class="explain">Chaleur pompée + puissance électrique du module.</p></div>
+        <div class="q" data-a="c"><p>2. Quand la température monte, la résistance d'une CTN…</p><div class="opts">
+          <label><input type="radio" value="a"> augmente</label><label><input type="radio" value="b"> reste constante</label><label><input type="radio" value="c"> diminue</label></div>
+          <p class="explain">Coefficient de température négatif.</p></div>
+        <div class="q" data-a="a"><p>3. Dans le modèle β, la température s'exprime en…</p><div class="opts">
+          <label><input type="radio" value="a"> kelvins</label><label><input type="radio" value="b"> degrés Celsius</label><label><input type="radio" value="c"> peu importe</label></div>
+          <p class="explain">Toujours en kelvins dans les formules en 1/T.</p></div>
+        <div class="q" data-a="b"><p>4. La régulation oscille lentement autour de la consigne. Cause physique fréquente ?</p><div class="opts">
+          <label><input type="radio" value="a"> CTN trop sensible</label><label><input type="radio" value="b"> CTN loin du Peltier : retard entre action et mesure</label><label><input type="radio" value="c"> trop de pâte thermique sur la CTN</label></div>
+          <p class="explain">Le retard (temps de propagation de la chaleur) rend la boucle instable : rapprocher le capteur ou adoucir le PID.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

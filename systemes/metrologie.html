@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>métrologie & instruments de mesure · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="systemes/metrologie">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>métrologie &amp; instruments de mesure</h1>
+    <span class="hand">mesurer, c'est comparer à une référence</span>
+    <p class="lead">Un banc de test ne vaut que par la confiance qu'on peut accorder à ses chiffres. Vocabulaire, instruments du labo photonique, <mark>étalonnage, traçabilité et budget d'incertitude</mark>.</p>
+    <span class="sticker" data-s="pi" style="--r:-10deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>employer le bon vocabulaire (justesse, fidélité, répétabilité, étalonnage, ajustage…) ;</li>
+          <li>choisir l'instrument adapté à chaque mesure laser ;</li>
+          <li>expliquer la traçabilité et lire un certificat d'étalonnage ;</li>
+          <li>construire un budget d'incertitude et déclarer une conformité ;</li>
+          <li>étalonner la mesure de puissance de ton banc.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>le vocabulaire (VIM)</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>terme</th><th>sens</th></tr></thead>
+        <tbody>
+          <tr><td><strong>justesse</strong></td><td>proximité de la moyenne des mesures avec la valeur vraie (absence de biais)</td></tr>
+          <tr><td><strong>fidélité</strong></td><td>proximité des mesures entre elles (faible dispersion)</td></tr>
+          <tr><td><strong>répétabilité</strong></td><td>fidélité dans les mêmes conditions (même opérateur, même instrument, peu de temps)</td></tr>
+          <tr><td><strong>reproductibilité</strong></td><td>fidélité en changeant de conditions (opérateur, jour, instrument)</td></tr>
+          <tr><td><strong>résolution</strong></td><td>plus petite variation que l'instrument peut indiquer</td></tr>
+          <tr><td><strong><dfn data-g="etalonnage">étalonnage</dfn></strong></td><td>comparaison à un étalon pour connaître l'erreur et son incertitude — on ne touche pas l'instrument</td></tr>
+          <tr><td><strong>ajustage</strong></td><td>réglage de l'instrument pour réduire son erreur (souvent fait après étalonnage)</td></tr>
+          <tr><td><strong>vérification</strong></td><td>constat que l'erreur reste dans une tolérance (conforme / non conforme)</td></tr>
+          <tr><td><strong><dfn data-g="tracabilite">traçabilité</dfn></strong></td><td>chaîne ininterrompue d'étalonnages jusqu'aux étalons nationaux (en France : laboratoires accrédités COFRAC, LNE)</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2><span class="n">2</span>les instruments du labo photonique</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>grandeur</th><th>instrument</th><th>à surveiller</th></tr></thead>
+        <tbody>
+          <tr><td>puissance (nW–mW)</td><td><dfn data-g="puissance-metre">puissance-mètre</dfn> à photodiode</td><td>réglage de λ, saturation, uniformité, étalonnage par λ</td></tr>
+          <tr><td>puissance (mW–kW)</td><td>tête thermique (thermopile)</td><td>temps de réponse, dérive du zéro, densité de puissance max</td></tr>
+          <tr><td>énergie d'impulsion</td><td>joulemètre pyroélectrique</td><td>cadence max, seuil de dommage</td></tr>
+          <tr><td>longueur d'onde absolue</td><td><dfn data-g="lambdametre">lambdamètre</dfn> (Fizeau, Michelson)</td><td>étalonnage sur une raie de référence, type de laser accepté (CW, monomode…)</td></tr>
+          <tr><td>spectre</td><td>analyseur de spectre optique (<dfn data-g="osa">OSA</dfn>)</td><td>RBW, exactitude en λ, dynamique</td></tr>
+          <tr><td>profil de faisceau, M²</td><td><dfn data-g="analyseur-faisceau">analyseur de faisceau</dfn> (caméra, fente)</td><td>saturation, fond, taille de pixel, filtres</td></tr>
+          <tr><td>impulsions, bruit</td><td>photodiode rapide + oscilloscope / analyseur RF</td><td>bande passante de toute la chaîne</td></tr>
+          <tr><td>électrique, température</td><td>multimètre, sondes, thermomètre</td><td>catégorie de mesure, résolution, étalonnage</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2><span class="n">3</span>étalonnage &amp; certificat</h2>
+      <p>Un certificat d'étalonnage indique, pour chaque point : la valeur de référence, la valeur lue, l'erreur et l'<strong>incertitude élargie</strong> (souvent k = 2), les conditions (température, λ) et la traçabilité. Il ne dit pas si l'instrument est « bon » : c'est à toi de comparer l'erreur à ta tolérance. L'intervalle entre étalonnages se fixe selon l'usage, la dérive constatée et le risque (souvent 1 an).</p>
+
+      <h2><span class="n">4</span>le budget d'incertitude</h2>
+      <p>On liste chaque source d'erreur, on la convertit en incertitude-type \(u_i\) selon sa loi, on la multiplie par son coefficient de sensibilité \(c_i = \partial f/\partial x_i\), et on combine (voir aussi <a href="../maths/stats-incertitudes.html">statistiques &amp; incertitudes</a>) :</p>
+      <div class="formule">
+        <span class="f-name">incertitude composée et élargie (GUM)</span>
+        <div class="f-eq">\[ u_c = \sqrt{\sum_i c_i^2\,u_i^2} \qquad U = k\,u_c \;(k=2) \qquad u = \frac{a}{\sqrt3}\ \text{(rect.)},\ \frac{a}{\sqrt6}\ \text{(triang.)},\ \frac{U_{cert}}{k}\ \text{(certificat)} \]</div>
+      </div>
+      <div class="lab" data-widget="incertitude">
+        <div class="lab-head"><h4>construire un budget d'incertitude</h4><span class="tag green">outil</span></div>
+        <p class="small">Exemple pré-rempli : mesure de 4,50 mW au puissance-mètre. Modifie les valeurs, ajoute tes propres composantes : ton budget est gardé dans ce navigateur.</p>
+      </div>
+      <h3>déclarer une conformité</h3>
+      <p>Une diode est spécifiée « 5,0 mW minimum ». Tu mesures 5,05 mW avec U = 0,14 mW : la valeur vraie peut être 4,91 mW. Conforme ? Selon les règles de décision (ISO 14253-1), on applique une <strong>bande de garde</strong> : pour déclarer la conformité avec certitude, il faut mesurer au moins 5,0 + U. D'où l'intérêt d'une petite incertitude : elle évite de rejeter de bonnes pièces ou d'accepter de mauvaises.</p>
+
+      <h2><span class="n">5</span>répétabilité &amp; reproductibilité (R&amp;R)</h2>
+      <p>Pour qualifier un moyen de mesure, plusieurs opérateurs mesurent plusieurs fois les mêmes pièces. On sépare la dispersion due à l'instrument (répétabilité) de celle due aux opérateurs (reproductibilité) et on la compare à la tolérance : %R&amp;R &lt; 10 % très bon, 10–30 % acceptable selon l'usage, &gt; 30 % moyen de mesure à améliorer.</p>
+
+      <h2><span class="n">6</span>étalonner la mesure de puissance du banc</h2>
+      <ol>
+        <li>Placer un puissance-mètre étalonné (référence) à la position de l'échantillon, à la bonne λ.</li>
+        <li>Pour une dizaine de courants, relever la tension du TIA <em>et</em> la puissance de référence.</li>
+        <li>Ajuster une droite P<sub>réf</sub> = a·V + b : <strong>a</strong> (mW/V) est le coefficient d'étalonnage, <strong>b</strong> l'offset ; vérifier les résidus.</li>
+        <li>Stocker a, b, la date et la référence utilisée dans un fichier de configuration ; refaire périodiquement (dérive).</li>
+        <li>Inclure l'incertitude de la référence et de l'ajustement dans le budget des mesures du banc.</li>
+      </ol>
+      <div class="box terrain">
+        <p class="box-title">sur le terrain</p>
+        <ul>
+          <li>Étiquette d'étalonnage valide sur chaque instrument ; un instrument hors date ne sert pas pour une mesure officielle.</li>
+          <li>Après un choc ou une surcharge (tête qui a pris trop de puissance), l'instrument est suspect : vérification avant usage.</li>
+          <li>Toujours noter : instrument, n° de série, date d'étalonnage dans la fiche de test.</li>
+        </ul>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Justesse ≠ fidélité ; étalonner ≠ ajuster ; traçabilité jusqu'aux étalons nationaux.</li>
+          <li>u<sub>c</sub> = √Σ(c<sub>i</sub>u<sub>i</sub>)², U = 2u<sub>c</sub> ; attaquer le terme dominant.</li>
+          <li>Conformité avec bande de garde ; R&amp;R &lt; 10 % idéal.</li>
+          <li>Étalonnage du banc : droite P<sub>réf</sub> = aV + b, stockée et datée.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="sys-metro">
+        <header><h3>quiz éclair</h3><span class="tag">4 questions</span></header>
+        <div class="q" data-a="b"><p>1. Un instrument donne des mesures très groupées mais toutes décalées de 5 %. Il est…</p><div class="opts">
+          <label><input type="radio" value="a"> juste mais pas fidèle</label><label><input type="radio" value="b"> fidèle mais pas juste</label><label><input type="radio" value="c"> juste et fidèle</label></div>
+          <p class="explain">Faible dispersion = fidélité ; biais = manque de justesse.</p></div>
+        <div class="q" data-a="a"><p>2. Étalonner un instrument, c'est…</p><div class="opts">
+          <label><input type="radio" value="a"> le comparer à une référence et documenter son erreur</label><label><input type="radio" value="b"> le régler pour qu'il affiche juste</label><label><input type="radio" value="c"> le remplacer</label></div>
+          <p class="explain">Le réglage s'appelle l'ajustage.</p></div>
+        <div class="q" data-a="c"><p>3. Une composante rectangulaire de ±0,1 mW donne une incertitude-type de…</p><div class="opts">
+          <label><input type="radio" value="a"> 0,1 mW</label><label><input type="radio" value="b"> 0,05 mW</label><label><input type="radio" value="c"> ≈ 0,058 mW</label></div>
+          <p class="explain">0,1/√3.</p></div>
+        <div class="q" data-a="b"><p>4. Spécification : ≥ 5,0 mW. Mesure : 5,05 ± 0,14 mW (k = 2). Peut-on déclarer la conformité avec bande de garde ?</p><div class="opts">
+          <label><input type="radio" value="a"> oui, 5,05 &gt; 5,0</label><label><input type="radio" value="b"> non, il faudrait au moins 5,14 mW</label><label><input type="radio" value="c"> oui si on arrondit</label></div>
+          <p class="explain">La valeur vraie pourrait être sous la limite.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

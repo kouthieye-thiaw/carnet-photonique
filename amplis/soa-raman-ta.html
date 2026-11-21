@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SOA, Raman, TA & architecture MOPA · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="amplis/soa-raman-ta">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>SOA, Raman, TA &amp; architecture MOPA</h1>
+    <span class="hand">la famille des amplificateurs</span>
+    <p class="lead">L'EDFA n'est pas seul : l'ampli à semi-conducteur, l'amplification Raman et l'amplificateur évasé ont chacun leur terrain. Et partout revient la même idée : <mark>un petit oscillateur parfait, puis de la puissance</mark>.</p>
+    <span class="sticker" data-s="fusee" style="--r:9deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>comparer SOA, EDFA, Raman et amplificateur évasé (TA) ;</li>
+          <li>expliquer l'architecture MOPA et ses précautions ;</li>
+          <li>calculer la longueur d'onde de pompe d'un ampli Raman ;</li>
+          <li>connaître les limites des amplis à fibre monofréquence de puissance (effet Brillouin) ;</li>
+          <li>estimer un rapport signal/bruit optique (OSNR).</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>l'amplificateur à semi-conducteur (SOA)</h2>
+      <p>Une puce de diode laser dont les facettes sont traitées antireflet (et souvent inclinées) : plus de cavité, la lumière traverse une fois et est amplifiée. Pompage électrique direct.</p>
+      <div class="two-col">
+        <div class="mini-card"><h5>atouts</h5><p>Minuscule, intégrable, bande large (~60 nm), n'importe quelle longueur d'onde (selon le matériau), réponse ultra-rapide : utilisable pour commuter, convertir une longueur d'onde, régénérer.</p></div>
+        <div class="mini-card"><h5>limites</h5><p>Bruit plus élevé (NF 7–9 dB), gain dépendant de la polarisation, effets non linéaires (le gain suit les bits : diaphonie entre canaux), puissance de sortie modérée.</p></div>
+      </div>
+      <p>On le retrouve dans les réseaux d'accès (prolongateurs de portée PON), les commutateurs optiques… et comme « puce de gain » de nombreux lasers accordables.</p>
+
+      <h2><span class="n">2</span>l'amplification Raman</h2>
+      <p>Pas besoin de fibre dopée : une pompe intense dans la fibre de ligne elle-même cède de l'énergie à un signal décalé d'environ <strong>13 THz</strong> vers les basses fréquences, par diffusion <dfn data-g="raman">Raman</dfn> stimulée (interaction avec les vibrations de la silice).</p>
+      <div class="formule">
+        <span class="f-name">pompe Raman</span>
+        <div class="f-eq">\[ \nu_{pompe} = \nu_{signal} + 13{,}2\ \text{THz} \qquad\Longrightarrow\qquad \lambda_{pompe} \approx \lambda_{signal} - 100\ \text{nm} \;(\text{vers } 1550\ \text{nm}) \]</div>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>longueur d'onde de pompe</h4></div>
+        <p>Signal à 1550 nm (193,4 THz). Longueur d'onde de la pompe Raman, en nm ?</p>
+        <div class="check-row" data-answer="1451" data-tol="0.003" data-hint="ν = 193,4 + 13,2 = 206,6 THz ; λ = c/ν">
+          <input type="text" inputmode="decimal" placeholder="nm" aria-label="longueur d'onde de pompe"><span>nm</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+      <p>Atouts : gain <em>distribué</em> le long de la fibre (le signal ne descend jamais très bas → bon bruit effectif), bande réglable en combinant plusieurs pompes. Limite : il faut des centaines de mW à plusieurs W de pompe. On l'associe souvent aux EDFA sur les liaisons très longues ou sous-marines.</p>
+
+      <h2><span class="n">3</span>l'amplificateur évasé (TA)</h2>
+      <p>Une puce semi-conductrice dont la zone active commence par un guide étroit monomode puis s'élargit en trapèze jusqu'à ~200 µm : la lumière injectée garde sa qualité spatiale tout en étant amplifiée sur une grande surface. Résultat : quelques dizaines de mW d'une diode monofréquence deviennent <strong>1 à 4 W</strong>, avec la même finesse spectrale. C'est l'outil classique pour obtenir des watts à 780, 852 ou 1064 nm en physique atomique.</p>
+      <div class="box attention">
+        <p class="box-title">règles d'utilisation d'un TA</p>
+        <ul>
+          <li><strong>Jamais de courant élevé sans lumière d'injection</strong> : sans seed, l'émission spontanée amplifiée peut endommager la facette de sortie.</li>
+          <li>Isolateurs en entrée (protège l'oscillateur de l'ASE qui remonte) et en sortie (protège le TA des retours).</li>
+          <li>Faisceau de sortie astigmate : lentille asphérique + lentille cylindrique pour le remettre en forme ; couplage fibre typique 50–60 %.</li>
+          <li>Régulation de température soignée : la puce dissipe plusieurs watts.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">4</span>les amplis à fibre de puissance</h2>
+      <p>Les fibres dopées <strong>ytterbium</strong> (1030–1100 nm, défaut quantique ~5 %) et <strong>thulium</strong> (~2 µm) montent au kW. Astuce : la fibre <em>double gaine</em> — la pompe multimode (diodes à 915 ou 976 nm) voyage dans une large gaine intérieure et traverse peu à peu le cœur dopé monomode. Pour les amplis <strong>monofréquence</strong>, une limite apparaît : la diffusion Brillouin stimulée (SBS) renvoie la lumière vers l'arrière au-delà d'un seuil qui augmente avec la surface du mode et diminue avec la longueur. Solutions : fibres à grande aire de mode, fibres courtes très dopées, gradients de température ou de contrainte. On double ensuite souvent la fréquence (1064 → 532 nm, 1560 → 780 nm) dans un cristal non linéaire. Détails et mesures : <a href="puissance-mesures.html">leçon suivante</a>.</p>
+
+      <h2><span class="n">5</span>l'architecture MOPA</h2>
+      <p>« Master Oscillator, Power Amplifier » : on sépare la qualité (un oscillateur maître stable, fin, bas bruit) de la puissance (un ou plusieurs amplis). Avantages : on garde les propriétés spectrales du maître, on change de puissance sans toucher à l'oscillateur, on peut moduler le maître à faible puissance.</p>
+      <div class="lab" data-widget="mopa">
+        <div class="lab-head"><h4>construire une chaîne MOPA</h4><span class="tag green">simulation</span></div>
+        <p class="small">Seed → préampli → isolateur/filtre → booster. Chaque étage sature selon sa puissance de saturation. L'OSNR est estimé par la formule pratique OSNR ≈ 58 + P<sub>entrée</sub>(dBm) − NF(dB) (bande de 0,1 nm à 1550 nm).</p>
+      </div>
+      <div class="formule">
+        <span class="f-name">OSNR d'un amplificateur (règle pratique à 1550 nm, résolution 0,1 nm)</span>
+        <div class="f-eq">\[ \mathrm{OSNR}_{\text{dB}} \approx 58 + P_{\text{entrée,dBm}} - NF_{\text{dB}} \]</div>
+        <div class="f-where">Le « 58 » vient de 10 log(1 mW / hνB) avec B = 12,5 GHz. Conséquence : un seed plus puissant améliore directement l'OSNR.</div>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>OSNR</h4></div>
+        <p>Entrée −20 dBm, NF = 5 dB. OSNR estimé, en dB ?</p>
+        <div class="check-row" data-answer="33" data-tol="0.01" data-hint="58 − 20 − 5">
+          <input type="text" inputmode="decimal" placeholder="dB" aria-label="OSNR en dB"><span>dB</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <div class="table-wrap"><table>
+        <thead><tr><th></th><th>EDFA</th><th>SOA</th><th>Raman</th><th>TA</th><th>fibre Yb (puissance)</th></tr></thead>
+        <tbody>
+          <tr><td>bande</td><td>1530–1610 nm</td><td>selon matériau, ~60 nm</td><td>réglable (pompe)</td><td>~20 nm autour du maître</td><td>1030–1100 nm</td></tr>
+          <tr><td>gain</td><td>20–40 dB</td><td>15–30 dB</td><td>10–20 dB</td><td>10–20 dB</td><td>10–30 dB</td></tr>
+          <tr><td>puissance de sortie</td><td>jusqu'à ~W</td><td>~10–20 dBm</td><td>—</td><td>1–4 W</td><td>W–kW</td></tr>
+          <tr><td>bruit (NF)</td><td>4,5–5,5 dB</td><td>7–9 dB</td><td>faible (distribué)</td><td>élevé (ASE large)</td><td>—</td></tr>
+          <tr><td>pompage</td><td>optique 980/1480</td><td>électrique</td><td>optique intense</td><td>électrique</td><td>optique 915/976 (double gaine)</td></tr>
+        </tbody>
+      </table></div>
+      <div class="box terrain">
+        <p class="box-title">sur le terrain</p>
+        <ul>
+          <li>Ordre de mise en route d'un MOPA : régulations de température → seed → vérifier la puissance injectée → amplis. Arrêt dans l'ordre inverse. Beaucoup de systèmes l'imposent par logiciel ; respecte-le aussi à la main.</li>
+          <li>Un MOPA dont la sortie fluctue : vérifier d'abord le seed (puissance, mode) et l'injection (alignement, isolateur), puis les amplis.</li>
+        </ul>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>SOA : compact, rapide, bruyant ; Raman : distribué, pompe à −100 nm (+13 THz) ; TA : watts monofréquence, jamais sans seed.</li>
+          <li>MOPA = qualité du maître + puissance des amplis ; isolateurs entre étages.</li>
+          <li>Amplis fibre de puissance : double gaine ; monofréquence limité par le Brillouin.</li>
+          <li>OSNR ≈ 58 + P<sub>in</sub> − NF.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="amplis-familles">
+        <header><h3>quiz éclair</h3><span class="tag">4 questions</span></header>
+        <div class="q" data-a="b"><p>1. Pourquoi un SOA est-il mal adapté à l'amplification de nombreux canaux WDM ?</p><div class="opts">
+          <label><input type="radio" value="a"> sa bande est trop étroite</label><label><input type="radio" value="b"> son gain réagit vite : les canaux se perturbent mutuellement</label><label><input type="radio" value="c"> il ne fonctionne qu'à 980 nm</label></div>
+          <p class="explain">Dynamique de gain rapide → modulation croisée et mélange à quatre ondes.</p></div>
+        <div class="q" data-a="c"><p>2. Que se passe-t-il si on alimente un TA à plein courant sans lumière d'injection ?</p><div class="opts">
+          <label><input type="radio" value="a"> rien, il émet juste moins</label><label><input type="radio" value="b"> il devient monofréquence</label><label><input type="radio" value="c"> risque d'endommager la facette (ASE intense)</label></div>
+          <p class="explain">La puissance n'est plus « canalisée » par le seed.</p></div>
+        <div class="q" data-a="a"><p>3. Dans un MOPA, on place des isolateurs…</p><div class="opts">
+          <label><input type="radio" value="a"> entre les étages, pour protéger l'oscillateur et éviter les oscillations parasites</label><label><input type="radio" value="b"> seulement en sortie</label><label><input type="radio" value="c"> nulle part</label></div>
+          <p class="explain">L'ASE et les retours remontent la chaîne.</p></div>
+        <div class="q" data-a="b"><p>4. Quel effet limite la puissance d'un ampli à fibre monofréquence ?</p><div class="opts">
+          <label><input type="radio" value="a"> l'effet Peltier</label><label><input type="radio" value="b"> la diffusion Brillouin stimulée</label><label><input type="radio" value="c"> l'absorption à 980 nm</label></div>
+          <p class="explain">Raie étroite + fibre longue = seuil Brillouin bas : on agrandit le mode et on raccourcit la fibre.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

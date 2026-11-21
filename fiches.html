@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>fiches de révision · carnet photonique</title>
+<meta name="description" content="Cartes recto-verso du carnet photonique avec répétition espacée (boîtes de Leitner).">
+<link rel="icon" href="assets/img/favicon.svg">
+<link rel="stylesheet" href="assets/css/carnet.css">
+<script defer src="assets/js/site-map.js"></script>
+<script defer src="assets/js/carnet.js"></script>
+<script defer src="assets/data/fiches.js"></script>
+<style>
+  .leitner { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; max-width: 640px; margin: 18px 0 8px; }
+  .leitner .bx { border: 1.5px solid var(--ink); border-radius: 12px; background: #fff; padding: 10px 8px 8px; text-align: center; font-family: var(--font-geist); }
+  .leitner .bx b { display: block; font-family: var(--font-gelica); font-size: 28px; font-weight: 600; color: var(--color-cocoa-ink); line-height: 1.1; }
+  .leitner .bx span { font-size: 12.5px; color: var(--ink-soft); }
+  .leitner .bx i { display: block; height: 6px; margin-top: 8px; border-radius: 6px; background: var(--paper-2); overflow: hidden; }
+  .leitner .bx i::after { content: ""; display: block; height: 100%; width: var(--p, 0%); background: var(--accent); }
+  .session-bar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 8px 0; max-width: 640px; }
+  .session-bar .small { margin-left: auto; }
+  .fc-actions { display: flex; flex-wrap: wrap; gap: 10px; max-width: 640px; }
+  .fc-actions .pill { flex: 1 1 160px; justify-content: center; }
+  .flashcard .face .txt b { color: var(--color-cocoa-ink); }
+  @media (max-width: 560px) { .flashcard { height: 380px; } .flashcard .face { padding: 20px; } .flashcard .face .txt { font-size: 21px; } .flashcard .face.back .txt { font-size: 18px; } }
+</style>
+</head>
+<body data-notes="fiches">
+<main>
+<div class="wrap">
+  <header class="tool-hero" style="position:relative">
+    <h1>fiches de révision</h1>
+    <span class="hand">un peu chaque jour, au bon moment</span>
+    <p class="lead">Les fiches que tu connais s'éloignent (boîte suivante : tu la reverras dans 1, 3, 7 puis 14 jours) ; celles que tu rates reviennent en boîte 1. C'est la <mark>répétition espacée</mark> : la façon la plus efficace de retenir à long terme.</p>
+    <span class="sticker" data-s="etoile" style="--r:12deg;top:30px;right:0"></span>
+  </header>
+
+  <section class="section" style="margin-top:28px">
+    <div class="chips" data-c="mods" role="group" aria-label="choisir les modules"></div>
+    <div class="leitner" data-c="boites" aria-label="répartition des fiches dans les boîtes"></div>
+    <div class="session-bar"><button class="pill" type="button" data-c="go">commencer une séance</button><span class="small" data-c="dues"></span></div>
+  </section>
+
+  <section data-c="seance" hidden>
+    <div class="session-bar"><span class="tag soft" data-c="pos"></span><span class="tag" data-c="mod"></span><span class="small kbd-hint">espace : retourner · → : je savais · ← : à revoir</span></div>
+    <div class="flashcard" data-c="carte" tabindex="0" role="button" aria-label="retourner la fiche">
+      <div class="inner">
+        <div class="face front"><span class="k">question</span><div class="txt" data-c="q"></div></div>
+        <div class="face back"><span class="k">réponse</span><div class="txt" data-c="r"></div></div>
+      </div>
+    </div>
+    <div class="fc-actions">
+      <button class="pill ghost" type="button" data-c="revoir">↺ à revoir</button>
+      <button class="pill" type="button" data-c="savais">je savais ✓</button>
+    </div>
+  </section>
+  <div class="empty" data-c="fin" hidden></div>
+
+  <section class="section">
+    <div class="sec-head"><h2>toutes les fiches</h2><span class="hand sm">pour relire tranquillement</span></div>
+    <div data-c="toutes"></div>
+  </section>
+</div>
+</main>
+<script defer src="assets/js/pages/fiches-page.js"></script>
+</body>
+</html>

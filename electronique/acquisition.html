@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>acquisition : ADC, DAC, I²C & SPI · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="electronique/acquisition">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>acquisition : ADC, DAC, I²C &amp; SPI</h1>
+    <span class="hand">faire parler l'analogique et le numérique</span>
+    <p class="lead">La Raspberry Pi ne sait lire ni écrire aucune tension analogique. Entre elle et le laser, il faut des <mark>convertisseurs</mark> et des bus pour leur parler. Bien les choisir et bien les câbler, c'est la moitié de la qualité d'un banc.</p>
+    <span class="sticker" data-s="framboise" style="--r:-9deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>calculer résolution, quantum et SNR idéal d'un ADC ;</li>
+          <li>choisir un ADC et un DAC pour une mesure donnée ;</li>
+          <li>expliquer et câbler les bus I²C et SPI (adresses, tirages, sélection) ;</li>
+          <li>conditionner un signal avant l'ADC (diviseur, tampon, filtre, protection) ;</li>
+          <li>piloter des instruments de laboratoire (SCPI) et connaître les limites temps réel de Linux.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>le convertisseur analogique-numérique</h2>
+      <div class="formule">
+        <span class="f-name">quantification</span>
+        <div class="f-eq">\[ q = \mathrm{LSB} = \frac{\text{pleine échelle}}{2^N} \qquad \sigma_q = \frac{q}{\sqrt{12}} \qquad \mathrm{SNR}_{\text{idéal}} = 6{,}02\,N + 1{,}76\ \text{dB} \]</div>
+        <div class="f-where">Un <dfn data-g="adc">ADC</dfn> réel fait moins bien que l'idéal : on parle de nombre de bits effectifs (ENOB). La référence de tension fixe l'exactitude : une référence qui dérive de 0,1 % fait dériver toutes les mesures de 0,1 %.</div>
+      </div>
+      <div class="lab" data-widget="adc">
+        <div class="lab-head"><h4>quantification &amp; trame I²C</h4><span class="tag green">simulation</span></div>
+        <p class="small">En haut : un signal (gris) vu par un ADC (orange) : diminue les bits pour voir l'escalier. En bas : la trame I²C qu'envoie la Raspberry Pi pour écrire un octet dans un composant.</p>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>composant</th><th>type</th><th>résolution</th><th>cadence</th><th>bus</th><th>usage sur le banc</th></tr></thead>
+        <tbody>
+          <tr><td>ADS1115</td><td>delta-sigma, 4 entrées, PGA</td><td>16 bits</td><td>8–860 éch./s</td><td>I²C</td><td>puissance (TIA), tension diode, courant (shunt), CTN</td></tr>
+          <tr><td>ADS1256</td><td>delta-sigma, 8 entrées</td><td>24 bits</td><td>jusqu'à 30 k éch./s</td><td>SPI</td><td>mesures fines, bruit basse fréquence</td></tr>
+          <tr><td>MCP3008</td><td>SAR, 8 entrées</td><td>10 bits</td><td>≈ 200 k éch./s</td><td>SPI</td><td>mesures rapides et grossières</td></tr>
+          <tr><td>carte son USB</td><td>delta-sigma audio (AC)</td><td>16–24 bits</td><td>48–192 k éch./s</td><td>USB</td><td>spectre de bruit (RIN) jusqu'à ~90 kHz</td></tr>
+          <tr><td>MCP4725</td><td>DAC, 1 sortie, EEPROM</td><td>12 bits</td><td>—</td><td>I²C</td><td>consigne du driver de courant</td></tr>
+          <tr><td>INA219 / INA226</td><td>moniteur courant/tension</td><td>12 / 16 bits</td><td>—</td><td>I²C</td><td>contrôle indépendant du courant</td></tr>
+        </tbody>
+      </table></div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>résolutions</h4></div>
+        <p>a) ADS1115 en gamme ±4,096 V (16 bits) : quantum en µV ?</p>
+        <div class="check-row" data-answer="125" data-tol="0.01" data-hint="8,192 V / 65 536">
+          <input type="text" inputmode="decimal" placeholder="µV" aria-label="quantum en µV"><span>µV</span><button class="pill small" type="button">vérifier</button>
+        </div>
+        <p>b) Avec un TIA de 10 kΩ et une photodiode de 0,43 A/W, quelle puissance optique correspond à ce quantum, en nW ?</p>
+        <div class="check-row" data-answer="29.1" data-tol="0.02" data-hint="125 µV / 10 kΩ = 12,5 nA ; ÷ 0,43 A/W">
+          <input type="text" inputmode="decimal" placeholder="nW" aria-label="puissance en nW"><span>nW</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">2</span>le convertisseur numérique-analogique</h2>
+      <p>Un <dfn data-g="dac">DAC</dfn> produit une tension à partir d'un nombre : 12 bits sur 3,3 V donnent 0,81 mV par pas. Points d'attention : la <strong>valeur au démarrage</strong> (EEPROM du MCP4725 !), les <strong>glitchs</strong> lors des changements de code, l'impédance de sortie (tamponner si la charge est importante) et le bruit (filtrer la consigne).</p>
+
+      <h2><span class="n">3</span>le bus I²C</h2>
+      <p>Deux fils : <strong>SDA</strong> (données) et <strong>SCL</strong> (horloge), plus la masse. Plusieurs composants partagent le bus ; chacun a une <strong>adresse sur 7 bits</strong>. Les lignes sont « à drain ouvert » : des résistances de tirage les ramènent à 3,3 V (la Raspberry Pi en a déjà de 1,8 kΩ sur GPIO2/GPIO3).</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>composant</th><th>adresses possibles</th><th>comment choisir</th></tr></thead>
+        <tbody>
+          <tr><td>ADS1115</td><td>0x48 à 0x4B</td><td>broche ADDR reliée à GND, VDD, SDA ou SCL</td></tr>
+          <tr><td>MCP4725</td><td>0x60 / 0x61 (selon version : 0x62–0x67)</td><td>broche A0</td></tr>
+          <tr><td>INA219</td><td>0x40 à 0x4F</td><td>broches A0/A1</td></tr>
+        </tbody>
+      </table></div>
+      <div class="code"><pre data-label="terminal de la Raspberry Pi"><code class="language-bash"># activer l'I²C (une fois) : raspi-config → Interface Options → I2C
+sudo raspi-config
+# lister les composants présents sur le bus 1
+i2cdetect -y 1</code></pre></div>
+      <ul>
+        <li>Vitesse standard 100 kHz, rapide 400 kHz. Câbles courts (&lt; 30 cm) : la capacité des fils arrondit les fronts.</li>
+        <li>Deux composants avec la même adresse = conflit : change la broche d'adresse.</li>
+        <li>Les composants I²C lents ne conviennent pas aux mesures rapides : l'ADS1115 plafonne à 860 mesures/s, partagées entre ses entrées.</li>
+      </ul>
+
+      <h2><span class="n">4</span>le bus SPI</h2>
+      <p>Quatre fils : <strong>SCLK</strong> (horloge), <strong>MOSI</strong> (maître → esclave), <strong>MISO</strong> (esclave → maître) et un <strong>CS</strong> (chip select) par composant (CE0, CE1 sur la Pi). Plus rapide (MHz), full duplex, sans adresse : c'est la ligne CS qui choisit le composant. Attention au « mode » SPI (polarité/phase d'horloge) imposé par la fiche du composant.</p>
+
+      <h2><span class="n">5</span>conditionner le signal</h2>
+      <ul>
+        <li><strong>Adapter la plage</strong> : diviseur résistif (tension de la diode, alimentation), ou choisir le gain du PGA de l'ADS1115.</li>
+        <li><strong>Tamponner</strong> une source à forte impédance (AOP suiveur) : l'entrée d'un ADC « tire » un peu de courant à chaque conversion.</li>
+        <li><strong>Filtrer</strong> : RC anti-repliement avant l'ADC (voir <a href="../maths/fourier-signal.html">échantillonnage</a>).</li>
+        <li><strong>Protéger</strong> : résistance série + diodes d'écrêtage vers les rails ; et rappel vital : <strong>les GPIO de la Pi sont en 3,3 V, jamais 5 V</strong>.</li>
+        <li><strong>Mesurer en différentiel</strong> quand c'est possible (tension aux bornes du shunt) : on élimine les tensions de mode commun et les chutes dans la masse.</li>
+      </ul>
+
+      <h2><span class="n">6</span>instruments et temps réel</h2>
+      <p>Les instruments de labo (puissance-mètres, OSA, alimentations, oscilloscopes) se pilotent en <strong>SCPI</strong>, un langage texte (<code>*IDN?</code>, <code>MEAS:POW?</code>) transmis par USB, série ou Ethernet (port TCP 5025). En Python : <code>pyvisa</code> ou <code>pyserial</code>.</p>
+      <p>Linux n'est <strong>pas temps réel</strong> : Python peut être interrompu quelques ms. Pour des cadences régulières, laisse l'ADC échantillonner seul (mode continu, broche « data ready »), horodate chaque mesure (<code>time.monotonic()</code>), et confie les tâches rapides ou critiques à du matériel (microcontrôleur, driver autonome).</p>
+      <div class="box terrain">
+        <p class="box-title">sur le terrain</p>
+        <ul>
+          <li><code>i2cdetect</code> ne voit rien : alimentation du module, inversion SDA/SCL, I²C non activé, masse commune absente.</li>
+          <li>Mesures qui « sautent » de temps en temps : longueur des fils I²C, alimentation bruitée, erreurs non gérées dans le code (ajoute des tentatives et des journaux).</li>
+          <li>Note toujours la gamme (PGA) et la cadence de l'ADC avec les données.</li>
+        </ul>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>LSB = PE/2ᴺ ; SNR idéal 6,02N + 1,76 dB ; la référence fixe l'exactitude.</li>
+          <li>I²C : SDA/SCL, adresses 7 bits, tirages ; SPI : SCLK/MOSI/MISO/CS, rapide.</li>
+          <li>Conditionner : plage, tampon, filtre, protection ; GPIO 3,3 V.</li>
+          <li>Linux non temps réel : horodater, laisser le matériel cadencer.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="elec-adc">
+        <header><h3>quiz éclair</h3><span class="tag">4 questions</span></header>
+        <div class="q" data-a="b"><p>1. SNR idéal d'un ADC 16 bits ?</p><div class="opts">
+          <label><input type="radio" value="a"> 16 dB</label><label><input type="radio" value="b"> ≈ 98 dB</label><label><input type="radio" value="c"> ≈ 48 dB</label></div>
+          <p class="explain">6,02 × 16 + 1,76 = 98,1 dB.</p></div>
+        <div class="q" data-a="c"><p>2. Deux ADS1115 sur le même bus I²C : comment les distinguer ?</p><div class="opts">
+          <label><input type="radio" value="a"> impossible</label><label><input type="radio" value="b"> avec deux fils SCL</label><label><input type="radio" value="c"> en câblant différemment leur broche ADDR (0x48, 0x49…)</label></div>
+          <p class="explain">Chaque composant doit avoir une adresse unique sur le bus.</p></div>
+        <div class="q" data-a="a"><p>3. Pourquoi ne jamais brancher un signal 5 V sur un GPIO de la Raspberry Pi ?</p><div class="opts">
+          <label><input type="radio" value="a"> les GPIO fonctionnent en 3,3 V et ne tolèrent pas 5 V</label><label><input type="radio" value="b"> parce que c'est trop lent</label><label><input type="radio" value="c"> ce n'est pas un problème</label></div>
+          <p class="explain">On peut détruire la broche, voire le processeur.</p></div>
+        <div class="q" data-a="b"><p>4. On veut le spectre de bruit d'un laser jusqu'à 50 kHz. Quel convertisseur ?</p><div class="opts">
+          <label><input type="radio" value="a"> ADS1115</label><label><input type="radio" value="b"> une carte son USB à 192 kHz (ou un ADC rapide dédié)</label><label><input type="radio" value="c"> le DAC MCP4725</label></div>
+          <p class="explain">Il faut f<sub>e</sub> &gt; 100 kHz : l'ADS1115 plafonne à 860 éch./s.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

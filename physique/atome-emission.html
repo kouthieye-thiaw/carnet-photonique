@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>atomes, niveaux d'énergie & émission stimulée · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="physique/atome-emission">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>atomes, niveaux d'énergie &amp; émission stimulée</h1>
+    <span class="hand">le moteur quantique du laser</span>
+    <p class="lead">Pourquoi faut-il « pomper » un laser ? Pourquoi le Nd:YAG démarre-t-il si facilement et le rubis si difficilement ? Tout se joue sur quelques <mark>niveaux d'énergie</mark> et trois processus d'échange avec la lumière.</p>
+    <span class="sticker" data-s="photon" style="--r:12deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>relier une transition entre niveaux à la longueur d'onde émise ;</li>
+          <li>expliquer avec la loi de Boltzmann pourquoi l'inversion est impossible à l'équilibre ;</li>
+          <li>décrire absorption, émission spontanée et stimulée (coefficients d'Einstein) ;</li>
+          <li>comparer les systèmes à 2, 3 et 4 niveaux ;</li>
+          <li>comprendre durée de vie, section efficace et largeur de raie.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>des niveaux d'énergie quantifiés</h2>
+      <p>Un électron dans un atome, un ion ou un cristal ne peut occuper que certains niveaux d'énergie. En passant d'un niveau \(E_2\) à un niveau \(E_1\) plus bas, il émet un photon dont l'énergie est exactement l'écart :</p>
+      <div class="formule">
+        <span class="f-name">condition de Bohr</span>
+        <div class="f-eq">\[ h\nu = E_2 - E_1 \qquad\Longrightarrow\qquad \lambda = \frac{hc}{E_2 - E_1} \]</div>
+        <div class="f-where">Chaque élément a sa « signature » de raies : c'est la base de la spectroscopie, de l'étalonnage des spectromètres (lampes néon, mercure-argon) et du choix des milieux laser.</div>
+      </div>
+
+      <h2><span class="n">2</span>l'équilibre thermique joue contre nous</h2>
+      <p>À l'équilibre, les niveaux sont peuplés selon la loi de Boltzmann : plus un niveau est haut, moins il est occupé.</p>
+      <div class="formule">
+        <span class="f-name">loi de Boltzmann</span>
+        <div class="f-eq">\[ \frac{N_2}{N_1} = \exp\!\left(-\frac{E_2-E_1}{k_BT}\right) \qquad k_BT \approx 25{,}9\ \text{meV à 300 K} \]</div>
+        <div class="f-where">Pour une transition visible (≈ 2 eV), N₂/N₁ ≈ e⁻⁷⁷ ≈ 10⁻³⁴ : il n'y a pratiquement aucun atome excité. Même à température infinie, on n'aurait que N₂ = N₁. L'<dfn data-g="inversion-population">inversion</dfn> (N₂ &gt; N₁) est un état <em>hors équilibre</em> qu'il faut forcer : c'est le rôle du pompage.</div>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>agitation thermique</h4></div>
+        <p>Calcule k<sub>B</sub>T à 300 K, en meV (k<sub>B</sub> = 1,381·10⁻²³ J/K, 1 eV = 1,602·10⁻¹⁹ J).</p>
+        <div class="check-row" data-answer="25.9" data-tol="0.01" data-hint="1,381·10⁻²³ × 300 / 1,602·10⁻¹⁹ en eV, puis × 1000">
+          <input type="text" inputmode="decimal" placeholder="meV" aria-label="kT en meV"><span>meV</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">3</span>trois façons d'échanger avec la lumière</h2>
+      <figure class="fig">
+        <div class="fig-inner">
+          <svg viewBox="0 0 760 230" role="img" aria-label="Absorption, émission spontanée, émission stimulée.">
+            <defs><marker id="a2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#e2372b"/></marker></defs>
+            <g class="svg-ink"><path d="M40 60 H200 M40 170 H200 M290 60 H450 M290 170 H450 M540 60 H700 M540 170 H700"/></g>
+            <g class="svg-txt" style="font-size:12px"><text x="205" y="64">E₂</text><text x="205" y="174">E₁</text></g>
+            <circle cx="120" cy="164" r="7" fill="#fdfbf9" class="svg-ink"/><circle cx="120" cy="54" r="7" fill="#ff6f1e" stroke="#171717" stroke-width="1.4" opacity=".35"/>
+            <path d="M118 158 V72" stroke="#ff6f1e" stroke-width="2" stroke-dasharray="4 3"/>
+            <path d="M20 120 q6 -8 12 0 t12 0 t12 0 t12 0 t12 0 t12 0" fill="none" stroke="#e2372b" stroke-width="2.2" marker-end="url(#a2)"/>
+            <circle cx="370" cy="54" r="7" fill="#ff6f1e" stroke="#171717" stroke-width="1.4"/>
+            <path d="M372 66 V150" stroke="#ff6f1e" stroke-width="2" stroke-dasharray="4 3"/>
+            <path d="M385 110 q5 -7 10 0 t10 0 t10 0 t10 0 t10 0" fill="none" stroke="#e2372b" stroke-width="2.2" marker-end="url(#a2)" transform="rotate(-35 385 110)"/>
+            <circle cx="620" cy="54" r="7" fill="#ff6f1e" stroke="#171717" stroke-width="1.4"/>
+            <path d="M622 66 V150" stroke="#ff6f1e" stroke-width="2" stroke-dasharray="4 3"/>
+            <path d="M548 110 q6 -8 12 0 t12 0 t12 0 t12 0" fill="none" stroke="#e2372b" stroke-width="2.2" marker-end="url(#a2)"/>
+            <path d="M640 100 q6 -8 12 0 t12 0 t12 0 t12 0" fill="none" stroke="#e2372b" stroke-width="2.2" marker-end="url(#a2)"/>
+            <path d="M640 122 q6 -8 12 0 t12 0 t12 0 t12 0" fill="none" stroke="#e2372b" stroke-width="2.2" marker-end="url(#a2)"/>
+            <g class="svg-txt" text-anchor="middle"><text x="120" y="210">absorption</text><text x="370" y="210">émission spontanée</text><text x="620" y="210">émission stimulée</text></g>
+            <text x="690" y="96" class="svg-hand" style="font-size:18px">×2, identiques</text>
+            <text x="420" y="88" class="svg-hand" style="font-size:18px">au hasard</text>
+          </svg>
+        </div>
+        <figcaption><b>Figure 1 —</b> les trois processus d'Einstein. Seule l'émission stimulée produit des photons « clones », base de l'amplification.</figcaption>
+      </figure>
+      <ul>
+        <li><dfn data-g="absorption">Absorption</dfn> : un photon disparaît, l'atome monte. Taux ∝ B₁₂·N₁·(densité de lumière).</li>
+        <li><dfn data-g="emission-spontanee">Émission spontanée</dfn> : l'atome redescend seul, au bout d'un temps moyen τ (durée de vie), dans une direction aléatoire. Taux ∝ A₂₁·N₂ avec A₂₁ = 1/τ.</li>
+        <li><dfn data-g="emission-stimulee">Émission stimulée</dfn> : un photon provoque l'émission d'un photon identique. Taux ∝ B₂₁·N₂·(densité de lumière).</li>
+      </ul>
+      <div class="formule">
+        <span class="f-name">relations d'Einstein et gain</span>
+        <div class="f-eq">\[ B_{12} = B_{21} \qquad \frac{A_{21}}{B_{21}} \propto \nu^3 \qquad\qquad g = \sigma\,(N_2 - N_1) \]</div>
+        <div class="f-where">Absorption et émission stimulée ont la même probabilité : c'est la différence N₂ − N₁ qui décide si le milieu amplifie (g &gt; 0) ou absorbe. <b>σ</b> section efficace (cm²). Le facteur ν³ rend l'émission spontanée énorme aux courtes longueurs d'onde : c'est pourquoi les lasers UV et X sont si difficiles.</div>
+      </div>
+
+      <h2><span class="n">4</span>2, 3 ou 4 niveaux ?</h2>
+      <div class="lab" data-widget="niveaux">
+        <div class="lab-head"><h4>peut-on inverser la population ?</h4><span class="tag green">animation</span></div>
+        <p class="small">Atomes blancs : au repos ; orange : sur le niveau haut laser ; bleus : sur le niveau bas laser. Les flèches pointillées sont des désexcitations rapides non radiatives (chaleur). Compare les trois systèmes à pompage égal.</p>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>système</th><th>exemples</th><th>inversion</th><th>conséquence</th></tr></thead>
+        <tbody>
+          <tr><td>2 niveaux</td><td>—</td><td>impossible (plafond à 50 %)</td><td>on ne fait pas de laser… mais un absorbant saturable</td></tr>
+          <tr><td>3 niveaux</td><td>rubis (694 nm), erbium (1550 nm)</td><td>il faut vider plus de la moitié du fondamental</td><td>seuil élevé ; l'erbium non pompé <em>absorbe</em> à 1550 nm</td></tr>
+          <tr><td>4 niveaux</td><td>Nd:YAG (1064 nm), HeNe, Ti:Sa</td><td>immédiate : le bas laser se vide tout seul</td><td>seuil bas, fonctionnement continu facile</td></tr>
+          <tr><td>quasi-3 niveaux</td><td>Yb (1030 nm), Er</td><td>bas laser un peu peuplé thermiquement</td><td>dépend de la température et de la longueur d'onde</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2><span class="n">5</span>durée de vie, largeur de raie</h2>
+      <p>La durée de vie τ du niveau haut est un paramètre clé : longue (ms : erbium, ytterbium), le milieu stocke de l'énergie (utile pour les impulsions et les amplis) ; courte (ns : semi-conducteurs, colorants), il réagit vite. Une durée de vie finie impose une largeur de raie minimale (élargissement naturel, lorentzien) ; les collisions, l'effet Doppler (gaz) et le désordre du matériau (verres) l'élargissent encore (souvent en gaussien). Un milieu à <em>large</em> bande de gain (Ti:Sa : 700–1000 nm, Yb : ~70 nm) permet l'accordabilité et les impulsions ultra-courtes.</p>
+      <div class="box terrain">
+        <p class="box-title">sur le terrain</p>
+        <ul>
+          <li>Une fibre dopée erbium non pompée absorbe le signal : si la pompe d'un EDFA tombe, le signal ne passe plus du tout (pas seulement « moins amplifié »).</li>
+          <li>On mesure une durée de vie de fluorescence en coupant brutalement la pompe et en ajustant l'exponentielle de la décroissance : c'est un contrôle qualité des cristaux et fibres dopées.</li>
+          <li>Les lampes spectrales (néon, Hg-Ar) servent à étalonner les spectromètres : leurs raies sont connues au pm près.</li>
+        </ul>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>hν = E₂ − E₁ ; à l'équilibre N₂/N₁ = exp(−ΔE/kT) ≪ 1 : pas d'inversion sans pompage.</li>
+          <li>B₁₂ = B₂₁ : le gain vaut σ(N₂ − N₁).</li>
+          <li>4 niveaux : inversion facile (Nd:YAG) ; 3 niveaux : seuil élevé (rubis, Er).</li>
+          <li>τ long = stockage d'énergie ; large bande de gain = accordabilité et impulsions courtes.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="physique-atome">
+        <header><h3>quiz éclair</h3><span class="tag">4 questions</span></header>
+        <div class="q" data-a="c"><p>1. Pourquoi ne peut-on pas faire de laser à 2 niveaux en pompant optiquement ?</p><div class="opts">
+          <label><input type="radio" value="a"> le niveau haut est trop instable</label><label><input type="radio" value="b"> la pompe serait trop chère</label><label><input type="radio" value="c"> la pompe provoque aussi l'émission stimulée vers le bas : on plafonne à N₂ = N₁</label></div>
+          <p class="explain">Absorption et émission stimulée ayant le même coefficient, la pompe égalise les populations sans jamais les inverser.</p></div>
+        <div class="q" data-a="a"><p>2. Dans un système à 4 niveaux, le niveau bas de la transition laser…</p><div class="opts">
+          <label><input type="radio" value="a"> se vide très vite vers le fondamental</label><label><input type="radio" value="b"> est le fondamental</label><label><input type="radio" value="c"> est la bande de pompe</label></div>
+          <p class="explain">C'est ce qui rend l'inversion facile.</p></div>
+        <div class="q" data-a="b"><p>3. Le gain d'un milieu est proportionnel à…</p><div class="opts">
+          <label><input type="radio" value="a"> N₂ seulement</label><label><input type="radio" value="b"> N₂ − N₁</label><label><input type="radio" value="c"> N₁ − N₂</label></div>
+          <p class="explain">g = σ(N₂ − N₁) : positif seulement avec une inversion.</p></div>
+        <div class="q" data-a="c"><p>4. Un milieu à très longue durée de vie (ms) est intéressant pour…</p><div class="opts">
+          <label><input type="radio" value="a"> moduler très vite</label><label><input type="radio" value="b"> émettre dans l'UV</label><label><input type="radio" value="c"> stocker de l'énergie (impulsions déclenchées, amplis stables)</label></div>
+          <p class="explain">Les atomes restent excités longtemps : on accumule l'énergie avant de la libérer (Q-switch), et le gain d'un EDFA ne suit pas les variations rapides du signal.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

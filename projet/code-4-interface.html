@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>code 4 · interface & rapport · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="projet/code-4-interface">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>code 4 · interface &amp; rapport</h1>
+    <span class="hand">une commande, une mesure, un rapport</span>
+    <p class="lead">Dernière couche : une interface en ligne de commande qui assemble pilotes, séquences et analyses, un chien de garde logiciel, un journal horodaté, et un <mark>rapport automatique</mark> qui compare les résultats au cahier des charges. C'est ce qui transforme un tas de fonctions en un banc qu'un collègue peut utiliser.</p>
+    <span class="sticker" data-s="framboise" style="--r:-9deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette page, tu sauras…</h4>
+        <ul>
+          <li>écrire les commandes <code>etat</code>, <code>liv</code> et <code>temperature</code> de <code>cli.py</code>, puis en ajouter ;</li>
+          <li>garantir l'arrêt sûr du laser, y compris sur <kbd>Ctrl</kbd>+<kbd>C</kbd> ou si le programme se fige ;</li>
+          <li>journaliser ce que fait le banc ;</li>
+          <li>générer un rapport HTML autonome qui conclut « conforme / non conforme » ;</li>
+          <li>choisir, si tu le veux, une interface graphique sans compromettre la sécurité.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>la ligne de commande</h2>
+      <p>L'analyse des arguments est déjà écrite dans <code>cli.py</code> (module <code>argparse</code>) et la fonction <code>construire_banc</code> assemble tes pilotes sur le vrai matériel ou sur la simulation. Il te reste à écrire ce que fait chaque commande. Objectif : qu'une session ressemble à ceci.</p>
+      <div class="code"><pre data-label="exemple de session (les valeurs viendront de ton code)"><code class="language-bash">banclaser --simule etat
+# monture 25,00 °C · laser inactif · interlock fermé · I = 0,00 mA · P = 0,000 mW
+
+banclaser --simule liv --fin 40 --pas 0.5
+# [10:42:01] monture stabilisée à 25,00 °C
+# [10:42:01] laser activé
+# [10:42:09] 81 points mesurés — retour à 0 mA, laser désactivé
+# seuil (régression)   20,0 mA     pente   0,63 mW/mA     R² 0,9998
+# η externe            0,33        R série 6,2 Ω
+# → mesures/2026-12-03_simule/liv_25C.csv  et  liv_25C.png
+
+banclaser --simule temperature 20
+# 25,00 → 20,00 °C : stable (±0,1 °C pendant 10 s) après 142 s ; Ctrl+C pour arrêter</code></pre></div>
+      <details class="reveal hint"><summary>indice — la structure de la commande liv</summary><div class="reveal-body">
+        <div class="code"><pre data-label="pseudo-code"><code>banc ← construire_banc(simule)
+dossier ← créer le dossier de la campagne (date + nom)
+essayer :
+    stabiliser la monture à la consigne (sinon : arrêter avec un message clair)
+    activer le driver
+    résultats ← mesurer_liv(…)
+    enregistrer le CSV (avec en-tête complet)
+    analyser (seuil, pente, η, R série) et tracer la figure
+    afficher le résumé
+enfin (toujours) :
+    désactiver le driver
+    arrêter la régulation (si on ne doit pas la maintenir)</code></pre></div>
+        <p>Les codes de retour comptent : <code>return 0</code> si tout va bien, autre chose sinon (utile si un script enchaîne plusieurs commandes).</p>
+      </div></details>
+      <p>Ajoute ensuite tes propres sous-commandes sur le même modèle : <code>per</code>, <code>caustique</code>, <code>lambda-t</code>, <code>bruit</code>, <code>rapport</code>. Chaque sous-commande = une fonction courte qui appelle les couches du dessous ; aucun calcul dans <code>cli.py</code>.</p>
+
+      <h2><span class="n">2</span>s'arrêter proprement, toujours</h2>
+      <ul>
+        <li><strong><kbd>Ctrl</kbd>+<kbd>C</kbd></strong> lève <code>KeyboardInterrupt</code> : les <code>finally</code> s'exécutent, le laser s'éteint. Vérifie-le à chaque nouvelle commande.</li>
+        <li><strong>Arrêt du système ou <code>kill</code></strong> : Python reçoit le signal SIGTERM, qui par défaut tue le programme <em>sans</em> exécuter les <code>finally</code>. Installe un gestionnaire (<code>signal.signal(signal.SIGTERM, …)</code>) qui lève une exception (par exemple <code>SystemExit</code>) : on retombe dans le cas précédent.</li>
+        <li><strong>Programme figé</strong> (boucle infinie, bus I²C bloqué) : aucun <code>finally</code> ne s'exécutera. C'est le rôle du <strong>chien de garde matériel</strong>.</li>
+        <li><strong>Panne de courant, plantage de la Pi</strong> : le relais normalement fermé court-circuite la diode et l'EEPROM du DAC redémarre à 0. Le logiciel n'y peut rien : c'est pour cela que la sécurité est d'abord matérielle.</li>
+      </ul>
+      <h3>le chien de garde</h3>
+      <p>Le monostable 74HC123 du <a href="electronique-banc.html">schéma du banc</a> garde le relais alimenté tant qu'il reçoit une impulsion sur GPIO 27 au moins toutes les ~0,3 s. Piège classique : un fil d'exécution (<em>thread</em>) qui envoie des impulsions en boucle, quoi qu'il arrive… continue de les envoyer même quand le programme principal est figé. Le chien ne sert alors à rien.</p>
+      <figure class="fig">
+        <div class="fig-inner">
+          <svg viewBox="0 0 760 200" role="img" aria-label="Chronogramme du chien de garde : le programme principal signe un « battement » à chaque itération ; le fil du chien n'envoie une impulsion que si le dernier battement est récent ; quand le programme se fige, les impulsions cessent et le relais retombe.">
+            <g class="svg-txt" style="font-size:13px"><text x="10" y="46">battements</text><text x="10" y="106">impulsions GPIO 27</text><text x="10" y="166">relais (laser autorisé)</text></g>
+            <g class="svg-ink">
+              <path d="M170 50 V30 M220 50 V30 M265 50 V30 M318 50 V30 M362 50 V30 M410 50 V30" stroke-width="2.4"/>
+              <path d="M170 50 H740"/>
+              <path d="M170 110 H190 V92 H196 V110 H290 V92 H296 V110 H390 V92 H396 V110 H490 V92 H496 V110 H740"/>
+              <path d="M170 170 V150 H555 V170 H740" stroke="#ce500a" stroke-width="2.2"/>
+            </g>
+            <path d="M440 20 V190" stroke="#ff6f1e" stroke-width="1.5" stroke-dasharray="5 4"/>
+            <text x="448" y="30" class="svg-hand" style="font-size:19px">le programme se fige</text>
+            <text x="560" y="140" class="svg-hand" style="font-size:19px">~0,3 s plus tard : relais fermé</text>
+          </svg>
+        </div>
+        <figcaption><b>Figure 1 —</b> la boucle principale « signe » à chaque itération (un horodatage) ; le fil du chien n'envoie l'impulsion que si la dernière signature date de moins de 0,2 s. Programme figé → plus de signatures → plus d'impulsions → le relais retombe.</figcaption>
+      </figure>
+      <details class="reveal hint"><summary>indice — un chien de garde honnête</summary><div class="reveal-body">
+        <div class="code"><pre data-label="pseudo-code"><code>classe ChienDeGarde(sortie, horloge, periode=0.1, delai_max=0.2) :
+    signer()  : derniere_signature ← maintenant          # appelé par les boucles de mesure
+    boucle du fil :
+        tant que actif :
+            si maintenant − derniere_signature &lt; delai_max :
+                impulsion courte sur la sortie
+            dormir(periode)</code></pre></div>
+        <p>Les boucles longues (rampe, stabilisation, balayages) appellent <code>signer()</code> à chaque tour. Teste-le : un <code>while True: pass</code> volontaire doit faire retomber le relais.</p>
+      </div></details>
+
+      <h2><span class="n">3</span>le journal de bord du programme</h2>
+      <p>Le module <code>logging</code> horodate chaque événement et l'écrit à la fois à l'écran et dans <code>journal.log</code> du dossier de la campagne. Niveaux : <code>DEBUG</code> (trames, détails), <code>INFO</code> (étapes), <code>WARNING</code> (anomalie tolérée : température lente à se stabiliser), <code>ERROR</code> (mesure abandonnée), <code>CRITICAL</code> (sécurité : interlock).</p>
+      <div class="code"><pre data-label="configuration minimale (une fois, au début du programme)"><code class="language-python">import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)-8s %(name)s : %(message)s",
+    handlers=[logging.FileHandler(dossier / "journal.log", encoding="utf-8"),
+              logging.StreamHandler()],
+)
+log = logging.getLogger("banclaser.liv")    # un nom par module
+log.info("laser activé, consigne %.2f mA", 0.0)</code></pre></div>
+      <p>Ce qui doit apparaître : démarrage (version du code, configuration), chaque activation/désactivation du laser, chaque consigne, chaque alarme, la fin de chaque séquence avec le nom des fichiers écrits. En cas d'incident, c'est la première chose que tu liras.</p>
+
+      <h2><span class="n">4</span>le rapport automatique</h2>
+      <p>Un rapport de test est un <strong>document qualité</strong> : il identifie le composant testé, les conditions, les moyens de mesure (et leur étalonnage), les résultats avec incertitudes, et conclut par rapport à une spécification. Génère-le en HTML (un seul fichier, figures incluses en base64 : il s'envoie par mail et s'ouvre partout).</p>
+      <figure class="fig">
+        <div class="fig-inner" style="padding:20px">
+          <div style="border:1.5px solid var(--ink);border-radius:12px;background:#fff;padding:18px 20px;font-family:var(--font-geist);font-size:15px;line-height:1.45">
+            <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:baseline">
+              <b style="font-family:var(--font-gelica);font-size:22px;color:var(--color-cocoa-ink)">rapport de test — diode A (n° 2311-07)</b>
+              <span class="tag green">conforme</span>
+            </div>
+            <p style="margin:6px 0 12px;color:var(--ink-soft);font-size:13.5px">2026-12-03 · monture 25,00 ± 0,02 °C · banclaser v0.4-3-g1a2b3c · photodiode étalonnée le 2026-11-28 (référence : puissance-mètre IUT n° 14)</p>
+            <div class="table-wrap"><table>
+              <thead><tr><th>grandeur</th><th>mesure</th><th>U (k = 2)</th><th>spécification</th><th>verdict</th></tr></thead>
+              <tbody>
+                <tr><td>courant de seuil</td><td>20,0 mA</td><td>± 0,4 mA</td><td>15 à 25 mA</td><td>✓</td></tr>
+                <tr><td>pente</td><td>0,63 mW/mA</td><td>± 0,03</td><td>≥ 0,5 mW/mA</td><td>✓</td></tr>
+                <tr><td>P à 40 mA</td><td>11,2 mW</td><td>± 0,6 mW</td><td>≥ 5 mW</td><td>✓</td></tr>
+                <tr><td>dλ/dT</td><td>0,22 nm/°C</td><td>± 0,03</td><td>information</td><td>—</td></tr>
+                <tr><td>M² (axe lent)</td><td>1,12</td><td>± 0,08</td><td>≤ 1,5</td><td>✓</td></tr>
+              </tbody>
+            </table></div>
+            <p style="margin:10px 0 0;color:var(--ink-soft);font-size:13.5px">figures : L-I-V, caustique, Malus, spectre de RIN · fichiers bruts : 7 CSV, 23 images · opérateur : K. Thiaw</p>
+          </div>
+        </div>
+        <figcaption><b>Figure 2 —</b> maquette d'en-tête de rapport (valeurs d'exemple). Le verdict est calculé : une mesure est « conforme » si tout son intervalle d'incertitude respecte la spécification ; si l'intervalle chevauche la limite, le verdict est « indéterminé » — on ne tranche pas au hasard.</figcaption>
+      </figure>
+      <ul>
+        <li><strong>Gabarit</strong> : une chaîne HTML avec des champs à remplir (<code>string.Template</code> ou une f-string) ; le style tient dans une balise <code>&lt;style&gt;</code>.</li>
+        <li><strong>Figures</strong> : PNG lus en binaire, encodés avec <code>base64.b64encode</code>, insérés en <code>&lt;img src="data:image/png;base64,…"&gt;</code>.</li>
+        <li><strong>Spécifications</strong> : dans un fichier (par exemple <code>config/specification_diode.toml</code>), jamais dans le code.</li>
+        <li><strong>Traçabilité</strong> : la commande <code>rapport</code> relit les CSV d'une campagne ; elle ne remesure rien. Un rapport doit pouvoir être régénéré à l'identique.</li>
+      </ul>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>conforme ou pas ?</h4></div>
+        <p>Spécification : seuil ≤ 25 mA. Mesure : 24,6 mA avec U = ± 0,6 mA (k = 2). Quelle est la borne haute de l'intervalle, en mA ? (Puis conclus : conforme, non conforme ou indéterminé ?)</p>
+        <div class="check-row" data-answer="25.2" data-tol="0.001" data-hint="borne haute = mesure + U">
+          <input type="text" inputmode="decimal" placeholder="mA" aria-label="borne haute en mA"><span>mA</span><button class="pill small" type="button">vérifier</button>
+        </div>
+        <details class="reveal hint"><summary>conclusion</summary><div class="reveal-body"><p>25,2 mA dépasse la limite alors que la mesure elle-même est dessous : l'intervalle chevauche la spécification → <strong>indéterminé</strong>. Il faut réduire l'incertitude (plus de mesures, meilleur étalonnage) avant de conclure.</p></div></details>
+      </div>
+
+      <h2><span class="n">5</span>et une interface graphique ?</h2>
+      <p>Elle est utile pour <em>regarder</em> (courbes en direct, état du banc), rarement indispensable pour <em>commander</em>. Trois options, de la plus simple à la plus ambitieuse :</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>option</th><th>pour</th><th>attention</th></tr></thead>
+        <tbody>
+          <tr><td>figures PNG générées par la CLI</td><td>zéro dépendance, parfait en SSH</td><td>pas de direct</td></tr>
+          <tr><td>carnet Jupyter sur la Pi</td><td>explorer les données, tracer à la volée</td><td>ne pilote pas le laser depuis un carnet (cellules exécutées dans le désordre !)</td></tr>
+          <tr><td>petite page web locale (lecture seule)</td><td>tableau de bord en direct depuis le PC</td><td>serveur lié à <code>127.0.0.1</code>, accès par tunnel SSH (<code>ssh -L 8000:localhost:8000 …</code>) ; jamais de commande du laser exposée sur le réseau</td></tr>
+        </tbody>
+      </table></div>
+      <div class="box attention">
+        <p class="box-title">une règle simple</p>
+        <p>Ce qui allume le laser reste dans la ligne de commande, lancé par une personne présente devant le banc, lunettes sur le nez. Une interface à distance peut afficher ; elle ne commande pas.</p>
+      </div>
+
+      <h2><span class="n">6</span>livrer son logiciel</h2>
+      <ul class="checklist" data-id="code4-interface">
+        <li><input type="checkbox"><label>Commandes <code>etat</code>, <code>liv</code>, <code>temperature</code> fonctionnelles en simulation, puis sur la Pi.</label></li>
+        <li><input type="checkbox"><label><kbd>Ctrl</kbd>+<kbd>C</kbd> et <code>kill</code> testés pendant chaque commande : laser éteint à chaque fois.</label></li>
+        <li><input type="checkbox"><label>Chien de garde testé avec un blocage volontaire : relais retombé en moins d'une demi-seconde.</label></li>
+        <li><input type="checkbox"><label>Journal horodaté dans chaque dossier de campagne.</label></li>
+        <li><input type="checkbox"><label>Commande <code>rapport</code> : HTML autonome, verdicts avec incertitudes.</label></li>
+        <li><input type="checkbox"><label>README à jour (installation, commandes, sécurité) ; version étiquetée (<code>git tag v1.0</code>).</label></li>
+      </ul>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>La CLI assemble ; elle ne calcule pas.</li>
+          <li><code>finally</code> pour Ctrl+C, gestionnaire SIGTERM pour <code>kill</code>, chien de garde « honnête » pour les blocages, matériel pour le reste.</li>
+          <li>Un journal par campagne ; un rapport régénérable, avec incertitudes et verdicts.</li>
+          <li>Une interface distante affiche, elle ne commande pas le laser.</li>
+        </ul>
+      </div>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

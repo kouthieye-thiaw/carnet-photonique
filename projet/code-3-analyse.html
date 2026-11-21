@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>code 3 · analyse des données · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="projet/code-3-analyse">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>code 3 · analyse des données</h1>
+    <span class="hand">des colonnes de chiffres aux caractéristiques du laser</span>
+    <p class="lead">Seuil, rendement, résistance série, diamètre D4σ, M², taux d'extinction, bruit relatif d'intensité : chaque grandeur du cahier des charges devient une <mark>fonction pure</mark> — des tableaux en entrée, des nombres en sortie — testée sur des données synthétiques dont on connaît la vérité.</p>
+    <span class="sticker" data-s="framboise" style="--r:11deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette page, tu sauras…</h4>
+        <ul>
+          <li>extraire seuil, pente, rendement quantique et résistance série d'une courbe L-I-V ;</li>
+          <li>mesurer un diamètre de faisceau selon la norme ISO 11146 sans te faire piéger par le bruit ;</li>
+          <li>ajuster une caustique pour obtenir M², col et longueur de Rayleigh ;</li>
+          <li>ajuster la loi de Malus par moindres carrés linéaires et calculer un PER ;</li>
+          <li>calculer un spectre de RIN avec la méthode de Welch et repérer les raies parasites ;</li>
+          <li>faire passer les tests <code>test_06</code> à <code>test_09</code> et produire des figures propres.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>tester une analyse : la vérité connue</h2>
+      <p>Comment savoir si une fonction d'analyse est juste ? On lui donne des données <strong>synthétiques</strong> : une courbe fabriquée avec un seuil de 25 mA exactement, plus du bruit. Si la fonction retrouve 25 mA (à la tolérance près), elle est juste. C'est ce que font les tests : ils fixent la graine du générateur aléatoire (<code>default_rng(0)</code>) pour que le bruit soit toujours le même.</p>
+      <div class="box astuce">
+        <p class="box-title">numpy, ton meilleur outil</p>
+        <p>Pas de boucles <code>for</code> sur les points : <code>numpy</code> calcule sur des tableaux entiers. <code>i[p &gt; 0.2 * p.max()]</code> sélectionne des points avec un masque ; <code>np.sum</code>, <code>np.mean</code>, <code>np.gradient</code>, <code>np.polyfit</code>, <code>np.linalg.lstsq</code> font le reste. Convertis toujours les entrées avec <code>np.asarray(x, dtype=float)</code> : les tests passent parfois de simples listes.</p>
+      </div>
+
+      <h2><span class="n">2</span>la courbe L-I-V</h2>
+      <h3>seuil et pente par régression</h3>
+      <div class="formule">
+        <span class="f-name">moindres carrés (droite)</span>
+        <div class="f-eq">\[ a = \frac{\sum (x_k - \bar x)(y_k - \bar y)}{\sum (x_k - \bar x)^2} \qquad b = \bar y - a\,\bar x \qquad R^2 = 1 - \frac{\sum (y_k - a x_k - b)^2}{\sum (y_k - \bar y)^2} \qquad I_{th} = -\frac{b}{a} \]</div>
+        <div class="f-where">On n'ajuste que la partie <strong>linéaire</strong> au-dessus du seuil : entre 20 % et 80 % de \(P_{max}\) (ni le pied de courbe arrondi, ni la saturation thermique en haut).</div>
+      </div>
+      <div class="lab" data-widget="regression">
+        <div class="lab-head"><h4>le piège de la fenêtre d'ajustement</h4><span class="tag green">simulation</span></div>
+      </div>
+      <h3>seuil par la dérivée seconde</h3>
+      <p>Au seuil, la pente de P(I) passe brusquement de ≈ 0 à sa valeur laser : la dérivée seconde présente un pic. Méthode utile quand la courbe est arrondie, mais très sensible au bruit : il faut <strong>lisser</strong> avant de dériver.</p>
+      <details class="reveal hint"><summary>indice — lisser sans fabriquer de faux pics</summary><div class="reveal-body"><p>Une moyenne glissante, c'est une convolution par <code>np.ones(n) / n</code>. Avec <code>mode="same"</code>, les bords sont complétés par des zéros : les premiers et derniers points sont faux, et leur dérivée seconde peut créer un pic artificiel. Ignore une demi-largeur de lissage de chaque côté avant de chercher le maximum (<code>np.argmax</code>).</p></div></details>
+      <h3>résistance série et rendement</h3>
+      <div class="formule">
+        <span class="f-name">rendement quantique externe différentiel</span>
+        <div class="f-eq">\[ \eta_{ext} = \frac{\mathrm{d}P}{\mathrm{d}I}\,\frac{e\,\lambda}{h\,c} = \frac{\mathrm{d}P}{\mathrm{d}I}\,[\text{W/A}] \times \frac{\lambda\,[\text{nm}]}{1240} \]</div>
+        <div class="f-where">Nombre de photons sortis par électron injecté au-dessus du seuil. Attention aux unités : 1 mW/mA = 1 W/A, mais pour la résistance série, une pente en V/mA doit être multipliée par 1000 pour donner des ohms.</div>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>test</th><th>ce qu'il vérifie</th></tr></thead>
+        <tbody>
+          <tr><td><code>test_droite</code></td><td>pente et ordonnée exactes ; moins de 2 points → <code>ValueError</code></td></tr>
+          <tr><td><code>test_seuil_regression</code></td><td>seuil à ±0,4 mA de 25 mA, pente à 2,5 % de 0,8 mW/mA, R² &gt; 0,999, plus de 10 points</td></tr>
+          <tr><td><code>test_seuil_derivee_seconde</code></td><td>seuil à ±1 mA de 25 mA</td></tr>
+          <tr><td><code>test_resistance_serie</code></td><td>≈ 6,15 Ω au-dessus de 20 mA (la jonction ajoute un peu à la résistance de 6 Ω)</td></tr>
+          <tr><td><code>test_rendement_quantique</code></td><td>0,6 mW/mA à 650 nm → 0,3145</td></tr>
+        </tbody>
+      </table></div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>rendement d'une diode 780 nm</h4></div>
+        <p>Pente mesurée : 0,8 mW/mA, à 780 nm. Rendement quantique externe différentiel ?</p>
+        <div class="check-row" data-answer="0.5032" data-tol="0.004" data-hint="η = pente × λ(nm) / 1240">
+          <input type="text" inputmode="decimal" placeholder="η" aria-label="rendement quantique"><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">3</span>le profil du faisceau</h2>
+      <p>La norme ISO 11146 définit le diamètre d'un faisceau par les <strong>moments d'ordre 2</strong> de la répartition d'intensité : c'est la définition D4σ, valable pour tous les faisceaux (pas seulement gaussiens).</p>
+      <div class="formule">
+        <span class="f-name">centroïde et diamètre D4σ</span>
+        <div class="f-eq">\[ \bar x = \frac{\sum x\,E(x,y)}{\sum E(x,y)} \qquad \sigma_x^2 = \frac{\sum (x-\bar x)^2\,E(x,y)}{\sum E(x,y)} \qquad D_{4\sigma,x} = 4\,\sigma_x \]</div>
+        <div class="f-where">\(E\) : image après soustraction du fond · somme sur les pixels de la fenêtre · pour un faisceau gaussien de rayon \(w\) (à \(1/e^2\)) : \(D_{4\sigma} = 2w\). Multiplier par la taille du pixel (en tenant compte d'un éventuel regroupement 2×2) pour passer en µm.</div>
+      </div>
+      <p>Les moments d'ordre 2 pèsent les pixels par le <em>carré</em> de leur distance au centre : un pixel de bruit loin du faisceau compte des centaines de fois plus qu'un pixel du cœur. D'où deux règles, à vérifier toi-même :</p>
+      <div class="lab" data-widget="d4sigma">
+        <div class="lab-head"><h4>D4σ sur une image bruitée</h4><span class="tag green">simulation</span></div>
+      </div>
+      <ol>
+        <li><strong>Ne pas écrêter</strong> les valeurs négatives après soustraction du fond : le bruit doit pouvoir se compenser.</li>
+        <li><strong>Fenêtre itérative</strong> : calculer centroïde et D4σ, recadrer sur 3 × D4σ autour du centroïde, recommencer jusqu'à ce que les largeurs ne bougent plus.</li>
+      </ol>
+      <details class="reveal hint"><summary>indice — moments avec numpy, sans boucle</summary><div class="reveal-body"><p><code>y, x = np.indices(image.shape)</code> fournit, pour chaque pixel, son numéro de ligne et de colonne. Ensuite, toutes les sommes de la formule s'écrivent en une ligne. Pour la fenêtre, découpe l'image (<code>image[y0:y1, x0:x1]</code>) et n'oublie pas de rajouter <code>x0</code> et <code>y0</code> au centroïde obtenu dans la fenêtre.</p></div></details>
+
+      <h3>de la caustique au M²</h3>
+      <p>On mesure D4σ à plusieurs positions z autour du col (<a href="code-2-mesures.html">code 2</a>) puis on ajuste la loi de propagation. Astuce : ajuster \(w^2\) plutôt que \(w\) rend le problème <strong>linéaire</strong> en ses paramètres.</p>
+      <div class="formule">
+        <span class="f-name">ajustement de la caustique (ISO 11146)</span>
+        <div class="f-eq">\[ w^2(z) = a + b\,z + c\,z^2 \;\Rightarrow\; z_0 = -\frac{b}{2c} \qquad w_0 = \sqrt{a - \frac{b^2}{4c}} \qquad M^2 = \frac{\pi}{\lambda}\sqrt{a\,c - \frac{b^2}{4}} \qquad z_R = \frac{w_0}{\sqrt{c}} \]</div>
+        <div class="f-where">\(w = D_{4\sigma}/2\) · toutes les longueurs dans la même unité (mm) : λ = 650 nm = 6,5·10⁻⁴ mm · \(\sqrt{c}\) est la demi-divergence \(\theta\).</div>
+      </div>
+      <details class="reveal hint"><summary>indice — l'ordre des coefficients de polyfit</summary><div class="reveal-body"><p><code>np.polyfit(z, w**2, 2)</code> renvoie les coefficients du degré le plus haut au plus bas : <code>[c, b, a]</code>, et non <code>[a, b, c]</code>. Une inversion donne un M² absurde (ou une racine de nombre négatif : <code>nan</code>).</p></div></details>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>longueur de Rayleigh</h4></div>
+        <p>Col \(w_0\) = 45 µm, M² = 1,1, λ = 650 nm. Longueur de Rayleigh \(z_R = \pi w_0^2 / (M^2 \lambda)\), en mm ?</p>
+        <div class="check-row" data-answer="8.897" data-tol="0.01" data-hint="mets tout en mm : 45 µm = 0,045 mm ; 650 nm = 6,5·10⁻⁴ mm">
+          <input type="text" inputmode="decimal" placeholder="mm" aria-label="longueur de Rayleigh en mm"><span>mm</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>test</th><th>ce qu'il vérifie</th></tr></thead>
+        <tbody>
+          <tr><td><code>test_fond_sans_ecretage</code></td><td>fond retiré (médiane du bord ≈ 0) et valeurs négatives conservées</td></tr>
+          <tr><td><code>test_primitives_sans_bruit</code></td><td>centroïde à 0,01 px ; D4σ = 2w à 0,1 px sur une image parfaite</td></tr>
+          <tr><td><code>test_profil_bruite_iso</code></td><td>trois faisceaux (ronds, elliptique, petit) : centroïde à 0,3 px, D4σ à 2 % malgré le bruit</td></tr>
+          <tr><td><code>test_caustique_m2</code></td><td>M² = 1,3 ± 0,06 ; w<sub>0</sub>, z<sub>0</sub>, z<sub>R</sub> retrouvés</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2><span class="n">4</span>la polarisation</h2>
+      <p>Un polariseur tourne devant le faisceau ; la puissance transmise suit la <a href="../physique/polarisation.html">loi de Malus</a>, avec un minimum non nul (la part non polarisée de la lumière).</p>
+      <div class="formule">
+        <span class="f-name">Malus « linéarisée »</span>
+        <div class="f-eq">\[ P(\theta) = P_{min} + (P_{max} - P_{min})\cos^2(\theta - \theta_0) = A + B\cos 2\theta + C \sin 2\theta \qquad PER = 10\log_{10}\frac{P_{max}}{P_{min}} \]</div>
+        <div class="f-where">Le modèle de droite est <strong>linéaire</strong> en A, B, C : une matrice de 3 colonnes \([1,\ \cos 2\theta,\ \sin 2\theta]\) et <code>np.linalg.lstsq</code> suffisent, sans valeurs initiales à deviner.</div>
+      </div>
+      <details class="reveal hint"><summary>indice — de (A, B, C) à P<sub>max</sub>, P<sub>min</sub>, θ<sub>0</sub></summary><div class="reveal-body"><p>Utilise \(\cos^2 u = (1 + \cos 2u)/2\) puis développe \(\cos(2\theta - 2\theta_0)\). Tu dois trouver \(A = (P_{max} + P_{min})/2\) et \(\sqrt{B^2 + C^2} = (P_{max} - P_{min})/2\) ; l'angle sort d'un <code>arctan2</code>. Ramène-le dans [0 ; 180[ avec un modulo : un polariseur à θ et à θ + 180° est le même.</p></div></details>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>un taux d'extinction</h4></div>
+        <p>P<sub>max</sub> = 4,2 mW et P<sub>min</sub> = 0,021 mW. PER en dB ?</p>
+        <div class="check-row" data-answer="23.01" data-tol="0.003" data-hint="10 × log10(Pmax / Pmin)">
+          <input type="text" inputmode="decimal" placeholder="dB" aria-label="PER en dB"><span>dB</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+      <p class="small">P<sub>min</sub> mesuré négatif ou nul ? Ce n'est pas un laser parfait : c'est un offset mal retiré. <code>per_db</code> doit refuser (<code>ValueError</code>) plutôt que d'afficher un PER infini.</p>
+
+      <h2><span class="n">5</span>le bruit relatif d'intensité (RIN)</h2>
+      <div class="formule">
+        <span class="f-name">RIN à partir d'un enregistrement</span>
+        <div class="f-eq">\[ RIN(f) = \frac{S_{\delta V}(f)}{\bar V^{\,2}} \quad [\text{Hz}^{-1}] \qquad RIN_{dB} = 10\log_{10} RIN \quad [\text{dB/Hz}] \]</div>
+        <div class="f-where">\(S_{\delta V}\) : densité spectrale de puissance <strong>unilatérale</strong> des fluctuations (V²/Hz), estimée par la méthode de Welch (moyenne de spectres de segments fenêtrés) · \(\bar V\) : tension moyenne. Pour un bruit blanc d'écart-type σ échantillonné à \(f_e\) : \(S = 2\sigma^2 / f_e\).</div>
+      </div>
+      <ul>
+        <li><code>scipy.signal.welch(x, fs=fe, nperseg=…, window="hann")</code> renvoie <code>(f, S)</code> ; retire la composante f = 0 (la moyenne, déjà dans le dénominateur).</li>
+        <li><strong>Moyenne d'un RIN sur une bande</strong> : moyenne les valeurs <em>linéaires</em>, puis repasse en dB. Moyenner des dB sous-estime le bruit (la moyenne d'un logarithme n'est pas le logarithme de la moyenne).</li>
+        <li><strong>Raies parasites</strong> (50 Hz du secteur, 100 Hz du redressement, fréquence d'une alimentation à découpage) : points qui dépassent nettement la médiane du spectre — <code>scipy.signal.find_peaks</code> fait le travail.</li>
+        <li><code>nperseg</code> fixe la résolution (\(f_e/\text{nperseg}\)) et le nombre de segments moyennés : plus de segments = spectre moins « bruité », mais moins fin.</li>
+      </ul>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>le RIN d'un bruit blanc</h4></div>
+        <p>σ = 1 mV, \(\bar V\) = 2 V, f<sub>e</sub> = 10 kHz. RIN en dB/Hz ?</p>
+        <div class="check-row" data-answer="-103.01" data-tol="0.002" data-hint="RIN = 2σ² / (fe · V̄²), puis 10·log10">
+          <input type="text" inputmode="decimal" placeholder="dB/Hz" aria-label="RIN en dB par hertz"><span>dB/Hz</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">6</span>des figures qui parlent</h2>
+      <p>Une figure de rapport se lit sans le texte autour : axes nommés <strong>avec unités</strong>, points de mesure visibles (marqueurs), ajustement en trait continu, résultat écrit sur la figure, légende, conditions (température, date) en titre ou en note.</p>
+      <div class="code"><pre data-label="un gabarit de figure (matplotlib)"><code class="language-python">import matplotlib
+matplotlib.use("Agg")                      # pas d'écran nécessaire (Pi en SSH)
+import matplotlib.pyplot as plt
+
+fig, ax = plt.subplots(figsize=(7, 4.5), dpi=150)
+ax.plot(x, y, "o", ms=3, label="mesure")
+ax.plot(x_fit, y_fit, "-", lw=1.5, label="ajustement")
+ax.set_xlabel("courant (mA)")
+ax.set_ylabel("puissance (mW)")
+ax.set_title("diode A — monture à 25,0 °C — 2026-12-03")
+ax.grid(alpha=0.3)
+ax.legend()
+fig.tight_layout()
+fig.savefig("liv_25C.png")
+plt.close(fig)                             # sinon la mémoire se remplit en boucle</code></pre></div>
+      <div class="box attention">
+        <p class="box-title">un résultat sans incertitude n'est qu'une indication</p>
+        <p>Pour chaque grandeur, note au moins : la répétabilité (écart-type sur 5 mesures), l'incertitude d'ajustement (<code>np.polyfit(…, cov=True)</code> donne la matrice de covariance), et l'incertitude d'étalonnage de la chaîne de mesure — souvent la plus grosse pour la puissance. Méthode complète : <a href="../maths/stats-incertitudes.html">statistiques &amp; incertitudes</a> et <a href="../systemes/metrologie.html">métrologie</a>.</p>
+      </div>
+
+      <h2><span class="n">7</span>quand tout est vert</h2>
+      <ul class="checklist" data-id="code3-analyse">
+        <li><input type="checkbox"><label><code>pytest tests/test_06_analyse_liv.py tests/test_07_faisceau.py</code> : tout passe.</label></li>
+        <li><input type="checkbox"><label><code>pytest tests/test_08_polarisation.py tests/test_09_bruit.py</code> : tout passe.</label></li>
+        <li><input type="checkbox"><label>Chaque fonction a une docstring avec ses unités d'entrée et de sortie.</label></li>
+        <li><input type="checkbox"><label>Une figure par analyse, au gabarit ci-dessus, générée automatiquement.</label></li>
+        <li><input type="checkbox"><label>Analyse rejouée sur une vraie courbe du simulateur : seuil cohérent avec le modèle (≈ 20 mA à 25 °C).</label></li>
+      </ul>
+      <section class="quiz" data-quiz="projet-code3">
+        <header><h3>quiz éclair</h3><span class="tag">4 questions</span></header>
+        <div class="q" data-a="b"><p>1. Pourquoi ajuster la droite L-I entre 20 % et 80 % de P<sub>max</sub> ?</p><div class="opts">
+          <label><input type="radio" value="a"> pour aller plus vite</label><label><input type="radio" value="b"> pour éviter le pied arrondi sous le seuil et la courbure thermique en haut</label><label><input type="radio" value="c"> parce que la norme interdit les autres points</label></div>
+          <p class="explain">Seule la partie linéaire au-dessus du seuil suit le modèle « droite ».</p></div>
+        <div class="q" data-a="c"><p>2. Tu écrêtes à 0 les valeurs négatives de l'image avant de calculer D4σ. Effet ?</p><div class="opts">
+          <label><input type="radio" value="a"> aucun, le bruit est faible</label><label><input type="radio" value="b"> le diamètre est sous-estimé</label><label><input type="radio" value="c"> le diamètre est surestimé, parfois énormément</label></div>
+          <p class="explain">Le bruit écrêté a une moyenne positive, et les pixels lointains pèsent par le carré de leur distance.</p></div>
+        <div class="q" data-a="a"><p>3. Pourquoi ajuster \(w^2(z)\) plutôt que \(w(z)\) ?</p><div class="opts">
+          <label><input type="radio" value="a"> \(w^2\) est un polynôme de degré 2 en z : ajustement linéaire, sans valeurs initiales</label><label><input type="radio" value="b"> parce que la caméra mesure des surfaces</label><label><input type="radio" value="c"> pour doubler la précision</label></div>
+          <p class="explain">\(w^2 = w_0^2 + \theta^2 (z - z_0)^2\) se développe en a + bz + cz².</p></div>
+        <div class="q" data-a="b"><p>4. Pour moyenner un RIN entre 100 Hz et 4 kHz, on…</p><div class="opts">
+          <label><input type="radio" value="a"> moyenne les valeurs en dB/Hz</label><label><input type="radio" value="b"> moyenne les valeurs linéaires puis on convertit en dB</label><label><input type="radio" value="c"> prend la valeur médiane en dB</label></div>
+          <p class="explain">Le logarithme d'une moyenne n'est pas la moyenne des logarithmes.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Tester une analyse = données synthétiques dont on connaît la vérité.</li>
+          <li>L-I-V : droite entre 20 et 80 % de P<sub>max</sub> ; η<sub>ext</sub> = pente × λ(nm)/1240 ; attention mA → A.</li>
+          <li>D4σ : pas d'écrêtage, fenêtre ISO itérée ; M² par ajustement linéaire de w²(z).</li>
+          <li>PER : Malus linéarisée + moindres carrés ; RIN : Welch, moyenne en linéaire.</li>
+          <li>Chaque résultat avec ses unités, sa figure et son incertitude.</li>
+        </ul>
+      </div>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

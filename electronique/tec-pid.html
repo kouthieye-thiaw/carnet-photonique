@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>réguler la température : TEC & PID · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="electronique/tec-pid">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>réguler la température : TEC &amp; PID</h1>
+    <span class="hand">tenir 25,000 °C pendant des heures</span>
+    <p class="lead">Longueur d'onde, seuil, puissance, durée de vie : tout dépend de la température de la diode. Une boucle <mark>CTN → PID → pont en H → Peltier</mark> la tient au centième de degré. Tu vas la régler à la main dans le simulateur, puis la coder sur ton banc.</p>
+    <span class="sticker" data-s="eclair" style="--r:-12deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>dessiner la chaîne de régulation thermique d'une monture laser ;</li>
+          <li>commander un Peltier dans les deux sens (pont en H, filtrage) ;</li>
+          <li>expliquer le rôle de chaque terme d'un PID et l'écrire en version numérique ;</li>
+          <li>régler un PID (méthode manuelle, Ziegler-Nichols) et éviter l'emballement de l'intégrale ;</li>
+          <li>intégrer les sécurités thermiques au pilotage du laser.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>la boucle</h2>
+      <figure class="fig">
+        <div class="fig-inner">
+          <svg viewBox="0 0 760 210" role="img" aria-label="Boucle de régulation : consigne, comparateur, PID, pont en H, Peltier, monture, thermistance, ADC.">
+            <defs><marker id="ap" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#171717"/></marker></defs>
+            <g class="svg-ink">
+              <circle cx="110" cy="70" r="16" fill="#fff"/><path d="M100 70 H120 M110 60 V80"/>
+              <rect x="170" y="45" width="110" height="50" rx="10" fill="#ffeee4"/><rect x="320" y="45" width="110" height="50" rx="10" fill="#f7efe9"/><rect x="470" y="45" width="110" height="50" rx="10" fill="#f7efe9"/><rect x="620" y="45" width="110" height="50" rx="10" fill="#fff"/>
+              <rect x="470" y="140" width="110" height="46" rx="10" fill="#f7efe9"/><rect x="320" y="140" width="110" height="46" rx="10" fill="#f7efe9"/>
+            </g>
+            <g stroke="#171717" stroke-width="1.6" fill="none"><path d="M30 70 H92" marker-end="url(#ap)"/><path d="M126 70 H168" marker-end="url(#ap)"/><path d="M280 70 H318" marker-end="url(#ap)"/><path d="M430 70 H468" marker-end="url(#ap)"/><path d="M580 70 H618" marker-end="url(#ap)"/><path d="M675 95 V163 H582" marker-end="url(#ap)"/><path d="M470 163 H432" marker-end="url(#ap)"/><path d="M320 163 H110 V88" marker-end="url(#ap)"/></g>
+            <g class="svg-txt" text-anchor="middle" style="font-size:13px"><text x="225" y="74">PID</text><text x="375" y="68">pont en H</text><text x="375" y="84" style="font-size:11px">PWM + filtre LC</text><text x="525" y="74">Peltier (TEC)</text><text x="675" y="68">monture</text><text x="675" y="84" style="font-size:11px">+ diode laser</text><text x="525" y="168">CTN 10 kΩ</text><text x="375" y="168">ADC + calcul T</text><text x="40" y="58">consigne</text><text x="126" y="104">−</text></g>
+            <text x="140" y="36" class="svg-hand" style="font-size:18px">erreur e = consigne − mesure</text>
+          </svg>
+        </div>
+        <figcaption><b>Figure 1 —</b> la boucle de régulation thermique de ton banc (le PID tourne en Python sur la Raspberry Pi).</figcaption>
+      </figure>
+
+      <h2><span class="n">2</span>commander un Peltier</h2>
+      <p>Un <dfn data-g="tec">TEC</dfn> doit recevoir un courant dans les deux sens (refroidir ou chauffer) : on utilise un <strong>pont en H</strong>. Deux approches :</p>
+      <ul>
+        <li><strong>Pont en H à découpage (<dfn data-g="pwm">PWM</dfn>)</strong> : simple et efficace (petit module à quelques euros). Mais un Peltier n'aime pas les créneaux : l'ondulation de courant chauffe par effet Joule sans pomper de chaleur et réduit sa durée de vie. On choisit une fréquence de PWM élevée (&gt; 20 kHz) et on ajoute un filtre LC pour lisser le courant (ondulation &lt; 10 %).</li>
+        <li><strong>Driver linéaire bipolaire</strong> ou circuit intégré dédié aux TEC (limite de courant et de tension intégrées, très bas bruit) : la solution des instruments professionnels.</li>
+      </ul>
+      <p>Dans tous les cas : <strong>limite de courant</strong> du TEC (sa fiche donne I<sub>max</sub>), et attention à la polarité. Un Peltier branché à l'envers chauffe quand le régulateur veut refroidir : la boucle devient une rétroaction positive et la température s'emballe. Teste toujours le sens avec un petit courant avant de fermer la boucle.</p>
+
+      <h2><span class="n">3</span>le régulateur PID</h2>
+      <div class="formule">
+        <span class="f-name">loi de commande PID</span>
+        <div class="f-eq">\[ u(t) = K_p\,e(t) + K_i\int_0^t e(\tau)\,\mathrm{d}\tau + K_d\,\frac{\mathrm{d}e}{\mathrm{d}t} \qquad e = T_{consigne} - T_{\text{mesurée}} \]</div>
+        <div class="f-where"><b>P</b> : réagit proportionnellement à l'écart (seul, il laisse une erreur statique) · <b>I</b> : accumule l'erreur et l'annule à long terme (mais peut faire dépasser) · <b>D</b> : anticipe en freinant quand la mesure varie vite (sensible au bruit, à filtrer).</div>
+      </div>
+      <div class="lab" data-widget="pid">
+        <div class="lab-head"><h4>régler un PID sur une monture laser</h4><span class="tag green">simulation</span></div>
+        <p class="small">Modèle : monture de constante de temps 30 s, Peltier capable de ±25 °C, CTN en retard de 3 s, bruit de mesure, perturbation ambiante à t = 200 s. Essaie les préréglages, puis règle toi-même. Augmente la période d'échantillonnage pour voir la boucle se dégrader.</p>
+      </div>
+      <h3>la version numérique (ce que tu coderas)</h3>
+      <p>Le PID s'exécute à intervalle régulier \(\Delta t\). En pseudo-code :</p>
+      <div class="code"><pre data-label="algorithme (pseudo-code)"><code>à chaque période Δt :
+    mesure  ← lire la température (CTN → °C)
+    erreur  ← consigne − mesure
+    P       ← Kp × erreur
+    D       ← −Kd × (mesure − mesure_précédente) / Δt      # dérivée de la MESURE (pas de coup de pied à chaque changement de consigne)
+    si la commande n'est pas saturée (ou si l'erreur la fait revenir) :
+        intégrale ← intégrale + Ki × erreur × Δt               # anti-windup
+    commande ← borner(P + intégrale + D, −1, +1)               # limites du Peltier
+    appliquer la commande au pont en H (sens + rapport cyclique)
+    mesure_précédente ← mesure</code></pre></div>
+      <ul>
+        <li><strong>Δt</strong> : au moins 10 fois plus petit que la constante de temps du système (souvent 50–200 ms) et <em>régulier</em> (on mesure le temps réel écoulé).</li>
+        <li><strong>Anti-windup</strong> : quand la commande est en butée (le Peltier ne peut pas faire plus), on cesse d'accumuler l'intégrale ; sinon elle « gonfle » et provoque un énorme dépassement ensuite.</li>
+        <li><strong>Dérivée sur la mesure</strong> et filtrée (moyenne glissante) pour ne pas amplifier le bruit de la CTN.</li>
+      </ul>
+
+      <h2><span class="n">4</span>régler les gains</h2>
+      <div class="two-col">
+        <div class="mini-card"><h5>méthode manuelle</h5><p>K<sub>i</sub> = K<sub>d</sub> = 0. Monte K<sub>p</sub> jusqu'à une réponse rapide avec un léger dépassement. Ajoute K<sub>i</sub> doucement pour annuler l'erreur statique. Ajoute K<sub>d</sub> si ça dépasse ou oscille. Toujours une seule chose à la fois.</p></div>
+        <div class="mini-card"><h5>Ziegler-Nichols (boucle fermée)</h5><p>En P seul, monte K<sub>p</sub> jusqu'à une oscillation entretenue : K<sub>u</sub> (gain critique) et T<sub>u</sub> (période). Puis K<sub>p</sub> = 0,6 K<sub>u</sub>, T<sub>i</sub> = T<sub>u</sub>/2, T<sub>d</sub> = T<sub>u</sub>/8 (K<sub>i</sub> = K<sub>p</sub>/T<sub>i</sub>, K<sub>d</sub> = K<sub>p</sub>·T<sub>d</sub>). Résultat souvent un peu nerveux : on adoucit ensuite.</p></div>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>Ziegler-Nichols</h4></div>
+        <p>On mesure K<sub>u</sub> = 2,0 et T<sub>u</sub> = 40 s. a) K<sub>p</sub> ?</p>
+        <div class="check-row" data-answer="1.2" data-tol="0.01" data-hint="0,6 × K_u">
+          <input type="text" inputmode="decimal" placeholder="Kp" aria-label="Kp"><button class="pill small" type="button">vérifier</button>
+        </div>
+        <p>b) K<sub>i</sub> (par seconde) ?</p>
+        <div class="check-row" data-answer="0.06" data-tol="0.01" data-hint="T_i = T_u/2 = 20 s ; K_i = K_p / T_i">
+          <input type="text" inputmode="decimal" placeholder="Ki" aria-label="Ki"><button class="pill small" type="button">vérifier</button>
+        </div>
+        <p>c) K<sub>d</sub> (en secondes) ?</p>
+        <div class="check-row" data-answer="6" data-tol="0.01" data-hint="T_d = T_u/8 = 5 s ; K_d = K_p × T_d">
+          <input type="text" inputmode="decimal" placeholder="Kd" aria-label="Kd"><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">5</span>régulation et sécurité du laser</h2>
+      <ul>
+        <li>Le laser n'a le droit de s'allumer que si la température est <strong>dans une fenêtre</strong> autour de la consigne (par exemple ±0,5 °C) <strong>depuis un certain temps</strong> (stabilisée).</li>
+        <li>Si la température sort d'une fenêtre plus large (±3 °C) ou si la CTN est ouverte/en court-circuit : coupure immédiate du laser, puis du Peltier.</li>
+        <li>Surveiller la commande : un Peltier en butée permanente signale un problème (dissipateur, ventilation, consigne irréaliste).</li>
+        <li>Ne jamais descendre sous le point de rosée (condensation) — pour une diode rouge, rester entre 15 et 35 °C est raisonnable.</li>
+      </ul>
+      <div class="box terrain">
+        <p class="box-title">sur le terrain</p>
+        <ul>
+          <li>Instabilité qui apparaît « avec le temps » : pâte thermique sèche, ventilateur encrassé, CTN décollée — la dynamique a changé, pas les gains.</li>
+          <li>Pour diagnostiquer, enregistre ensemble consigne, mesure et commande : la commande raconte toujours ce qui se passe.</li>
+          <li>Les contrôleurs commerciaux proposent un « autotune » : il fait un essai type Ziegler-Nichols. Vérifie toujours le résultat.</li>
+        </ul>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Chaîne : CTN → ADC → PID → pont en H (PWM filtrée) → Peltier → monture.</li>
+          <li>P réagit, I annule l'erreur, D freine ; dérivée sur la mesure, anti-windup, sortie bornée.</li>
+          <li>Δt ≪ constante de temps ; Ziegler-Nichols : K<sub>p</sub> = 0,6K<sub>u</sub>, T<sub>i</sub> = T<sub>u</sub>/2, T<sub>d</sub> = T<sub>u</sub>/8.</li>
+          <li>Laser autorisé seulement si température stable dans sa fenêtre ; polarité du Peltier vérifiée.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="elec-pid">
+        <header><h3>quiz éclair</h3><span class="tag">4 questions</span></header>
+        <div class="q" data-a="b"><p>1. Avec un régulateur P seul, la température finale…</p><div class="opts">
+          <label><input type="radio" value="a"> atteint exactement la consigne</label><label><input type="radio" value="b"> garde un petit écart (erreur statique)</label><label><input type="radio" value="c"> oscille forcément</label></div>
+          <p class="explain">Pour produire une commande non nulle, P a besoin d'une erreur non nulle ; l'intégrale la supprime.</p></div>
+        <div class="q" data-a="c"><p>2. À quoi sert l'anti-windup ?</p><div class="opts">
+          <label><input type="radio" value="a"> à réduire le bruit de mesure</label><label><input type="radio" value="b"> à accélérer le calcul</label><label><input type="radio" value="c"> à empêcher l'intégrale de grossir quand la commande est saturée</label></div>
+          <p class="explain">Sinon, gros dépassement au retour de saturation.</p></div>
+        <div class="q" data-a="a"><p>3. Le Peltier est branché à l'envers. Que se passe-t-il quand on ferme la boucle ?</p><div class="opts">
+          <label><input type="radio" value="a"> la température s'emballe (rétroaction positive)</label><label><input type="radio" value="b"> la régulation est simplement plus lente</label><label><input type="radio" value="c"> rien, le PID compense</label></div>
+          <p class="explain">Le régulateur aggrave l'erreur au lieu de la corriger. Test de polarité obligatoire.</p></div>
+        <div class="q" data-a="b"><p>4. On échantillonne toutes les 8 s une boucle dont le capteur a 3 s de retard et la monture 30 s de constante de temps. Résultat probable ?</p><div class="opts">
+          <label><input type="radio" value="a"> meilleure stabilité</label><label><input type="radio" value="b"> réponse dégradée, voire oscillations</label><label><input type="radio" value="c"> aucun effet</label></div>
+          <p class="explain">Le régulateur agit à l'aveugle trop longtemps : essaie-le dans la simulation.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>exponentielles, logarithmes & gaussiennes · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="maths/fonctions">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>exponentielles, logarithmes &amp; gaussiennes</h1>
+    <span class="hand">trois courbes qui décrivent presque tout</span>
+    <p class="lead">Une fluorescence qui s'éteint, un Peltier qui chauffe, un faisceau laser vu en coupe, une raie spectrale : derrière, il y a toujours <mark>une exponentielle</mark>, un logarithme ou une gaussienne.</p>
+    <span class="sticker" data-s="pi" style="--r:8deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>reconnaître une décroissance exponentielle et lire sa constante de temps ;</li>
+          <li>utiliser ln et log₁₀, et lire un graphique en échelle logarithmique ;</li>
+          <li>décrire le profil gaussien d'un faisceau (rayon à 1/e², largeur à mi-hauteur) ;</li>
+          <li>calculer la puissance qui passe par un diaphragme ;</li>
+          <li>distinguer une raie gaussienne d'une raie lorentzienne.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>l'exponentielle et la constante de temps</h2>
+      <p>Quand la vitesse de variation d'une grandeur est proportionnelle à la grandeur elle-même, on obtient une exponentielle. Décharge d'un condensateur, désexcitation d'atomes, lumière absorbée dans un matériau, température qui s'approche de sa consigne : même équation, même courbe.</p>
+      <div class="formule">
+        <span class="f-name">décroissance exponentielle</span>
+        <div class="f-eq">\[ y(t) = y_0\,\mathrm{e}^{-t/\tau} \]</div>
+        <div class="f-where"><b>τ</b> constante de temps : après τ il reste 37 % · après 2τ, 13,5 % · après 3τ, 5 % · après 5τ, moins de 1 % (on considère que c'est « fini »).</div>
+      </div>
+      <p>Exemples concrets : durée de vie du niveau haut du Nd:YAG τ ≈ 230 µs, de l'erbium dans la silice τ ≈ 10 ms (c'est ce qui rend l'EDFA si stable), d'une diode laser ≈ 1 ns. Une monture laser régulée en température atteint sa consigne en 5τ, typiquement quelques dizaines de secondes.</p>
+      <h3>l'absorption : la loi de Beer-Lambert</h3>
+      <div class="formule">
+        <span class="f-name">intensité transmise dans un milieu absorbant</span>
+        <div class="f-eq">\[ I(L) = I_0\,\mathrm{e}^{-\alpha L} \]</div>
+        <div class="f-where"><b>α</b> coefficient d'absorption (cm⁻¹) · <b>L</b> épaisseur traversée. Avec un gain au lieu d'une absorption, le signe change : c'est l'amplification \(\mathrm{e}^{+gL}\).</div>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>absorption</h4></div>
+        <p>α = 0,5 cm⁻¹, épaisseur 2 cm. Quel pourcentage de la lumière est transmis ?</p>
+        <div class="check-row" data-answer="36.8" data-tol="0.01" data-hint="αL = 1 → e⁻¹">
+          <input type="text" inputmode="decimal" placeholder="%" aria-label="transmission en %"><span>%</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">2</span>le logarithme, l'outil qui « aplatit »</h2>
+      <p>Le logarithme est la fonction réciproque de l'exponentielle : \(\ln(\mathrm{e}^x) = x\). En base 10 : \(\log_{10}(10^x) = x\). Ses trois propriétés suffisent :</p>
+      <div class="formule">
+        <span class="f-name">propriétés</span>
+        <div class="f-eq">\[ \log(ab) = \log a + \log b \qquad \log\frac{a}{b} = \log a - \log b \qquad \log(a^n) = n\log a \]</div>
+        <div class="f-where">Conversion : \(\ln x = 2{,}303\,\log_{10} x\). C'est pour ça que les dB additionnent ce qui se multiplie.</div>
+      </div>
+      <p><strong>Échelles logarithmiques.</strong> Sur un graphique dont l'axe vertical est en log, une exponentielle devient une <em>droite</em>. On en tire τ avec la pente : c'est la méthode standard pour mesurer une durée de vie de fluorescence, ou vérifier qu'un échauffement suit bien un premier ordre. Les spectres optiques (dBm) et les tracés de bruit (dB/Hz) sont aussi en échelle log, parce qu'ils couvrent plusieurs décades.</p>
+      <div class="box astuce">
+        <p class="box-title">où tu croiseras le logarithme</p>
+        <p>décibels · thermistances (\(\ln R\) dans l'équation de Steinhart-Hart) · seuil laser (\(\ln(1/R_1R_2)\)) · densité optique des lunettes (\(DO = \log_{10}(1/T)\)) · diagrammes de Bode.</p>
+      </div>
+
+      <h2><span class="n">3</span>la gaussienne : la forme d'un faisceau laser</h2>
+      <p>Coupe un faisceau laser monomode : l'intensité est maximale au centre et décroît en cloche. C'est une <dfn data-g="gaussien">gaussienne</dfn>, que les lasers décrivent avec le rayon \(w\) mesuré là où l'intensité tombe à \(1/\mathrm{e}^2 \approx 13{,}5\,\%\) du maximum.</p>
+      <div class="formule">
+        <span class="f-name">profil d'intensité d'un faisceau gaussien</span>
+        <div class="f-eq">\[ I(r) = I_0\,\exp\!\left(-\frac{2r^2}{w^2}\right) \qquad\qquad I_0 = \frac{2P}{\pi w^2} \]</div>
+        <div class="f-where"><b>w</b> rayon à 1/e² · <b>P</b> puissance totale · l'intensité au centre vaut le double de l'intensité « moyenne » P/(πw²).</div>
+      </div>
+      <div class="formule">
+        <span class="f-name">conversions de largeur &amp; puissance dans un diaphragme</span>
+        <div class="f-eq">\[ \text{FWHM} = w\sqrt{2\ln 2} \approx 1{,}177\,w \qquad\qquad \frac{P(r)}{P} = 1 - \exp\!\left(-\frac{2r^2}{w^2}\right) \]</div>
+        <div class="f-where">En statistique, la même courbe s'écrit avec l'écart-type σ : \(w = 2\sigma\), donc le diamètre 1/e² vaut \(4\sigma\) — c'est la définition « D4σ » des analyseurs de faisceau (norme ISO 11146).</div>
+      </div>
+      <div class="lab" data-widget="gauss-lorentz">
+        <div class="lab-head"><h4>gaussienne, lorentzienne &amp; diaphragme</h4><span class="tag green">simulation</span></div>
+        <p class="small">Change le rayon du faisceau et la taille du diaphragme. Passe en échelle log pour voir pourquoi une lorentzienne « déborde » beaucoup plus loin.</p>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>largeur à mi-hauteur</h4></div>
+        <p>Un analyseur donne un diamètre 1/e² de 2,0 mm. Quelle largeur à mi-hauteur (FWHM) attends-tu, en mm ?</p>
+        <div class="check-row" data-answer="1.177" data-tol="0.01" data-hint="w = 1,0 mm, puis × 1,177">
+          <input type="text" inputmode="decimal" placeholder="mm" aria-label="FWHM en mm"><span>mm</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">4</span>la lorentzienne : la forme d'une raie</h2>
+      <p>Une raie spectrale élargie par la durée de vie finie de l'état excité (élargissement <em>homogène</em>) a un profil lorentzien. Quand les atomes bougent (gaz chaud, effet Doppler) ou sont dans des environnements différents (verre), chaque atome est décalé différemment : on obtient un profil <em>gaussien</em> (élargissement inhomogène). Une largeur de raie laser due au bruit de phase est souvent lorentzienne.</p>
+      <div class="formule">
+        <span class="f-name">profil lorentzien (largeur à mi-hauteur Γ)</span>
+        <div class="f-eq">\[ L(\nu) = \frac{(\Gamma/2)^2}{(\nu-\nu_0)^2 + (\Gamma/2)^2} \]</div>
+        <div class="f-where">À 10 largeurs du centre, la lorentzienne vaut encore 0,25 % ; la gaussienne est pratiquement nulle. Ces « ailes » comptent quand on veut filtrer un bruit ou mesurer une suppression de modes latéraux.</div>
+      </div>
+
+      <h2><span class="n">5</span>racines carrées et lois d'échelle</h2>
+      <p>Beaucoup de bruits s'ajoutent « quadratiquement » : leurs puissances s'additionnent, donc les amplitudes se combinent en racine carrée de la somme des carrés. Le bruit de grenaille vaut \(\sqrt{2qIB}\) : quadrupler la bande passante <em>double</em> le bruit. De même, une surface varie comme le carré du rayon : diviser la taille de tache par 2 multiplie l'éclairement par 4.</p>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Exponentielle : 37 % après τ, ~0 après 5τ. Beer-Lambert : \(I_0\mathrm{e}^{-\alpha L}\).</li>
+          <li>Logarithme : transforme produits en sommes ; une exponentielle est une droite en échelle log.</li>
+          <li>Faisceau gaussien : rayon w à 1/e² ; FWHM = 1,177 w ; 86,5 % de la puissance dans r = w ; 98,9 % dans r = 1,5 w.</li>
+          <li>Raie homogène = lorentzienne (ailes larges) ; raie inhomogène = gaussienne.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="maths-fonctions">
+        <header><h3>quiz éclair</h3><span class="tag">5 questions</span></header>
+        <div class="q" data-a="b"><p>1. Une température approche sa consigne avec τ = 8 s. Au bout de combien de temps est-elle « stabilisée » (à moins de 1 %) ?</p><div class="opts">
+          <label><input type="radio" value="a"> 8 s</label><label><input type="radio" value="b"> environ 40 s</label><label><input type="radio" value="c"> 16 s</label></div>
+          <p class="explain">5τ ≈ 40 s : e⁻⁵ ≈ 0,7 %.</p></div>
+        <div class="q" data-a="a"><p>2. Sur un graphe en échelle log, une décroissance exponentielle apparaît comme…</p><div class="opts">
+          <label><input type="radio" value="a"> une droite</label><label><input type="radio" value="b"> une parabole</label><label><input type="radio" value="c"> une gaussienne</label></div>
+          <p class="explain">ln y = ln y₀ − t/τ : affine en t. La pente vaut −1/τ.</p></div>
+        <div class="q" data-a="c"><p>3. Le rayon w d'un faisceau gaussien est défini à…</p><div class="opts">
+          <label><input type="radio" value="a"> 50 % de l'intensité maximale</label><label><input type="radio" value="b"> 1/e ≈ 37 %</label><label><input type="radio" value="c"> 1/e² ≈ 13,5 %</label></div>
+          <p class="explain">Convention laser : rayon à 1/e² en intensité (équivalent à 1/e en champ électrique).</p></div>
+        <div class="q" data-a="b"><p>4. Quelle fraction de la puissance passe par un diaphragme de rayon r = w ?</p><div class="opts">
+          <label><input type="radio" value="a"> 50 %</label><label><input type="radio" value="b"> 86,5 %</label><label><input type="radio" value="c"> 99 %</label></div>
+          <p class="explain">1 − e⁻² = 0,865. Pour garder 99 %, il faut r ≈ 1,5 w.</p></div>
+        <div class="q" data-a="a"><p>5. On divise par 2 le rayon d'une tache laser à puissance constante. L'éclairement au centre…</p><div class="opts">
+          <label><input type="radio" value="a"> est multiplié par 4</label><label><input type="radio" value="b"> est multiplié par 2</label><label><input type="radio" value="c"> ne change pas</label></div>
+          <p class="explain">I₀ = 2P/(πw²) : w divisé par 2 → w² divisé par 4.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

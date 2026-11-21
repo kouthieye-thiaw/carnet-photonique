@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>labo python · carnet photonique</title>
+<meta name="description" content="Exercices Python exécutés dans le navigateur et corrigés automatiquement : conversions, photons, bits, statistiques, faisceaux, fiabilité.">
+<link rel="icon" href="assets/img/favicon.svg">
+<link rel="stylesheet" href="assets/css/carnet.css">
+<script defer src="assets/js/site-map.js"></script>
+<script defer src="assets/js/carnet.js"></script>
+<script defer src="assets/data/labo.js"></script>
+<style>
+  .exo-py { border: 1.5px solid var(--ink); border-radius: var(--radius-cards); background: #fff; padding: 20px; }
+  .exo-py + .exo-py { margin-top: 22px; }
+  .exo-py header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 8px 12px; margin-bottom: 10px; }
+  .exo-py header h3 { font-size: 26px; margin: 0; }
+  .exo-py header .tag:first-of-type { margin-left: auto; }
+  .exo-py .py-editor { margin: 12px 0 10px; }
+  .exo-py .btns { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  .exo-py details.reveal { margin-top: 10px; }
+  .runtime { display: flex; flex-wrap: wrap; gap: 10px 16px; align-items: center; padding: 16px 20px; border: 1.5px dashed var(--rule-strong); border-radius: var(--radius-cards); }
+  .runtime .dot { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid var(--ink); background: var(--paper); }
+  .runtime[data-s="pret"] .dot { background: var(--color-sprout-sticker); }
+  .runtime[data-s="charge"] .dot { background: var(--accent); animation: pulse 1s infinite alternate; }
+  @keyframes pulse { to { opacity: .3; } }
+  .ok-badge { color: var(--ok); font-weight: 600; }
+</style>
+</head>
+<body data-notes="labo">
+<main>
+<div class="wrap">
+  <header class="tool-hero" style="position:relative">
+    <h1>labo python</h1>
+    <span class="hand">écrire, exécuter, vérifier — sans rien installer</span>
+    <p class="lead">Des exercices courts pour t'échauffer avant le code du banc : Python tourne <mark>dans ton navigateur</mark> (Pyodide). Écris ta fonction, clique sur « vérifier » : des tests la jugent, comme pytest le fera pour le banc. Ton code est gardé dans ce navigateur.</p>
+    <span class="sticker" data-s="framboise" style="--r:-11deg;top:30px;right:0"></span>
+  </header>
+
+  <section class="section" style="margin-top:28px">
+    <div class="runtime" data-c="runtime" data-s="off">
+      <span class="dot" aria-hidden="true"></span>
+      <span data-c="rt-txt">Python n'est pas encore chargé (≈ 10 Mo téléchargés une seule fois, puis gardés en cache par le navigateur).</span>
+      <button class="pill small" type="button" data-c="rt-go">charger Python</button>
+    </div>
+    <div class="chips" data-c="sommaire" aria-label="exercices"></div>
+    <p class="small kbd-hint"><kbd>Ctrl</kbd>+<kbd>Entrée</kbd> dans l'éditeur : vérifier · <kbd>Tab</kbd> : indenter de 4 espaces.</p>
+  </section>
+
+  <section data-c="exos"></section>
+
+  <section class="section">
+    <div class="box terrain">
+      <p class="box-title">et ensuite ?</p>
+      <p>Quand ces exercices passent, attaque le vrai code du banc : <a href="projet/logiciel-architecture.html">architecture du logiciel</a>, puis <a href="projet/code-1-pilotes.html">code 1 · pilotes</a>. Là, tu travailles dans un vrai éditeur (VS Code) avec pytest, sur ton PC puis sur la Raspberry Pi.</p>
+    </div>
+  </section>
+</div>
+</main>
+<script defer src="assets/js/pages/labo-page.js"></script>
+</body>
+</html>

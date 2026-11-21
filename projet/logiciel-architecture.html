@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>architecture du logiciel python · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="projet/logiciel-architecture">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>architecture du logiciel python</h1>
+    <span class="hand">des couches, des interfaces, des tests</span>
+    <p class="lead">Un banc de test, c'est d'abord du logiciel fiable. Le kit <code>banclaser</code> est organisé en <mark>couches</mark> qui ne se parlent qu'à travers des interfaces : c'est ce qui permet de tout tester sur ton PC avec un banc simulé, puis de passer au vrai matériel sans changer une ligne.</p>
+    <span class="sticker" data-s="framboise" style="--r:-10deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette page, tu sauras…</h4>
+        <ul>
+          <li>expliquer l'organisation du code en couches et le rôle de chaque dossier ;</li>
+          <li>comprendre l'injection de dépendances et le banc simulé ;</li>
+          <li>appliquer les règles de sécurité dans le code ;</li>
+          <li>travailler en « tests d'abord » avec pytest ;</li>
+          <li>enregistrer des données traçables.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>les couches</h2>
+      <figure class="fig">
+        <div class="fig-inner">
+          <svg viewBox="0 0 760 300" role="img" aria-label="Couches du logiciel : interface, mesures et analyse, instruments, interfaces matérielles, avec deux implémentations : Raspberry Pi et simulateur.">
+            <g class="svg-ink">
+              <rect x="120" y="14" width="520" height="44" rx="12" fill="#ffeee4"/>
+              <rect x="120" y="70" width="250" height="44" rx="12" fill="#f7efe9"/><rect x="390" y="70" width="250" height="44" rx="12" fill="#f7efe9"/>
+              <rect x="120" y="126" width="520" height="44" rx="12" fill="#f7efe9"/>
+              <rect x="120" y="182" width="520" height="44" rx="12" fill="#fff"/>
+              <rect x="120" y="238" width="250" height="44" rx="12" fill="#fff"/><rect x="390" y="238" width="250" height="44" rx="12" fill="#fff"/>
+            </g>
+            <g class="svg-txt" text-anchor="middle" style="font-size:13px">
+              <text x="380" y="41">cli.py — commandes, rapport (à toi)</text>
+              <text x="245" y="97">mesures/ — séquences (à toi)</text><text x="515" y="97">analyse/ — calculs purs (à toi)</text>
+              <text x="380" y="153">instruments/ — ADS1115, MCP4725, DriverLaser, PID… (à toi)</text>
+              <text x="380" y="209">materiel/interfaces.py — BusI2C, GPIO, PontH, Horloge (fourni)</text>
+              <text x="245" y="265">raspberry.py (smbus2, gpiozero)</text><text x="515" y="265">simulation/ — banc simulé</text>
+            </g>
+            <text x="655" y="270" class="svg-hand" style="font-size:17px">au choix</text>
+          </svg>
+        </div>
+        <figcaption><b>Figure 1 —</b> chaque couche n'utilise que la couche du dessous. L'analyse ne touche jamais le matériel : elle reçoit des tableaux et renvoie des nombres (facile à tester).</figcaption>
+      </figure>
+
+      <h2><span class="n">2</span>l'injection de dépendances</h2>
+      <p>Ton pilote ADS1115 ne crée pas son bus I²C : il le <strong>reçoit</strong> dans son constructeur. Sur la Pi on lui passe un <code>BusI2CSmbus</code>, dans les tests un <code>FauxBusI2C</code> qui imite le composant au niveau des octets. Même chose pour l'horloge : en simulation, <code>horloge.dormir(0.1)</code> fait avancer un temps virtuel instantanément — un essai de régulation de 5 minutes s'exécute en une fraction de seconde.</p>
+      <div class="code"><pre data-label="exemple : assembler un pilote (extrait de cli.py, fourni)"><code class="language-python">from banclaser.simulation import creer_banc_simule
+from banclaser.instruments.ads1115 import ADS1115
+
+banc = creer_banc_simule()                       # sur la Pi : BusI2CSmbus(1), HorlogeReelle()
+adc = ADS1115(banc.bus, 0x49, gamme=4.096, cadence=128, horloge=banc.horloge)
+print(adc.lire_tension(1))                       # ≈ 2,5 V (alimentation du driver / 2)</code></pre></div>
+
+      <h2><span class="n">3</span>la sécurité dans le code</h2>
+      <ul>
+        <li><strong>Défaut sûr</strong> : à la création d'un objet, rien ne s'allume ; le relais reste fermé.</li>
+        <li><strong>Vérifier avant d'agir</strong> : interlock, limites, état actif — et lever une exception explicite (<code>InterlockOuvert</code>, <code>ErreurSecurite</code>, <code>ValueError</code>) plutôt que d'ignorer.</li>
+        <li><strong>Toujours remettre en sécurité</strong> : <code>try … finally: driver.desactiver()</code> autour de toute séquence ; <code>desactiver()</code> ne lève jamais d'exception.</li>
+        <li><strong>Pas de valeur magique</strong> : limites, adresses et gains viennent de <code>config/banc.toml</code>.</li>
+        <li><strong>Le matériel décide en dernier</strong> : le logiciel s'ajoute aux protections matérielles, il ne les remplace pas.</li>
+      </ul>
+
+      <h2><span class="n">4</span>« tests d'abord »</h2>
+      <p>Chaque fichier à compléter a ses tests dans <code>tests/</code>. La boucle de travail :</p>
+      <ol>
+        <li>lire le test (il dit précisément ce qui est attendu) ;</li>
+        <li>écrire le code le plus simple qui le fait passer ;</li>
+        <li><code>pytest tests/test_01_ads1115.py</code> ; lire le message d'erreur jusqu'au bout ;</li>
+        <li>une fois vert : relire, nettoyer, commenter, <code>git commit</code>.</li>
+      </ol>
+      <div class="box astuce">
+        <p class="box-title">lire un échec pytest</p>
+        <p>pytest affiche la ligne du test qui échoue, la valeur obtenue et la valeur attendue (« Obtained / Expected »). Commence toujours par là : la plupart du temps, l'écart te dit directement où est l'erreur (unité, signe, décalage de bits…).</p>
+      </div>
+
+      <h2><span class="n">5</span>des données traçables</h2>
+      <ul>
+        <li><strong>Données brutes</strong> en CSV (séparateur « ; », point décimal), avec un en-tête de commentaires : date ISO, diode et n° de série, température, configuration, version du code (<code>git describe</code>), instrument de référence.</li>
+        <li><strong>Un dossier par campagne</strong> : <code>mesures/2026-12-03_diode-A/</code> avec CSV, figures PNG et rapport.</li>
+        <li><strong>Journalisation</strong> avec le module <code>logging</code> : chaque action importante (activation, consigne, alarme) est horodatée dans un fichier.</li>
+        <li>On ne modifie jamais un fichier brut : on le relit et on calcule.</li>
+      </ul>
+      <h2><span class="n">6</span>style et outils</h2>
+      <ul>
+        <li>Noms en français explicites, une fonction = une tâche, docstrings, annotations de type.</li>
+        <li><code>numpy</code> pour les calculs, <code>matplotlib</code> pour les figures, <code>scipy</code> pour le traitement du signal.</li>
+        <li>git : petits commits fréquents avec des messages clairs ; une branche par fonctionnalité si tu veux expérimenter.</li>
+      </ul>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Couches : interface → mesures/analyse → instruments → interfaces matérielles → Pi ou simulateur.</li>
+          <li>Injection de dépendances : on passe bus, GPIO et horloge aux constructeurs.</li>
+          <li>Défaut sûr, vérifications, try/finally, configuration externe.</li>
+          <li>Tests d'abord ; données brutes CSV horodatées et traçables.</li>
+        </ul>
+      </div>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

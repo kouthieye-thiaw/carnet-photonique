@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>code 2 · séquences de mesure · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="projet/code-2-mesures">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>code 2 · séquences de mesure</h1>
+    <span class="hand">régler, attendre, mesurer, recommencer… et toujours finir à 0 mA</span>
+    <p class="lead">Avec des pilotes fiables, on écrit des <mark>séquences</mark> : des fonctions qui enchaînent réglages et mesures dans un ordre précis, puis rendent des données brutes. La courbe L-I-V est guidée par des tests ; la longueur d'onde en fonction de la température, la polarisation, la caustique et le bruit sont des extensions que tu spécifies toi-même.</p>
+    <span class="sticker" data-s="framboise" style="--r:-7deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette page, tu sauras…</h4>
+        <ul>
+          <li>structurer une séquence de mesure : préconditions, boucle, retour à l'état sûr ;</li>
+          <li>coder la mesure L-I-V et l'enregistrement CSV avec en-tête (tests <code>test_05</code>) ;</li>
+          <li>piloter un moteur pas à pas et une caméra pour les mesures de polarisation et de M² ;</li>
+          <li>acquérir un signal pour l'analyse de bruit, en connaissant les limites de l'ADS1115 ;</li>
+          <li>organiser tes fichiers de mesure pour qu'ils restent exploitables dans un an.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>l'anatomie d'une séquence</h2>
+      <ol>
+        <li><strong>Préconditions</strong> : driver actif, interlock fermé, température stabilisée, offset de la photodiode mesuré laser éteint. Si une condition manque : exception, pas de mesure.</li>
+        <li><strong>Boucle</strong> : pour chaque point, régler → attendre la stabilisation → mesurer (en moyennant) → stocker.</li>
+        <li><strong>Sortie garantie</strong> : quoi qu'il arrive (fin normale, erreur, interlock, <kbd>Ctrl</kbd>+<kbd>C</kbd>), le courant revient à 0. C'est le rôle de <code>try … finally</code>.</li>
+        <li><strong>Résultat</strong> : un dictionnaire de listes de même longueur — des données brutes, sans analyse. L'enregistrement et l'analyse sont des fonctions séparées.</li>
+      </ol>
+      <figure class="fig">
+        <div class="fig-inner">
+          <svg viewBox="0 0 760 260" role="img" aria-label="Chronogramme d'un balayage L-I-V : le courant monte en escalier ; à chaque marche, une courte rampe, une attente de stabilisation puis trois mesures ; à la fin, retour à zéro garanti.">
+            <g class="svg-ink"><path d="M60 220 H740" /><path d="M60 220 V20" /></g>
+            <path d="M60 210 H120 V180 H220 V150 H320 V120 H420 V90 H520 V60 H600 L640 210 H740" fill="none" stroke="#e2372b" stroke-width="2.5"/>
+            <g fill="#ff6f1e" opacity=".16"><rect x="122" y="30" width="44" height="190"/><rect x="222" y="30" width="44" height="190"/><rect x="322" y="30" width="44" height="190"/><rect x="422" y="30" width="44" height="190"/><rect x="522" y="30" width="44" height="190"/></g>
+            <g fill="#171717"><circle cx="180" cy="180" r="4"/><circle cx="196" cy="180" r="4"/><circle cx="212" cy="180" r="4"/><circle cx="280" cy="150" r="4"/><circle cx="296" cy="150" r="4"/><circle cx="312" cy="150" r="4"/><circle cx="380" cy="120" r="4"/><circle cx="396" cy="120" r="4"/><circle cx="412" cy="120" r="4"/><circle cx="480" cy="90" r="4"/><circle cx="496" cy="90" r="4"/><circle cx="512" cy="90" r="4"/><circle cx="580" cy="60" r="4"/><circle cx="592" cy="60" r="4"/></g>
+            <g class="svg-txt" style="font-size:12px"><text x="14" y="24">I</text><text x="726" y="240">t</text></g>
+            <text x="230" y="250" class="svg-txt" text-anchor="middle" style="font-size:12px">régler (rampe) · attendre · mesurer I, V, P</text>
+            <path d="M222 236 V224 M266 236 V224" class="svg-ink"/>
+            <text x="560" y="40" class="svg-hand" text-anchor="end" style="font-size:19px">zone orange : on attend que tout se stabilise</text>
+            <text x="690" y="190" class="svg-hand" text-anchor="middle" style="font-size:19px">finally : 0 mA</text>
+          </svg>
+        </div>
+        <figcaption><b>Figure 1 —</b> chronogramme d'un balayage. L'attente après chaque réglage laisse le temps à l'électronique (filtres, TIA) et à la thermique de la jonction de se stabiliser : la mesurer trop tôt donne une courbe « en retard ».</figcaption>
+      </figure>
+
+      <h2><span class="n">2</span>la courbe L-I-V (guidée par les tests)</h2>
+      <p>Fichier <code>mesures/liv.py</code>, tests <code>tests/test_05_mesure_liv.py</code>. La fonction balaye le courant de <code>i_debut_ma</code> à <code>i_fin_ma</code> <strong>inclus</strong> et mesure à chaque point le courant réel, la tension de la diode et la puissance optique.</p>
+      <div class="formule">
+        <span class="f-name">puissance à partir de la photodiode du banc</span>
+        <div class="f-eq">\[ P\,[\text{mW}] = \left(V_{PD} - V_{offset}\right) \times c \qquad c = \frac{1}{\tau\,\mathcal{R}\,R_f} = \frac{1}{0{,}1 \times 0{,}43\ \text{A/W} \times 10\ \text{k}\Omega} \approx 2{,}326\ \text{mW/V} \]</div>
+        <div class="f-where">\(\tau\) : fraction prélevée vers la photodiode · \(\mathcal{R}\) : sensibilité à 650 nm · \(R_f\) : résistance du TIA. Ce coefficient théorique sera remplacé par la valeur d'<a href="validation.html">étalonnage</a>.</div>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>test</th><th>ce qu'il vérifie</th></tr></thead>
+        <tbody>
+          <tr><td><code>test_liv_complete</code></td><td>0 → 40 mA par pas de 1 mA : 41 points ; P ≈ 0 sous le seuil, &gt; 8 mW à 40 mA ; consigne revenue à 0 à la fin</td></tr>
+          <tr><td><code>test_liv_interlock</code></td><td>l'interlock s'ouvre au milieu du balayage : l'exception remonte, DAC à 0, relais fermé</td></tr>
+          <tr><td><code>test_csv</code></td><td>en-tête en lignes « # », séparateur « ; », une ligne de titres puis une ligne par point</td></tr>
+        </tbody>
+      </table></div>
+      <details class="reveal hint"><summary>indice 1 — le piège du dernier point</summary><div class="reveal-body"><p><code>numpy.arange(0, 40, 1)</code> s'arrête à 39 ! Et avec des pas décimaux (0,1 mA), les erreurs d'arrondi peuvent ajouter ou retirer un point. Calcule plutôt le nombre de points \(n = \text{round}((i_{fin} - i_{debut})/\text{pas}) + 1\) et utilise <code>numpy.linspace</code>.</p></div></details>
+      <details class="reveal hint"><summary>indice 2 — où placer le try/finally</summary><div class="reveal-body"><p>Le <code>try</code> entoure toute la boucle ; le <code>finally</code> ramène le courant à 0 (avec <code>regler_courant(0)</code> si le driver est encore actif — sinon il a déjà été coupé par la sécurité). Ne mets pas de <code>except</code> qui « avale » l'erreur : l'appelant doit savoir que la mesure a échoué.</p></div></details>
+      <details class="reveal hint"><summary>indice 3 — écrire le CSV</summary><div class="reveal-body"><p>Ouvre le fichier avec <code>newline=""</code> et <code>encoding="utf-8"</code>. Écris d'abord les lignes <code># clé = valeur</code> à la main, puis crée un <code>csv.writer(f, delimiter=";")</code> pour la ligne de titres (les clés du dictionnaire) et les lignes de données (<code>zip(*colonnes)</code>). Renvoie le chemin sous forme de <code>Path</code>.</p></div></details>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>compter les points</h4></div>
+        <p>Balayage de 0 à 40 mA, bornes incluses, par pas de 0,5 mA : combien de points ?</p>
+        <div class="check-row" data-answer="81" data-tol="0" data-abs="0.1" data-hint="n = (fin − début)/pas + 1">
+          <input type="text" inputmode="decimal" placeholder="points" aria-label="nombre de points"><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+      <div class="box terrain">
+        <p class="box-title">sur le vrai banc : les détails qui changent tout</p>
+        <ul>
+          <li><strong>Offset</strong> : mesure la tension de la photodiode laser éteint (lumière ambiante + offset du TIA) juste avant chaque série, et passe-la en <code>offset_v</code>.</li>
+          <li><strong>Saturation</strong> : vérifie que V<sub>PD</sub> reste sous ~90 % de la gamme de l'ADC au courant maximal ; sinon, une densité devant la photodiode.</li>
+          <li><strong>Moyenne</strong> : 8 à 16 lectures par point réduisent le bruit ; note le nombre dans l'en-tête.</li>
+          <li><strong>Aller-retour</strong> : refais la courbe en descendant ; une différence révèle un effet thermique ou un défaut de stabilisation (hystérésis).</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">3</span>la longueur d'onde en fonction de la température</h2>
+      <p>Extension libre : tu écris la spécification, puis le code. Le principe : pour plusieurs températures de monture, stabiliser, mesurer le spectre avec le <a href="mecanique-optique.html">spectromètre maison</a> et relever la longueur d'onde du pic.</p>
+      <div class="code"><pre data-label="une signature possible (à toi de l'écrire et de la tester)"><code class="language-python">def mesurer_lambda_t(regul, driver, spectro, temperatures_c, i_ma, attente_s=30.0) -> dict:
+    """Pour chaque température : stabiliser la monture, régler i_ma, attendre,
+    acquérir un spectre, relever le pic. Renvoie
+    {"t_consigne_c", "t_mesure_c", "lambda_nm", "largeur_nm"}."""</code></pre></div>
+      <ul>
+        <li><strong>Ordre des températures</strong> : monte puis redescends (hystérésis des sauts de mode).</li>
+        <li><strong>Laser éteint pendant les changements de température</strong> si la monture passe par une zone interdite (condensation sous ~15 °C selon l'humidité !).</li>
+        <li><strong>Pic</strong> : barycentre des pixels au-dessus de 50 % du maximum, converti en nm par la loi d'étalonnage du spectromètre.</li>
+        <li><strong>Attendu</strong> : ≈ 0,2 à 0,3 nm/°C en moyenne, avec des sauts quand la diode change de mode longitudinal (voir <a href="../lasers/accordabilite.html">accordabilité</a>).</li>
+      </ul>
+
+      <h2><span class="n">4</span>la polarisation : un moteur pas à pas</h2>
+      <p>Le polariseur tourne grâce à un petit moteur 28BYJ-48 commandé par un ULN2003 (4 sorties GPIO : 6, 16, 20, 21) ; un capteur à fourche (GPIO 26) donne l'origine. Tu écris un petit pilote <code>instruments/moteur.py</code> sur le modèle des autres (il reçoit des <code>SortieNumerique</code>, une <code>EntreeNumerique</code> et l'horloge).</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>demi-pas</th><th>0</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th></tr></thead>
+        <tbody>
+          <tr><td>bobine A (IN1)</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td></tr>
+          <tr><td>bobine B (IN2)</td><td>0</td><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+          <tr><td>bobine C (IN3)</td><td>0</td><td>0</td><td>0</td><td>1</td><td>1</td><td>1</td><td>0</td><td>0</td></tr>
+          <tr><td>bobine D (IN4)</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>1</td><td>1</td><td>1</td></tr>
+        </tbody>
+      </table></div>
+      <ul>
+        <li>On parcourt la table dans un sens ou dans l'autre ; ≈ 2 ms entre deux demi-pas (plus vite, le moteur décroche).</li>
+        <li>Réduction interne ≈ 1:64 : environ <strong>4 096 demi-pas par tour</strong> (le rapport réel n'est pas exactement entier : étalonne-le en faisant 10 tours et en mesurant l'écart à l'origine).</li>
+        <li>Jeu mécanique : approche toujours chaque angle <em>dans le même sens</em>.</li>
+        <li>Coupe les bobines à l'arrêt (toutes les sorties à 0) : sinon le moteur chauffe… et la monture du polariseur aussi.</li>
+      </ul>
+      <p>La séquence : origine → pour θ de 0 à 360° par pas de 5° : aller à θ, attendre 0,2 s, mesurer la puissance (moyenne de 16 lectures) → données <code>{"angle_deg", "p_mw"}</code>, puis analyse par la loi de Malus (<a href="code-3-analyse.html">code 3</a>).</p>
+
+      <h2><span class="n">5</span>la caustique : platine et caméra</h2>
+      <p>Pour le M², la caméra HQ sans objectif se déplace le long du faisceau focalisé. La platine est menée par un moteur NEMA 17 et un driver TMC2209 : une impulsion sur STEP (GPIO 23) = un micro-pas, DIR (GPIO 24) donne le sens, EN (GPIO 25, actif à 0) alimente le moteur, un interrupteur de fin de course (GPIO 5) sert d'origine.</p>
+      <div class="formule">
+        <span class="f-name">résolution de la platine</span>
+        <div class="f-eq">\[ \Delta z = \frac{p_{vis}}{N_{pas}\times\mu} = \frac{8\ \text{mm}}{200 \times 16} = 2{,}5\ \mu\text{m par micro-pas} \]</div>
+        <div class="f-where">\(p_{vis}\) : avance de la vis par tour (vis trapézoïdale T8) · \(N_{pas}\) : pas par tour du moteur · \(\mu\) : micro-pas du driver.</div>
+      </div>
+      <ul>
+        <li><strong>Positions</strong> (ISO 11146) : au moins 10, dont la moitié dans ±z<sub>R</sub> autour du col et l'autre moitié au-delà de 2 z<sub>R</sub>. Fais d'abord un balayage grossier pour trouver le col.</li>
+        <li><strong>Caméra en manuel</strong> : exposition fixe, gain analogique 1, pas d'exposition automatique, pas de balance des blancs. Avec <code>picamera2</code> : contrôles <code>AeEnable</code>, <code>ExposureTime</code> (µs), <code>AnalogueGain</code>, et capture des données <strong>brutes</strong> (<code>capture_array("raw")</code>), jamais du JPEG.</li>
+        <li><strong>Matrice de Bayer</strong> : le capteur est en couleur ; un laser rouge n'éclaire vraiment que les pixels rouges (1 sur 4). Additionne chaque carré 2×2 (pixel effectif 3,1 µm) ou garde seulement le canal rouge — et note ton choix dans l'en-tête.</li>
+        <li><strong>Saturation</strong> : à chaque position, vérifie que le maximum reste sous ~80 % de la pleine échelle ; sinon, change la densité (jamais l'exposition au milieu d'une série).</li>
+        <li><strong>Fond</strong> : une image laser éteint au début (et à la fin) de la série.</li>
+        <li><strong>Stockage</strong> : chaque image en <code>.npy</code> (<code>numpy.save</code>), avec un CSV qui liste z, nom de fichier, exposition, densité.</li>
+      </ul>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>dimensionner un déplacement</h4></div>
+        <p>Avec 2,5 µm par micro-pas, combien de micro-pas pour avancer la caméra de 1,5 mm ?</p>
+        <div class="check-row" data-answer="600" data-tol="0" data-abs="0.5" data-hint="1,5 mm = 1500 µm">
+          <input type="text" inputmode="decimal" placeholder="micro-pas" aria-label="nombre de micro-pas"><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">6</span>le bruit : enregistrer un signal</h2>
+      <p>Le RIN se calcule sur un enregistrement de la photodiode à cadence <strong>régulière</strong>. Problème : l'ADS1115 plafonne à 860 éch./s, donc à 430 Hz d'analyse (Nyquist) — de quoi voir le 50 Hz, ses harmoniques et les dérives lentes, pas plus.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>solution</th><th>bande analysée</th><th>remarque</th></tr></thead>
+        <tbody>
+          <tr><td>ADS1115 en mode continu, 860 éch./s</td><td>→ 430 Hz</td><td>simple ; la Pi n'est pas temps réel : horodate chaque lecture et vérifie la régularité (ou utilise la broche ALERT/RDY)</td></tr>
+          <tr><td>carte son USB (entrée ligne)</td><td>20 Hz → 20 kHz</td><td>48 ou 96 kHz, très bon marché ; couplée en alternatif : mesure la valeur moyenne à part avec l'ADS1115</td></tr>
+          <tr><td>oscilloscope (export CSV)</td><td>jusqu'à des MHz</td><td>idéal pour valider ; analyse ensuite avec ton code</td></tr>
+          <tr><td>carte d'acquisition rapide (ex. Red Pitaya)</td><td>jusqu'à des dizaines de MHz</td><td>évolution possible du banc (<a href="validation.html">et ensuite ?</a>)</td></tr>
+        </tbody>
+      </table></div>
+      <p>Pour le mode continu, ajoute à ton pilote ADS1115 deux méthodes (<code>demarrer_continu(canal)</code>, <code>lire_dernier()</code>) : MODE = 0 dans le mot de configuration, puis lecture du registre de conversion à chaque échantillon. Enregistre au moins quelques secondes (\(2^{14}\) points ou plus) et la cadence réellement mesurée.</p>
+
+      <h2><span class="n">7</span>ranger ses mesures</h2>
+      <div class="code"><pre data-label="une organisation qui tient dans le temps"><code class="language-bash">mesures/
+  2026-12-03_diode-A/
+    journal.log              # tout ce que le programme a fait, horodaté
+    liv_25C_montee.csv       # données brutes + en-tête
+    liv_25C_descente.csv
+    lambda_T.csv
+    per_25C_30mA.csv
+    caustique/
+      index.csv              # z, fichier, exposition, densité
+      fond_debut.npy
+      z_000.npy  z_001.npy  …
+    rapport.html             # généré à partir des CSV (code 4)</code></pre></div>
+      <p>Chaque CSV commence par son en-tête : date et heure ISO 8601, identifiant de la diode, température de consigne et mesurée, paramètres de la séquence, coefficient d'étalonnage utilisé, version du code (<code>git describe --always --dirty</code>). Un fichier brut n'est jamais modifié : si tu corriges quelque chose, c'est dans l'analyse.</p>
+      <div class="box attention">
+        <p class="box-title">avant chaque séquence sur le vrai banc</p>
+        <ul class="checklist" data-id="avant-sequence">
+          <li><input type="checkbox"><label>Lunettes adaptées portées par toutes les personnes présentes, capot fermé.</label></li>
+          <li><input type="checkbox"><label>Interlock testé (ouverture = coupure) au début de la journée.</label></li>
+          <li><input type="checkbox"><label>Température stabilisée depuis au moins 2 minutes ; préchauffage de l'électronique 15 minutes.</label></li>
+          <li><input type="checkbox"><label>Offset de la photodiode mesuré laser éteint.</label></li>
+          <li><input type="checkbox"><label>Paramètres de la séquence relus (courant max ≤ limite de la diode !).</label></li>
+          <li><input type="checkbox"><label>Dossier de la campagne créé, journal ouvert.</label></li>
+        </ul>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Préconditions → boucle (régler, attendre, mesurer) → <code>finally</code> : retour à 0 mA.</li>
+          <li>Une séquence rend des données brutes ; l'enregistrement et l'analyse sont à part.</li>
+          <li>Moteurs : origine, approche dans un seul sens, bobines coupées à l'arrêt.</li>
+          <li>Caméra : manuel, données brutes, Bayer, pas de saturation, fond.</li>
+          <li>ADS1115 : 860 éch./s maximum ; pour le bruit rapide, un autre convertisseur.</li>
+        </ul>
+      </div>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

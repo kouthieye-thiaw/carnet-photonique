@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>les familles de lasers · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="lasers/familles">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>les familles de lasers</h1>
+    <span class="hand">gaz, solides, fibres, diodes : qui fait quoi ?</span>
+    <p class="lead">Un technicien croise des dizaines de lasers dans sa carrière. Les reconnaître, savoir ce qu'ils craignent et comment ils s'entretiennent, c'est <mark>la moitié du diagnostic</mark>.</p>
+    <span class="sticker" data-s="diode" style="--r:8deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>classer un laser selon son milieu amplificateur et son régime ;</li>
+          <li>associer les grandes longueurs d'onde à leurs applications ;</li>
+          <li>connaître les points faibles et l'entretien de chaque famille ;</li>
+          <li>choisir un laser à partir d'un cahier des charges.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>la carte des longueurs d'onde</h2>
+      <div class="lab" data-widget="lignes-laser">
+        <div class="lab-head"><h4>de l'UV profond à l'infrarouge lointain</h4><span class="tag green">carte interactive</span></div>
+      </div>
+
+      <h2><span class="n">2</span>les grandes familles</h2>
+      <div class="cards-3">
+        <div class="mini-card"><h5>lasers à gaz</h5><p>Un gaz excité par décharge électrique : HeNe (633 nm), argon (488/514 nm), CO₂ (10,6 µm), excimères (UV). Faisceaux de grande qualité, mais tubes fragiles à durée de vie limitée et souvent de faibles rendements (sauf CO₂).</p></div>
+        <div class="mini-card"><h5>lasers à solide</h5><p>Un cristal ou un verre dopé d'ions (Nd³⁺, Yb³⁺, Ti³⁺, Cr³⁺) pompé par lampe flash (ancien) ou par diodes (<dfn data-g="dpss">DPSS</dfn>). Forte énergie par impulsion, conversion de fréquence facile (vert, UV).</p></div>
+        <div class="mini-card"><h5>lasers à fibre</h5><p>Le milieu est une fibre dopée (Yb, Er, Tm) de plusieurs mètres, pompée par diodes. Excellente évacuation thermique, faisceau monomode, robustes et sans alignement : ils dominent l'industrie (kW).</p></div>
+        <div class="mini-card"><h5>lasers à semi-conducteur</h5><p>Diodes Fabry-Pérot, DFB, DBR, VCSEL, cavité externe, cascade quantique. Minuscules, efficaces (&gt; 50 %), modulables jusqu'aux dizaines de GHz ; très sensibles aux ESD, à la température et aux retours de lumière.</p></div>
+        <div class="mini-card"><h5>convertis en fréquence</h5><p>Un cristal non linéaire (KTP, LBO, BBO, PPLN) double, triple ou mélange des fréquences, ou un oscillateur paramétrique (OPO) crée des longueurs d'onde accordables là où aucun milieu n'existe.</p></div>
+        <div class="mini-card"><h5>et les autres</h5><p>Lasers à colorant (accordables, quasi disparus), à électrons libres (synchrotrons), lasers chimiques… et les <strong>amplificateurs</strong> (module 04), qui ne sont pas des lasers mais en sont les cousins.</p></div>
+      </div>
+
+      <h2><span class="n">3</span>tableau de comparaison</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>famille</th><th>rendement</th><th>puissance typique</th><th>qualité de faisceau</th><th>maintenance</th></tr></thead>
+        <tbody>
+          <tr><td>HeNe</td><td>≈ 0,1 %</td><td>0,5–35 mW</td><td>excellente (M² ≈ 1)</td><td>tube : 20 000 h, alimentation HT (danger !)</td></tr>
+          <tr><td>CO₂</td><td>10–20 %</td><td>W – kW</td><td>bonne</td><td>gaz, optiques ZnSe (toxiques si brûlées), eau de refroidissement</td></tr>
+          <tr><td>DPSS (Nd)</td><td>10–25 %</td><td>mW – 100 W</td><td>bonne à excellente</td><td>diodes de pompe (heures), propreté des cristaux, refroidissement</td></tr>
+          <tr><td>fibre Yb</td><td>30–50 %</td><td>W – 100 kW</td><td>excellente (monomode) à bonne</td><td>quasi nulle ; connectique et têtes optiques à surveiller</td></tr>
+          <tr><td>diode</td><td>30–70 %</td><td>mW – W (kW en barrettes)</td><td>de excellente (monomode) à médiocre (multimode)</td><td>ESD, température, retours optiques ; durée de vie 10⁴–10⁵ h</td></tr>
+          <tr><td>Ti:saphir</td><td>« faible » (pompé par un laser vert)</td><td>W</td><td>excellente</td><td>alignement délicat, environnement propre</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2><span class="n">4</span>régimes de fonctionnement</h2>
+      <ul>
+        <li><strong>Continu</strong> (CW) : puissance constante. Diodes, HeNe, fibres, DPSS.</li>
+        <li><strong>Impulsionnel déclenché</strong> (<dfn data-g="q-switch">Q-switch</dfn>) : ns, mJ, kW–MW crête. Marquage, LIDAR, détatouage.</li>
+        <li><strong>À verrouillage de modes</strong> : ps–fs, cadence MHz–GHz. Micro-usinage « à froid », biophotonique, peignes de fréquences.</li>
+        <li><strong>Modulé</strong> : diode modulée directement par le courant (télécoms) ou par un modulateur externe.</li>
+      </ul>
+      <p>Détails et calculs dans <a href="impulsions.html">lasers impulsionnels</a>.</p>
+
+      <h2><span class="n">5</span>choisir un laser</h2>
+      <div class="box exemple">
+        <p class="box-title">la check-list du cahier des charges</p>
+        <ol class="steps">
+          <li><strong>Longueur d'onde</strong> : imposée par l'application (absorption du matériau, raie atomique, fenêtre télécom, sécurité).</li>
+          <li><strong>Puissance ou énergie</strong>, continu ou impulsionnel, et sa stabilité (%, RIN).</li>
+          <li><strong>Qualité de faisceau</strong> (M²) et <strong>largeur de raie</strong> (monofréquence ? accordable ? sur quelle plage, sans saut de mode ?).</li>
+          <li><strong>Polarisation</strong>, sortie en espace libre ou fibrée (quel connecteur, PM ou non).</li>
+          <li><strong>Intégration</strong> : taille, refroidissement (air, eau), alimentation, interface de commande (USB, Ethernet, SCPI), interlocks.</li>
+          <li><strong>Coût total</strong> : prix, consommables, maintenance, durée de vie, disponibilité du SAV.</li>
+        </ol>
+      </div>
+      <div class="box terrain">
+        <p class="box-title">sur le terrain</p>
+        <ul>
+          <li>Les lasers scientifiques modernes (diodes accordables, amplis à fibre monofréquence, peignes) sont des systèmes : tête laser + contrôleur + logiciel. Le technicien intervient autant sur l'électronique et le logiciel que sur l'optique.</li>
+          <li>Avant toute intervention, identifie la famille : un HeNe cache une haute tension de plusieurs kV ; un laser à fibre de puissance peut émettre des kW invisibles ; une diode meurt d'une simple décharge électrostatique.</li>
+        </ul>
+      </div>
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Gaz, solides, fibres, semi-conducteurs, convertis : chacun son domaine de λ et ses points faibles.</li>
+          <li>L'industrie de puissance est dominée par la fibre Yb ; les télécoms par les diodes DFB + EDFA ; la recherche par les diodes accordables, Ti:Sa et fibres ultrarapides.</li>
+          <li>Choisir : λ, puissance/régime, M², largeur de raie, polarisation, intégration, coût.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="lasers-familles">
+        <header><h3>quiz éclair</h3><span class="tag">4 questions</span></header>
+        <div class="q" data-a="c"><p>1. Quel laser pour découper une plaque d'acrylique ?</p><div class="opts">
+          <label><input type="radio" value="a"> HeNe</label><label><input type="radio" value="b"> diode rouge 5 mW</label><label><input type="radio" value="c"> CO₂ (10,6 µm, absorbé par les polymères)</label></div>
+          <p class="explain">Les non-métaux absorbent très bien l'infrarouge lointain du CO₂.</p></div>
+        <div class="q" data-a="a"><p>2. Le laser d'alignement de référence en métrologie est traditionnellement…</p><div class="opts">
+          <label><input type="radio" value="a"> le HeNe à 632,8 nm</label><label><input type="radio" value="b"> le CO₂</label><label><input type="radio" value="c"> l'excimère</label></div>
+          <p class="explain">Faisceau TEM₀₀ stable, longueur d'onde connue avec précision.</p></div>
+        <div class="q" data-a="b"><p>3. Pourquoi les lasers à fibre dominent-ils la découpe industrielle ?</p><div class="opts">
+          <label><input type="radio" value="a"> ils émettent dans le visible</label><label><input type="radio" value="b"> bon rendement, excellente évacuation de la chaleur, pas d'alignement</label><label><input type="radio" value="c"> ils sont les moins chers à l'achat dans tous les cas</label></div>
+          <p class="explain">La géométrie fibre (grande surface/volume) gère la chaleur, et tout est soudé : robuste.</p></div>
+        <div class="q" data-a="c"><p>4. Quel est le danger « électrique » spécifique d'un vieux laser HeNe ?</p><div class="opts">
+          <label><input type="radio" value="a"> aucun</label><label><input type="radio" value="b"> le courant élevé</label><label><input type="radio" value="c"> la haute tension (plusieurs kV) de l'alimentation du tube</label></div>
+          <p class="explain">Amorçage à 7–10 kV, fonctionnement vers 1–2 kV : condensateurs à décharger avant d'intervenir.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>
