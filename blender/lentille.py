@@ -27,5 +27,5 @@ pied = cyl("pied_ecran", 1.8, zc - 15, (f + 36, 0, (zc - 15) / 2), P["alu"], ver
 base2 = cyl("socle_ecran", 9, 2.2, (f + 36, 0, -1.1), P["plastique_creme"], verts=64, bevel=0.6)
 
 if A["png"]:
-    render(A["png"], view=(0.28, -1.0, 0.42), w=A["w"], h=A["h"], samples=A["samples"], focal=50, margin=0.6,
+    render(A["png"], view=(0.28, -1.0, 0.42), w=A["w"], h=A["h"], samples=A["samples"], focal=50, margin=0.7,
            extra=[(-100, 13, zc), (f + 36, -15, zc)], beam_strength=4.0)
