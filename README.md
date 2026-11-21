@@ -30,7 +30,7 @@ Le carnet applique les méthodes d'apprentissage les mieux validées par la rech
 - **l'entraînement** : 52 types d'exercices de technicien aux valeurs tirées au sort, avec exemple résolu → exemple à compléter → seul, et une étape « quelle relation utiliser ? » en mode mélangé ;
 - **mon parcours** : huit étapes pour devenir technicien opto-électronique, reliées aux cours du BUT GEII, avec une grille de compétences (auto-évaluation comparée aux résultats mesurés).
 
-Les outils : **ma séance du jour**, **mon parcours**, **la méthode**, **entraînement**, **mon carnet** (notes de chaque leçon, journal de bord, export Markdown, sauvegarde), **fiches de révision** (répétition espacée), **formulaire**, **glossaire français / anglais** et **labo Python** (exercices exécutés dans le navigateur avec Pyodide). La section **mes cours BUT3** rassemble mes pages de révision du semestre 5 (maintenance, probabilités-statistiques, CEM).
+Les outils : **ma séance du jour**, **mon parcours**, **la méthode**, **entraînement**, **mon carnet** (notes de chaque leçon, journal de bord, export Markdown, sauvegarde), **fiches de révision** (répétition espacée), **formulaire**, **glossaire français / anglais** et **labo Python** (exercices exécutés dans le navigateur avec Pyodide). La section **mes cours BUT3** rassemble mes pages du semestre 5 : révisions (maintenance, probabilités-statistiques, CEM) et la **SAÉ 5** — le jeu de rapidité collaboratif expliqué (carte module joueur en 3D, trames, architecture logicielle, jeu A jouable) et un guide pas à pas pour coder le jeu A soi-même.
 
 Les notes, la progression et les scores restent dans le navigateur (stockage local) : rien n'est envoyé sur Internet. Pense à exporter une sauvegarde depuis « mon carnet ».
 

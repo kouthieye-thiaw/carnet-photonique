@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SAÉ 5 · coder le jeu A · carnet photonique</title>
+<meta name="description" content="Guide pas à pas pour coder soi-même le programme du jeu A du module joueur JRC (SAÉ 5, BUT3 GEII) : squelette du sketch Arduino, pilotes, trames, algorithmes, tests sur la carte.">
+<link rel="icon" href="../../assets/img/favicon.svg">
+<link rel="stylesheet" href="../../assets/css/carnet.css">
+<style>
+  article.prose { max-width: 900px; }
+  .prose section { scroll-margin-top: calc(var(--header-h) + 16px); }
+  .sae-nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; }
+  .sae-nav a { font-family: var(--font-geist); font-size: 14px; padding: 6px 12px; border: 1px solid var(--rule-strong); border-radius: var(--radius-tags); text-decoration: none; color: var(--ink); background: var(--paper); }
+  .sae-nav a:hover { border-color: var(--ink); }
+  .pseudo { font-family: var(--font-mono); font-size: 15px; line-height: 1.65; background: var(--paper-2); border-radius: 10px; padding: 14px 16px; white-space: pre-wrap; overflow-x: auto; }
+  .pseudo b { color: var(--accent-deep); font-weight: 600; }
+</style>
+<script defer src="../../assets/js/site-map.js"></script>
+<script defer src="../../assets/js/carnet.js"></script>
+</head>
+<body data-notes="but3/sae5-jeu-a">
+<main>
+<div class="wrap">
+  <header class="tool-hero" style="position:relative">
+    <span class="tag soft">mes cours BUT3 · SAÉ 5</span>
+    <h1>coder le jeu A, pas à pas</h1>
+    <span class="hand">c'est toi qui écris le code</span>
+    <p class="lead">Dix étapes, dans l'ordre de l'architecture : d'abord les <mark>pilotes</mark>, chacun testé seul sur la carte, puis les <mark>algorithmes</mark>. À chaque étape : ce qu'il faut savoir, ce que tu dois écrire, un indice si tu bloques, et un test pour prouver que ça marche. Tu as compris la carte ? Sinon, commence par <a href="index.html">la SAÉ 5 expliquée</a>.</p>
+    <nav class="sae-nav" aria-label="les étapes"><a href="#e1">1 · outils</a><a href="#e2">2 · brochage</a><a href="#e3">3 · LED d'état</a><a href="#e4">4 · LEDs RGB</a><a href="#e5">5 · boutons</a><a href="#e6">6 · buzzer</a><a href="#e7">7 · chrono</a><a href="#e8">8 · trames</a><a href="#e9">9 · aiguillage</a><a href="#e10">10 · le jeu A</a><a href="#valider">valider</a><a href="#erreurs">erreurs fréquentes</a></nav>
+    <span class="sticker" data-s="cle" style="--r:-10deg;top:30px;right:0"></span>
+  </header>
+
+  <article class="prose" style="margin-top:30px">
+    <div class="box retiens"><p class="box-title">la méthode</p>
+      <ol>
+        <li><strong>Une étape à la fois</strong> : tu écris un pilote, tu le testes sur la carte, puis tu passes au suivant. Un bug trouvé tout de suite coûte cinq minutes ; trouvé à la fin, une soirée.</li>
+        <li><strong>Essaie avant d'ouvrir l'indice</strong> : chercher, même en se trompant, fait retenir bien mieux que lire une solution (<a href="../../methode.html#recuperation">pratique de récupération</a>).</li>
+        <li><strong>Garde la règle des couches</strong> : seuls les pilotes touchent aux broches (<code>digitalWrite</code>, <code>digitalRead</code>, <code>tone</code>, <code>Serial</code>).</li>
+      </ol>
+    </div>
+
+    <section id="squelette">
+      <h2><span class="n">0</span>le squelette du programme</h2>
+      <p>Voici le fichier à compléter. Il contient toute l'architecture — brochage, variables du CDC, prototypes, pilotes, algorithmes — avec un <code>À FAIRE</code> à chaque endroit que tu dois écrire. Les numéros renvoient aux étapes de cette page.</p>
+      <div class="code"><pre data-label="JRC_MJ.ino · squelette"><code class="language-c">/* JRC_MJ.ino : Module Joueur du Jeu de Rapidité Collaboratif (SAÉ 5)
+ * Carte : ATmega328P à 16 MHz, programmée comme une Arduino Uno
+ * À compléter étape par étape (voir « coder le jeu A, pas à pas »).
+ */
+#include &lt;EEPROM.h&gt;
+
+// ===================== BROCHAGE (étape 2) =====================
+#define BP_1        /* À FAIRE */
+#define BP_2        /* À FAIRE */
+#define BP_3        /* À FAIRE */
+#define BP_4        /* À FAIRE */
+#define led_r1      /* À FAIRE */    // et led_g1, led_b1 … jusqu'à led_b4
+#define led_etat    /* À FAIRE */
+#define pin_buzzer  /* À FAIRE */
+
+// tableaux : la case 0 correspond au bouton / à la LED 1
+const uint8_t pin_bouton[4] = {BP_1, BP_2, BP_3, BP_4};
+const uint8_t pin_rouge[4]  = {led_r1, led_r2, led_r3, led_r4};
+const uint8_t pin_vert[4]   = {led_g1, led_g2, led_g3, led_g4};
+const uint8_t pin_bleu[4]   = {led_b1, led_b2, led_b3, led_b4};
+
+// ===================== CONSTANTES =====================
+#define DUREE_MAX_JEU_A 2000UL        // limite du jeu A, en ms
+#define ANTI_REBOND_MS  20            // relâché après 20 ms sans contact
+#define SANS_LIMITE     0xFFFFFFFFUL  // une limite qui n'arrive jamais
+#define TAILLE_TRAME    8
+
+// ===================== LES 4 VARIABLES DU CDC =====================
+uint16_t dernier_temps = 0;
+uint16_t temps_moyen = 0;
+uint16_t nb_appui_valide = 0;
+uint16_t nb_appui_incorrect = 0;
+unsigned long debut_chrono = 0;
+
+// ===================== PROTOTYPES (le sommaire) =====================
+uint8_t  AcquerirBoutonJeu(uint8_t numero_bouton);
+uint8_t  RecevoirTrame(char trame[]);
+void     EnvoyerTrame(char message[]);
+void     DemarrerChronometre(void);
+uint32_t LireChronometre(void);
+uint16_t LireNumeroSerie(void);
+void     PiloterLedJeu(uint8_t numero_led, uint8_t couleur);
+void     PiloterLedEtat(uint8_t etat);
+void     PiloterBuzzer(uint16_t frequence);
+void     Algorithme(void);
+void     AlgorithmeReset(void);
+void     AlgorithmeJeuA(uint8_t n, uint8_t c1, uint8_t c2);
+void     AlgorithmeJeuB(uint8_t c1, uint8_t c2);
+void     AlgorithmeInformation(uint8_t i);
+void     AttendreRelachement(uint8_t numero_bouton, uint32_t limite);
+uint8_t  ResetDemande(void);
+
+// ===================== SETUP ET LOOP =====================
+void setup() {
+  // À FAIRE (étape 3) : liaison série, sens des broches, AlgorithmeReset()
+}
+
+void loop() {
+  Algorithme();                       // c'est tout : l'aiguillage fait le reste
+}
+
+// ===================== PILOTES =====================
+void PiloterLedEtat(uint8_t etat)                       { /* À FAIRE (étape 3) */ }
+void PiloterLedJeu(uint8_t numero_led, uint8_t couleur) { /* À FAIRE (étape 4) */ }
+uint8_t AcquerirBoutonJeu(uint8_t numero_bouton)        { /* À FAIRE (étape 5) */ return 0; }
+void PiloterBuzzer(uint16_t frequence)                  { /* À FAIRE (étape 6) */ }
+void DemarrerChronometre(void)                          { /* À FAIRE (étape 7) */ }
+uint32_t LireChronometre(void)                          { /* À FAIRE (étape 7) */ return 0; }
+uint8_t RecevoirTrame(char trame[])                     { /* À FAIRE (étape 8) */ return 0; }
+void EnvoyerTrame(char message[])                       { /* À FAIRE (étape 8) */ }
+uint16_t LireNumeroSerie(void)                          { /* À FAIRE (étape 9) */ return 0; }
+
+// ===================== ALGORITHMES (CDC) =====================
+void Algorithme(void)                                   { /* À FAIRE (étape 9) */ }
+void AlgorithmeReset(void)                              { /* À FAIRE (étape 9) */ }
+void AlgorithmeInformation(uint8_t i)                   { /* À FAIRE (étape 9) */ }
+void AlgorithmeJeuA(uint8_t n, uint8_t c1, uint8_t c2)  { /* À FAIRE (étape 10) */ }
+void AttendreRelachement(uint8_t numero_bouton, uint32_t limite) { /* À FAIRE (étape 10) */ }
+uint8_t ResetDemande(void)                              { /* À FAIRE (étape 10) */ return 0; }
+void AlgorithmeJeuB(uint8_t c1, uint8_t c2)             { /* le prochain chantier */ }</code></pre></div>
+    </section>
+
+    <ol class="sae-steps">
+      <li class="etape" id="e1">
+        <div class="e-head"><span class="num">1</span><h3>préparer l'outil</h3><span class="tag soft">10 min</span></div>
+        <p>Ta carte se programme <strong>comme une Arduino Uno</strong> : l'ATmega328P a le même bootloader, à 16 MHz, et le CY7C65213 joue le rôle du convertisseur USB-série. Dans l'IDE Arduino : carte « Arduino Uno », le port COM de ta carte, puis Téléverser.</p>
+        <p>Le moniteur série remplace le PC : réglé sur <strong>115 200 bauds</strong> et <strong>« Both NL &amp; CR »</strong>, sinon la carte ne voit jamais la fin de tes trames. Son ouverture redémarre la carte (DTR relié au RESET) : c'est normal.</p>
+        <ul class="checklist" data-id="sae5-e1"><li><input type="checkbox"><label>Le squelette est copié dans un nouveau sketch nommé JRC_MJ.</label></li><li><input type="checkbox"><label>Je sais choisir la carte, le port et ouvrir le moniteur à 115 200 bauds, « Both NL &amp; CR ».</label></li></ul>
+      </li>
+
+      <li class="etape" id="e2">
+        <div class="e-head"><span class="num">2</span><h3>le brochage</h3><span class="tag soft">15 min</span></div>
+        <p>Chaque broche de l'ATmega328P a un numéro Arduino : PD0 à PD7 = 0 à 7, PB0 à PB5 = 8 à 13, PC0 à PC5 = A0 à A5. Les valeurs viennent de ton schéma (et de <code>brochage.h</code>) :</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>bouton / LED</th><th>bouton</th><th>rouge</th><th>vert</th><th>bleu</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>A4 (PC4)</td><td>2 (PD2)</td><td>4 (PD4)</td><td>3 (PD3)</td></tr>
+            <tr><td>2</td><td>A2 (PC2)</td><td>5 (PD5)</td><td>7 (PD7)</td><td>6 (PD6)</td></tr>
+            <tr><td>3</td><td>A3 (PC3)</td><td>11 (PB3)</td><td>10 (PB2)</td><td>8 (PB0)</td></tr>
+            <tr><td>4</td><td>A0 (PC0)</td><td>12 (PB4)</td><td>13 (PB5)</td><td>A1 (PC1)</td></tr>
+          </tbody>
+        </table></div>
+        <p>LED d'état : A5 (PC5). Buzzer : 9 (PB1). Les broches 0 et 1 sont prises par la liaison série : <code>Serial</code> s'en occupe, n'y touche pas.</p>
+        <div class="exo"><div class="exo-head"><span class="tag orange">à toi</span><h4>le bon numéro</h4></div>
+          <p>Quel numéro Arduino correspond à la broche PB3 (le rouge de la LED 3) ?</p>
+          <div class="check-row" data-answer="11" data-tol="0" data-abs="0.1" data-hint="PB0 = 8, donc PB3 = 8 + 3"><input type="text" inputmode="numeric" placeholder="numéro" aria-label="numéro Arduino de PB3"><button class="pill small" type="button">vérifier</button></div>
+        </div>
+        <details class="reveal hint"><summary>indice : la forme d'une ligne</summary><div class="reveal-body"><p><code>#define BP_1 A4</code> veut dire « partout où j'écris BP_1, le compilateur met A4 ». Une ligne par broche : 4 boutons, 12 broches de LEDs, la LED d'état et le buzzer. Les boutons ne sont pas dans l'ordre des broches (BP1 sur A4, BP4 sur A0) : c'est le routage du PCB, et grâce aux #define le reste du code n'a pas à le savoir.</p></div></details>
+        <p class="small">Au démarrage, le bootloader fait clignoter la broche 13 : le vert de la LED 4 clignote brièvement. Ce n'est pas un défaut.</p>
+      </li>
+
+      <li class="etape" id="e3">
+        <div class="e-head"><span class="num">3</span><h3>setup() et la LED d'état</h3><span class="tag soft">20 min</span></div>
+        <p><strong>À savoir.</strong> La LED d'état s'allume au niveau bas (comme toutes les LEDs de la carte). Dans <code>setup()</code>, on écrit d'abord <code>HIGH</code> sur chaque sortie LED, <em>puis</em> on la passe en sortie : sinon la broche passerait un instant à LOW et toutes les LEDs flasheraient au démarrage.</p>
+        <p><strong>À toi.</strong> Écris <code>PiloterLedEtat(etat)</code> (1 = allumée, 0 = éteinte) et <code>setup()</code> : <code>Serial.begin(115200)</code>, les 13 sorties LED à HIGH puis en OUTPUT, le buzzer en sortie, les 4 boutons en <code>INPUT</code> simple, et pour finir <code>AlgorithmeReset()</code> (pour l'instant, mets juste <code>PiloterLedEtat(1)</code> dedans).</p>
+        <details class="reveal hint"><summary>indice</summary><div class="reveal-body"><p>Une ligne suffit pour le pilote : un opérateur ternaire <code>etat ? LOW : HIGH</code> dans un <code>digitalWrite</code>. Pour <code>setup()</code>, une boucle <code>for (uint8_t i = 0; i &lt; 4; i++)</code> sur les tableaux <code>pin_rouge</code>, <code>pin_vert</code>, <code>pin_bleu</code> et <code>pin_bouton</code> évite d'écrire 16 lignes.</p></div></details>
+        <ul class="checklist" data-id="sae5-e3"><li><input type="checkbox"><label>Le programme compile et se téléverse.</label></li><li><input type="checkbox"><label>Au démarrage : LED d'état verte, aucune LED de jeu allumée, pas de flash.</label></li></ul>
+      </li>
+
+      <li class="etape" id="e4">
+        <div class="e-head"><span class="num">4</span><h3>les LEDs RGB et le code couleur</h3><span class="tag soft">25 min</span></div>
+        <p><strong>À savoir.</strong> La couleur est un nombre de 3 bits, un par canal : bit 0 = rouge, bit 1 = vert, bit 2 = bleu. <code>couleur &amp; 1</code> isole le bit du rouge, <code>couleur &amp; 2</code> celui du vert, <code>couleur &amp; 4</code> celui du bleu. Exemple : 3 = 011 en binaire, rouge et vert allumés, donc jaune.</p>
+        <p><strong>À toi.</strong> Écris <code>PiloterLedJeu(numero_led, couleur)</code> : ignore un numéro hors de 1 à 4, puis règle les trois canaux de la LED. Attention, les tableaux commencent à la case 0.</p>
+        <div class="exo"><div class="exo-head"><span class="tag orange">à toi</span><h4>le ET logique</h4></div>
+          <p>Pour couleur = 6 (cyan), que vaut <code>couleur &amp; 2</code> ?</p>
+          <div class="check-row" data-answer="2" data-tol="0" data-abs="0.1" data-hint="6 = 110 en binaire ; 2 = 010"><input type="text" inputmode="numeric" placeholder="valeur" aria-label="résultat de couleur ET 2"><button class="pill small" type="button">vérifier</button></div>
+        </div>
+        <div class="exo"><div class="exo-head"><span class="tag orange">à toi</span><h4>le courant dans la LED rouge</h4></div>
+          <p>Le canal rouge (tension de seuil ≈ 2,0 V) est alimenté sous 5 V à travers 2,2 kΩ, broche à 0 V. Quel courant, en mA ?</p>
+          <div class="check-row" data-answer="1.36" data-tol="0.02" data-hint="(5 − 2,0) / 2200"><input type="text" inputmode="decimal" placeholder="mA" aria-label="courant en milliampères"><span>mA</span><button class="pill small" type="button">vérifier</button></div>
+        </div>
+        <details class="reveal hint"><summary>indice</summary><div class="reveal-body"><p>Calcule d'abord l'indice <code>i = numero_led - 1</code>, puis un <code>digitalWrite</code> par canal, avec la même forme que pour la LED d'état : <code>(couleur &amp; 1) ? LOW : HIGH</code> pour le rouge.</p><p>Pour tester, mets temporairement dans <code>setup()</code> une double boucle : pour chaque couleur de 0 à 7, allume les 4 LEDs de cette couleur, puis <code>delay(500)</code>.</p></div></details>
+        <ul class="checklist" data-id="sae5-e4"><li><input type="checkbox"><label>Les 4 LEDs passent par les 8 couleurs dans l'ordre : éteint, rouge, vert, jaune, bleu, magenta, cyan, blanc.</label></li></ul>
+      </li>
+
+      <li class="etape" id="e5">
+        <div class="e-head"><span class="num">5</span><h3>les boutons</h3><span class="tag soft">15 min</span></div>
+        <p><strong>À savoir.</strong> Bouton appuyé = <code>HIGH</code> (le bouton relie la broche au +5 V ; 100 kΩ la tirent vers la masse au repos). Jamais <code>INPUT_PULLUP</code> : la résistance interne s'opposerait au montage.</p>
+        <p><strong>À toi.</strong> <code>AcquerirBoutonJeu(numero_bouton)</code> rend 1 si le bouton est appuyé, 0 sinon (et 0 pour un numéro hors de 1 à 4).</p>
+        <details class="reveal hint"><summary>indice</summary><div class="reveal-body"><p>Toujours la case <code>numero_bouton - 1</code> du tableau <code>pin_bouton</code>, et une comparaison <code>digitalRead(…) == HIGH</code>. Test : dans <code>loop()</code>, temporairement, allume la LED b en vert tant que le bouton b est appuyé.</p></div></details>
+        <ul class="checklist" data-id="sae5-e5"><li><input type="checkbox"><label>Chaque bouton allume la LED placée au-dessus de lui, et seulement elle.</label></li></ul>
+      </li>
+
+      <li class="etape" id="e6">
+        <div class="e-head"><span class="num">6</span><h3>le buzzer</h3><span class="tag soft">10 min</span></div>
+        <p><strong>À savoir.</strong> <code>tone(broche, fréquence)</code> fabrique un signal carré et rend la main tout de suite : le son continue seul jusqu'à <code>noTone(broche)</code>. C'est ce qui permettra au jeu de surveiller les boutons pendant que le buzzer sonne.</p>
+        <p><strong>À toi.</strong> <code>PiloterBuzzer(frequence)</code> : 0 = arrêt, sinon la fréquence en Hz.</p>
+        <ul class="checklist" data-id="sae5-e6"><li><input type="checkbox"><label>Test au démarrage : 880 Hz pendant 200 ms, puis 110 Hz pendant 200 ms, puis silence.</label></li></ul>
+      </li>
+
+      <li class="etape" id="e7">
+        <div class="e-head"><span class="num">7</span><h3>le chronomètre</h3><span class="tag soft">10 min</span></div>
+        <p><strong>À savoir.</strong> <code>millis()</code> rend le nombre de millisecondes depuis le démarrage. Un temps, c'est la différence entre deux lectures. Cadencé par le quartz (±50 ppm), il est bien plus précis que les 0,1 % exigés par EXIG_TEMPS.</p>
+        <p><strong>À toi.</strong> <code>DemarrerChronometre()</code> mémorise l'instant de départ dans <code>debut_chrono</code> ; <code>LireChronometre()</code> rend le temps écoulé depuis.</p>
+        <div class="exo"><div class="exo-head"><span class="tag orange">à toi</span><h4>la précision du quartz</h4></div>
+          <p>Un quartz à ±50 ppm : au pire, de combien de millisecondes se trompe-t-il sur 2000 ms ?</p>
+          <div class="check-row" data-answer="0.1" data-tol="0.01" data-hint="2000 × 50 × 10⁻⁶"><input type="text" inputmode="decimal" placeholder="ms" aria-label="erreur en millisecondes"><span>ms</span><button class="pill small" type="button">vérifier</button></div>
+        </div>
+        <ul class="checklist" data-id="sae5-e7"><li><input type="checkbox"><label>Test : au premier appui je démarre le chrono, au second j'affiche le temps sur le moniteur série. Ça correspond à mon geste.</label></li></ul>
+      </li>
+
+      <li class="etape" id="e8">
+        <div class="e-head"><span class="num">8</span><h3>recevoir et envoyer des trames</h3><span class="tag soft">40 min</span></div>
+        <p><strong>À savoir.</strong> Les caractères arrivent un par un, parfois en plusieurs morceaux. <code>RecevoirTrame()</code> ne doit <strong>jamais attendre</strong> : à chaque appel, elle lit ce qui est déjà arrivé (<code>Serial.available()</code>, <code>Serial.read()</code>) et le range dans un tampon. Ses variables sont <code>static</code> : elles gardent leur valeur d'un appel à l'autre. Au CR ou au LF, si le tampon n'est pas vide, elle copie la trame dans <code>trame</code>, ajoute le <code>'\0'</code> final et rend sa longueur ; sinon elle rend 0.</p>
+        <p><strong>À toi.</strong> Écris <code>RecevoirTrame(trame)</code> (en protégeant le tampon : jamais plus de <code>TAILLE_TRAME - 1</code> caractères) et <code>EnvoyerTrame(message)</code>, qui envoie le message suivi de CR LF.</p>
+        <details class="reveal hint"><summary>indice</summary><div class="reveal-body"><p>Deux variables statiques : <code>static char ligne[TAILLE_TRAME]</code> et <code>static uint8_t n = 0</code>. Une boucle <code>while (Serial.available())</code> ; si le caractère est <code>'\r'</code> ou <code>'\n'</code> : trame terminée (si n &gt; 0) ; sinon on le range si la place le permet. Une ligne vide (le LF qui suit un CR) est simplement ignorée.</p></div></details>
+        <ul class="checklist" data-id="sae5-e8"><li><input type="checkbox"><label>Test « écho » : chaque trame tapée dans le moniteur revient, entière, une seule fois.</label></li><li><input type="checkbox"><label>Une trame trop longue ne fait pas planter la carte.</label></li></ul>
+      </li>
+
+      <li class="etape" id="e9">
+        <div class="e-head"><span class="num">9</span><h3>l'aiguillage, le reset et les informations</h3><span class="tag soft">40 min</span></div>
+        <p><strong>À savoir.</strong> <code>Algorithme()</code> regarde si une trame complète est arrivée ; si oui, elle <strong>vérifie</strong> la trame avant d'agir, puis lance le bon algorithme selon la première lettre. Une trame mal formée est ignorée. Le chiffre reçu est un caractère : <code>trame[1] - '0'</code> le convertit en nombre.</p>
+        <div class="table-wrap"><table>
+          <thead><tr><th>lettre</th><th>vérification</th><th>appel</th></tr></thead>
+          <tbody>
+            <tr><td><code>R</code></td><td>1 caractère</td><td><code>AlgorithmeReset()</code></td></tr>
+            <tr><td><code>A</code></td><td>4 caractères ; bouton entre '1' et '4' ; couleurs entre '0' et '7'</td><td><code>AlgorithmeJeuA(n, c1, c2)</code></td></tr>
+            <tr><td><code>B</code></td><td>3 caractères ; couleurs entre '0' et '7'</td><td><code>AlgorithmeJeuB(c1, c2)</code></td></tr>
+            <tr><td><code>V</code></td><td>2 caractères ; indice entre '0' et '4'</td><td><code>AlgorithmeInformation(i)</code></td></tr>
+            <tr><td>autre</td><td>—</td><td>rien : trame ignorée</td></tr>
+          </tbody>
+        </table></div>
+        <p><strong>À toi.</strong> <code>Algorithme()</code> avec un <code>switch</code> sur <code>trame[0]</code> ; <code>AlgorithmeReset()</code> (buzzer coupé, 4 LEDs éteintes, les 4 variables du CDC à 0, LED d'état allumée) ; <code>AlgorithmeInformation(i)</code>, qui choisit la valeur demandée et l'envoie en texte ; <code>LireNumeroSerie()</code>, qui lit 2 octets en EEPROM (0xFFFF = EEPROM vierge → 0).</p>
+        <div class="exo"><div class="exo-head"><span class="tag orange">à toi</span><h4>du texte au nombre</h4></div>
+          <p>Quel est le code ASCII du caractère <code>'7'</code> ?</p>
+          <div class="check-row" data-answer="55" data-tol="0" data-abs="0.1" data-hint="'0' vaut 48, et les chiffres se suivent"><input type="text" inputmode="numeric" placeholder="code" aria-label="code ASCII de 7"><button class="pill small" type="button">vérifier</button></div>
+        </div>
+        <details class="reveal hint"><summary>indice</summary><div class="reveal-body"><p>Pour envoyer un nombre : <code>char texte[6]; utoa(valeur, texte, 10); EnvoyerTrame(texte);</code> — <code>utoa</code> transforme 412 en "412". Pour l'EEPROM : <code>uint16_t numero; EEPROM.get(0, numero);</code>.</p></div></details>
+        <ul class="checklist" data-id="sae5-e9"><li><input type="checkbox"><label><code>V0</code> à <code>V4</code> répondent (0 pour l'instant, sauf le numéro de série s'il est écrit en EEPROM).</label></li><li><input type="checkbox"><label><code>R</code> éteint tout et rallume la LED d'état ; <code>X12</code> ou <code>A9</code> ne font rien.</label></li></ul>
+      </li>
+
+      <li class="etape" id="e10">
+        <div class="e-head"><span class="num">10</span><h3>le jeu A</h3><span class="tag soft">1 h</span></div>
+        <p>Tout est prêt : le jeu A n'utilise plus <strong>que des pilotes</strong>, aucun <code>digitalWrite</code>. Il tient en trois parties — préparer, attendre, finir — et deux petits outils. Voici son algorithme ; à toi de le traduire en C.</p>
+        <div class="pseudo"><b>procédure</b> AlgorithmeJeuA(n, c1, c2)
+  <b>// 1. préparer</b>
+  LED d'état ← éteinte                       (la carte est occupée)
+  nb_appui_incorrect ← 0                     (le jeu A compte ses erreurs depuis zéro)
+  <b>pour</b> led de 1 à 4 : couleur c1 si led = n, sinon couleur c2
+  démarrer le chronomètre
+  <b>// 2. attendre le bon appui, au plus 2 s</b>
+  <b>répéter</b> sans fin
+    <b>si</b> une trame R attend <b>alors quitter</b> tout de suite   (Algorithme() la traitera)
+    t ← lire le chronomètre
+    <b>si</b> t ≥ 2000 <b>alors</b> t ← 2000 ; sortir de la boucle
+    <b>si</b> le bouton n est appuyé <b>alors</b>
+      buzzer 880 Hz ; attendre son relâchement (sans limite) ; buzzer coupé
+      sortir de la boucle                    (t est le temps de réaction)
+    <b>pour</b> chaque bouton b ≠ n appuyé
+      nb_appui_incorrect ← nb_appui_incorrect + 1
+      buzzer 110 Hz ; attendre son relâchement (limite 2000 ms) ; buzzer coupé
+  <b>// 3. finir</b>
+  dernier_temps ← t
+  éteindre les 4 LEDs de jeu ; LED d'état ← allumée</div>
+        <p><strong>Les deux outils.</strong></p>
+        <ul>
+          <li><code>AttendreRelachement(numero_bouton, limite)</code> : le bouton n'est « relâché » qu'après <strong>20 ms sans contact</strong> (anti-rebond) — chaque fois qu'on le voit encore appuyé, on repart de zéro. Elle rend aussi la main si le chronomètre atteint <code>limite</code> : un joueur qui garde un mauvais bouton enfoncé ne doit pas bloquer le jeu au-delà de 2 s.</li>
+          <li><code>ResetDemande()</code> : regarde, <em>sans le retirer</em>, si le prochain caractère reçu est un <code>'R'</code>, avec <code>Serial.peek()</code>. Elle jette d'abord les CR et LF restés derrière la trame A314, sinon le R resterait caché derrière eux.</li>
+        </ul>
+        <details class="reveal hint"><summary>indice : les questions à te poser en codant</summary><div class="reveal-body">
+          <ul>
+            <li>Pourquoi lit-on <code>t</code> <em>avant</em> de tester le bon bouton ? (Qu'arriverait-il au temps mesuré si on le relisait après l'attente du relâchement ?)</li>
+            <li>Pourquoi <code>return</code> pour la trame R, mais <code>break</code> pour le temps dépassé ? (Dans quel cas faut-il ranger <code>dernier_temps</code> ?)</li>
+            <li>Pourquoi le mauvais bouton a-t-il une limite de 2000 ms, et le bon bouton <code>SANS_LIMITE</code> ?</li>
+            <li>Que se passe-t-il si tu oublies l'anti-rebond, avec un seul appui sur un mauvais bouton ?</li>
+          </ul>
+        </div></details>
+        <div class="lab" data-widget="jrc-jeu-a">
+          <div class="lab-head"><h4>compare avec la simulation</h4><span class="tag green">simulation</span></div>
+          <p class="small">Le comportement que ton programme doit reproduire : bon appui, erreurs, temps dépassé, trame R en plein jeu.</p>
+        </div>
+      </li>
+    </ol>
+
+    <section id="valider">
+      <h2><span class="n">11</span>valider, comme pour le DDV</h2>
+      <p>Refais la liste de tests de <a href="index.html#tester">la SAÉ 5 expliquée</a> au moniteur série, et note pour chacun l'action, le résultat attendu et le résultat obtenu. Pour aller plus vite et rejouer les tests à chaque modification, tu peux aussi piloter la carte depuis le PC en Python, comme au TP d'info spé :</p>
+      <div class="code"><pre data-label="test_jeu_a.py · banc de test côté PC"><code class="language-python">"""Rejoue automatiquement des tests du jeu A sur le module joueur (pip install pyserial).
+Usage : python test_jeu_a.py COM5        (ou /dev/ttyUSB0 sous Linux)"""
+import sys, time
+import serial
+
+def envoyer(port, trame):
+    port.write((trame + "\r\n").encode("ascii"))
+
+def demander(port, i):
+    port.reset_input_buffer()
+    envoyer(port, f"V{i}")
+    return port.readline().decode("ascii").strip()      # ex. « 412 »
+
+with serial.Serial(sys.argv[1], 115200, timeout=1) as port:
+    time.sleep(2)                    # l'ouverture du port a redémarré la carte (DTR → RESET)
+    envoyer(port, "R")
+    time.sleep(0.1)
+    print("V1 après reset :", demander(port, 1), "(attendu : 0)")
+
+    envoyer(port, "A314")            # personne n'appuie : temps dépassé
+    time.sleep(2.5)
+    print("V1 sans appui :", demander(port, 1), "(attendu : 2000)")
+
+    envoyer(port, "A314")            # à toi : appuie sur le 2, puis sur le 3
+    input("Appuie sur le bouton 2, puis sur le 3, puis tape Entrée… ")
+    print("V1 :", demander(port, 1), "ms · V2 :", demander(port, 2), "(attendu : 1)")
+
+    envoyer(port, "A314")            # trame R en plein jeu
+    time.sleep(0.5)
+    envoyer(port, "R")
+    time.sleep(0.1)
+    print("V1 après R en plein jeu :", demander(port, 1), "(attendu : 0)")</code></pre></div>
+    </section>
+
+    <section id="erreurs">
+      <h2><span class="n">12</span>les erreurs qui empêchent de compiler (ou de marcher)</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>symptôme</th><th>cause</th><th>correction</th></tr></thead>
+        <tbody>
+          <tr><td>« expected primary-expression » sur <code>digitalRead(BP_1)</code></td><td><code>#define BP_1</code> sans valeur</td><td>donner le numéro de broche</td></tr>
+          <tr><td>erreur sur les lignes de prototypes</td><td>pas de <code>;</code> à la fin</td><td><code>void PiloterBuzzer(uint16_t frequence);</code></td></tr>
+          <tr><td>« was not declared in this scope »</td><td><code>PiloterLEDJeu</code> au lieu de <code>PiloterLedJeu</code> : le C distingue majuscules et minuscules</td><td>un seul nom, partout</td></tr>
+          <tr><td>« undefined reference to … »</td><td>une fonction annoncée mais jamais écrite</td><td>écrire son corps (même vide)</td></tr>
+          <tr><td>la LED d'état ne s'allume pas</td><td><code>led_etat</code> sur 13 (c'est le vert de la LED 4)</td><td>A5 (PC5)</td></tr>
+          <tr><td>les boutons semblent toujours appuyés</td><td><code>INPUT_PULLUP</code> sur un bouton relié au +5 V</td><td><code>INPUT</code> simple</td></tr>
+          <tr><td>la carte ne réagit à aucune trame</td><td><code>loop()</code> vide, ou moniteur sans « Both NL &amp; CR »</td><td><code>Algorithme();</code> dans <code>loop()</code> ; régler la fin de ligne</td></tr>
+          <tr><td>un seul appui compte 3 ou 4 erreurs</td><td>pas d'anti-rebond</td><td><code>AttendreRelachement()</code> avec 20 ms sans contact</td></tr>
+          <tr><td>V1 renvoie la valeur d'avant</td><td>des variables en double (<code>appui_correct_global</code> et <code>nb_appui_valide</code>…)</td><td>garder uniquement les 4 variables du CDC</td></tr>
+        </tbody>
+      </table></div>
+      <p class="small"><code>while (!Serial)</code> ne sert à rien sur un ATmega328P (c'est pour les cartes à USB intégré, comme la Leonardo) : retire-le.</p>
+    </section>
+
+    <div class="box retiens">
+      <p class="box-title">à retenir</p>
+      <ul>
+        <li>Ordre de travail : brochage → LED d'état → LEDs RGB → boutons → buzzer → chrono → trames → aiguillage → jeu A, en testant chaque étape sur la carte.</li>
+        <li>LED : <code>(couleur &amp; bit) ? LOW : HIGH</code> ; bouton : <code>digitalRead(…) == HIGH</code> ; tableaux indexés par <code>numero - 1</code>.</li>
+        <li><code>RecevoirTrame()</code> ne bloque jamais : variables <code>static</code>, fin de trame sur CR ou LF ; <code>trame[i] - '0'</code> convertit un chiffre.</li>
+        <li>Jeu A : R ? → temps ≥ 2 s ? → bon bouton ? → mauvais bouton ? ; anti-rebond de 20 ms ; <code>Serial.peek()</code> pour repérer un R sans le consommer.</li>
+      </ul>
+    </div>
+
+    <section class="quiz" data-quiz="but3-sae5-jeu-a">
+      <header><h3>quiz éclair</h3><span class="tag">5 questions</span></header>
+      <div class="q" data-a="b"><p>1. Pourquoi écrire HIGH sur une sortie LED avant pinMode(…, OUTPUT) ?</p><div class="opts">
+        <label><input type="radio" value="a"> pour que la LED s'allume plus vite</label><label><input type="radio" value="b"> pour éviter un flash : sinon la broche passe un instant à LOW, donc allumée</label><label><input type="radio" value="c"> c'est obligatoire en C</label></div>
+        <p class="explain">À LOW une LED à anode commune s'allume : on prépare le niveau « éteint » avant d'activer la sortie.</p></div>
+      <div class="q" data-a="c"><p>2. Pourquoi les variables de RecevoirTrame() sont-elles static ?</p><div class="opts">
+        <label><input type="radio" value="a"> pour aller plus vite</label><label><input type="radio" value="b"> pour qu'elles soient visibles partout</label><label><input type="radio" value="c"> pour garder leur valeur d'un appel à l'autre : une trame peut arriver en plusieurs morceaux</label></div>
+        <p class="explain">Une variable locale normale serait remise à zéro à chaque appel ; static la conserve.</p></div>
+      <div class="q" data-a="a"><p>3. Pendant un jeu A, le PC envoie R. Que doit faire le jeu ?</p><div class="opts">
+        <label><input type="radio" value="a"> quitter tout de suite sans retirer le R : Algorithme() le traitera</label><label><input type="radio" value="b"> ignorer le R jusqu'à la fin du jeu</label><label><input type="radio" value="c"> lire le R et appeler lui-même AlgorithmeReset()</label></div>
+        <p class="explain">ResetDemande() regarde avec Serial.peek() ; le R reste dans la file et l'aiguillage lance le reset, comme pour n'importe quelle trame.</p></div>
+      <div class="q" data-a="b"><p>4. Le jeu A tourne : le joueur garde le bouton 1 enfoncé (mauvais bouton) pendant 3 s. Que se passe-t-il ?</p><div class="opts">
+        <label><input type="radio" value="a"> le jeu attend qu'il relâche, même 10 s</label><label><input type="radio" value="b"> une erreur, son grave, et le jeu se termine à 2 s avec un temps de 2000 ms</label><label><input type="radio" value="c"> trois erreurs, une par seconde</label></div>
+        <p class="explain">AttendreRelachement a une limite de 2000 ms pour un mauvais bouton : le jeu ne peut pas être bloqué.</p></div>
+      <div class="q" data-a="c"><p>5. Quelle ligne convertit le chiffre du bouton reçu dans la trame A314 en nombre ?</p><div class="opts">
+        <label><input type="radio" value="a"> <code>n = trame[1];</code></label><label><input type="radio" value="b"> <code>n = trame[1] + '0';</code></label><label><input type="radio" value="c"> <code>n = trame[1] - '0';</code></label></div>
+        <p class="explain">'3' vaut 51 ; 51 − 48 = 3.</p></div>
+      <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+    </section>
+
+    <div class="pager" style="margin-top:34px;padding:0"><a class="prev" href="index.html"><span class="k">← page précédente</span><span class="t">la SAÉ 5 expliquée</span></a><a class="next" href="../index.html"><span class="k">retour →</span><span class="t">mes cours BUT3</span></a></div>
+  </article>
+</div>
+</main>
+</body>
+</html>

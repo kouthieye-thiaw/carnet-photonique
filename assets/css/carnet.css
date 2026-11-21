@@ -828,3 +828,57 @@ input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rg
 a.home-card { display: block; text-decoration: none; color: var(--ink); background: #fff; transition: transform .25s var(--ease), box-shadow .25s; }
 a.home-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); color: var(--ink); }
 a.home-card .sticker-inline { margin-bottom: 10px; }
+
+/* ==========================================================================
+   SAÉ 5 · module joueur JRC : décodeur de trames et jeu A simulé
+   ========================================================================== */
+.jrc-trame > * + * { margin-top: 12px; }
+.jrc-in label { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; font-family: var(--font-geist); font-size: 15px; color: var(--ink-soft); }
+.jrc-in input { font: 500 22px/1.2 var(--font-mono); letter-spacing: .12em; width: 170px; padding: 8px 12px; border: 1.5px solid var(--ink); border-radius: var(--radius-inputs); background: #fff; color: var(--ink); text-transform: uppercase; }
+.jrc-in { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.jrc-chars { display: flex; flex-wrap: wrap; gap: 8px; }
+.jrc-ch { display: grid; gap: 2px; text-align: center; min-width: 74px; padding: 8px 10px; border: 1px solid var(--rule-strong); border-radius: 10px; background: #fff; font-family: var(--font-geist); font-size: 12.5px; color: var(--ink-soft); }
+.jrc-ch b { font: 600 22px/1.1 var(--font-mono); color: var(--color-cocoa-ink); }
+.jrc-ch.fin { border-style: dashed; }
+.jrc-ch.fin b { font-size: 15px; padding: 4px 0; }
+.jrc-ok { margin: 0; font-family: var(--font-hand); font-size: 24px; color: #12803d; }
+.jrc-ok code, .jrc-res code { font-size: 15px; }
+.jrc-ko { margin: 0; font-family: var(--font-hand); font-size: 23px; color: var(--bad); }
+.jrc-res .small { margin: 4px 0 0; }
+.jrc-legende { display: flex; flex-wrap: wrap; gap: 6px 14px; font-family: var(--font-geist); font-size: 13px; color: var(--ink-soft); }
+.jrc-legende span { display: inline-flex; gap: 6px; align-items: center; }
+.jrc-legende i { width: 14px; height: 14px; border-radius: 50%; background: var(--c); border: 1px solid rgba(0, 0, 0, .25); display: inline-block; }
+.jrc-legende code { font-size: 12px; }
+.jrc-mini { display: inline-flex; gap: 10px; align-items: center; margin-top: 10px; padding: 10px 14px; border-radius: 12px; background: #1f6b3c; }
+.jrc-mini .jrc-etat { width: 12px; height: 12px; }
+.jrc-led-mini { position: relative; width: 30px; height: 30px; border-radius: 50%; background: #ded6cc; border: 2px solid #f4f1ea; display: grid; place-items: center; }
+.jrc-led-mini[data-on="1"] { background: var(--c); box-shadow: 0 0 12px 2px var(--c); }
+.jrc-led-mini i { font: 600 11px/1 var(--font-geist); font-style: normal; color: rgba(0, 0, 0, .55); }
+.jrc-etat { width: 16px; height: 16px; border-radius: 50%; background: #3d5a46; border: 2px solid #f4f1ea; display: inline-block; flex: none; }
+.jrc-etat.on { background: #22c55e; box-shadow: 0 0 10px 2px rgba(34, 197, 94, .8); }
+.jrc-carte { background: #1f6b3c; border-radius: 16px; padding: 16px 16px 14px; color: #f4f1ea; outline: none; max-width: 640px; }
+.jrc-carte:focus-visible { box-shadow: 0 0 0 3px rgba(255, 111, 30, .55); }
+.jrc-haut { display: flex; gap: 10px; align-items: center; font-family: var(--font-geist); font-size: 14px; }
+.jrc-buzz { margin-left: auto; font-family: var(--font-hand); font-size: 22px; color: #ffd27a; min-width: 90px; text-align: right; }
+.jrc-chrono { font: 500 16px/1 var(--font-mono); background: rgba(0, 0, 0, .25); padding: 6px 10px; border-radius: 8px; min-width: 86px; text-align: right; }
+.jrc-postes { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin: 16px 0 12px; }
+.jrc-poste { display: grid; justify-items: center; gap: 12px; }
+.jrc-led { width: 34px; height: 34px; border-radius: 50%; background: #ded6cc; border: 3px solid #f4f1ea; transition: background .08s, box-shadow .08s; }
+.jrc-led[data-on="1"] { background: var(--c); box-shadow: 0 0 16px 4px var(--c); }
+.jrc-btn { width: min(70px, 17vw); aspect-ratio: 1; border-radius: 50%; border: 3px solid #171717; background: #f3ebe3; color: #171717; font: 600 20px/1 var(--font-geist); cursor: pointer; box-shadow: 0 5px 0 #0f3d22; touch-action: none; user-select: none; -webkit-user-select: none; }
+.jrc-btn.enfonce { transform: translateY(4px); box-shadow: 0 1px 0 #0f3d22; background: #e4d8cc; }
+.jrc-log { list-style: none; margin: 0; padding: 8px 10px; max-height: 150px; overflow: auto; background: rgba(0, 0, 0, .25); border-radius: 10px; font: 13px/1.5 var(--font-mono); color: #f4f1ea; }
+.jrc-log:empty::before { content: "journal de la carte : envoie une trame pour commencer"; opacity: .65; }
+.sae-fig img { width: 100%; height: auto; display: block; }
+.sae-steps { counter-reset: e; display: grid; gap: 14px; list-style: none; padding: 0; }
+.sae-steps > li { counter-increment: e; }
+.etape { border: 1.5px solid var(--ink); border-radius: var(--radius-cards); background: #fff; padding: 20px 22px; scroll-margin-top: calc(var(--header-h) + 16px); }
+.etape > * + * { margin-top: .75em; }
+.etape .e-head { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: baseline; }
+.etape .e-head .num { font-family: var(--font-hand); font-size: 34px; color: var(--accent); line-height: .9; }
+.etape .e-head h3 { margin: 0; font-size: 24px; }
+.etape .e-head .tag { margin-left: auto; }
+.prose .jrc-log li, .jrc-log li { font: 13px/1.5 var(--font-mono); margin: 0; color: #f4f1ea; }
+.sae-steps > li, .etape { min-width: 0; }
+.etape code { overflow-wrap: anywhere; }
+.etape .pseudo { white-space: pre; overflow-x: auto; }

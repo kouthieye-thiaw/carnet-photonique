@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SAÉ 5 · le jeu de rapidité collaboratif · carnet photonique</title>
+<meta name="description" content="SAÉ 5 du BUT3 GEII expliquée : la carte module joueur du JRC (ATmega328P, CY7C65213, boutons, LEDs RGB, buzzer), le dialogue par trames avec le PC, l'architecture logicielle en couches et le jeu A, avec modèle 3D et simulations.">
+<link rel="icon" href="../../assets/img/favicon.svg">
+<link rel="stylesheet" href="../../assets/css/carnet.css">
+<style>
+  article.prose { max-width: 900px; }
+  .prose section { scroll-margin-top: calc(var(--header-h) + 16px); }
+  .sae-nav { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; }
+  .sae-nav a { font-family: var(--font-geist); font-size: 14px; padding: 6px 12px; border: 1px solid var(--rule-strong); border-radius: var(--radius-tags); text-decoration: none; color: var(--ink); background: var(--paper); }
+  .sae-nav a:hover { border-color: var(--ink); }
+  .duo { display: grid; gap: 16px; grid-template-columns: 1fr; }
+  @media (min-width: 860px) { .duo { grid-template-columns: 1fr 1fr; } }
+</style>
+<script defer src="../../assets/js/site-map.js"></script>
+<script defer src="../../assets/js/carnet.js"></script>
+</head>
+<body data-notes="but3/sae5">
+<main>
+<div class="wrap">
+  <header class="tool-hero" style="position:relative">
+    <span class="tag soft">mes cours BUT3 · SAÉ 5</span>
+    <h1>le jeu de rapidité collaboratif</h1>
+    <span class="hand">toute la SAÉ 5, de la carte au jeu A</span>
+    <p class="lead">Un PC, jusqu'à quatre cartes « module joueur », des boutons, des LEDs de couleur et un buzzer : le JRC mesure le temps de réaction des joueurs. Cette page explique <mark>tout le projet</mark> — la carte bloc par bloc, le dialogue avec le PC, l'architecture du logiciel et le jeu A — avec ta carte en 3D et des simulations à manipuler. La page suivante te guide pour <a href="jeu-a.html">coder le jeu A toi-même</a>.</p>
+    <nav class="sae-nav" aria-label="dans cette page"><a href="#projet">le projet</a><a href="#carte">la carte</a><a href="#dialogue">le dialogue PC ↔ carte</a><a href="#logiciel">le logiciel en couches</a><a href="#jeu-a">le jeu A</a><a href="#tester">tester</a><a href="#jeu-b">et le jeu B ?</a><a href="jeu-a.html">coder le jeu A →</a></nav>
+    <span class="sticker" data-s="eclair" style="--r:10deg;top:30px;right:0"></span>
+  </header>
+
+  <figure class="fig sae-fig" style="margin-top:26px">
+    <div class="fig-inner" style="padding:0;background:#fdfbf9"><img src="../../assets/img/sae5-carte-jeu.webp" width="1200" height="760" alt="Rendu 3D de la carte module joueur : un PCB vert avec le connecteur USB-B, le convertisseur CY7C65213, le microcontrôleur ATmega328P, le quartz, le buzzer, quatre boutons et quatre LEDs RGB ; la LED 3 est rouge, les autres bleues." loading="lazy"></div>
+    <figcaption><b>Ta carte pendant un jeu A</b> (trame A314) : la LED 3 est rouge, les autres bleues, la LED d'état est éteinte (carte occupée). Modèle 3D réalisé avec Blender d'après le schéma KiCad ; la disposition des composants est une illustration, le routage du PCB n'étant pas fait.</figcaption>
+  </figure>
+
+  <article class="prose" style="margin-top:34px">
+    <section id="projet">
+      <h2><span class="n">1</span>le projet en une page</h2>
+      <p>Le JRC fonctionne comme une équipe avec <strong>un chef et des exécutants</strong>. Le <strong>module central</strong> est un PC avec écran et clavier : il choisit le jeu, les couleurs, le moment de lancer une partie, puis affiche les scores. Chaque <strong>module joueur</strong> est une carte comme la tienne ; le PC peut en piloter jusqu'à quatre. La carte attend un ordre, l'exécute, garde les résultats et les renvoie quand on les lui demande. <em>Elle ne prend jamais d'initiative.</em></p>
+      <figure class="fig">
+        <div class="fig-inner">
+          <svg viewBox="0 0 760 250" role="img" aria-label="Un PC relié par USB à quatre cartes module joueur ; les ordres descendent du PC vers les cartes, les résultats remontent sur demande.">
+            <g class="svg-ink"><rect x="20" y="70" width="170" height="110" rx="12"/><rect x="45" y="86" width="120" height="62" rx="6"/><path d="M80 190 L130 190 M105 180 L105 190"/></g>
+            <g class="svg-txt" text-anchor="middle"><text x="105" y="122">PC</text><text x="105" y="215">module central</text><text x="105" y="233" style="font-size:12px;fill:rgba(43,26,7,.62)">décide de tout</text></g>
+            <g class="svg-ink">
+              <rect x="560" y="12" width="180" height="46" rx="10"/><rect x="560" y="72" width="180" height="46" rx="10"/><rect x="560" y="132" width="180" height="46" rx="10"/><rect x="560" y="192" width="180" height="46" rx="10"/>
+              <path d="M190 110 C 360 110, 380 35, 560 35"/><path d="M190 118 C 360 118, 380 95, 560 95"/><path d="M190 126 C 360 126, 380 155, 560 155"/><path d="M190 134 C 360 134, 380 215, 560 215"/>
+            </g>
+            <g class="svg-txt" text-anchor="middle"><text x="650" y="40">module joueur 1</text><text x="650" y="100">module joueur 2</text><text x="650" y="160">module joueur 3</text><text x="650" y="220">module joueur 4</text></g>
+            <text class="svg-hand" x="375" y="62" text-anchor="middle">ordres : R, A314, B20, V1…</text>
+            <text class="svg-hand" x="380" y="205" text-anchor="middle">réponses : 412…</text>
+          </svg>
+        </div>
+        <figcaption><b>Figure 1 —</b> le PC est le maître, les cartes obéissent. Chaque carte apparaît sur le PC comme un port COM ; tout passe par des trames de texte à 115 200 bauds.</figcaption>
+      </figure>
+      <p>Ta mission dans la SAÉ : le <strong>module joueur</strong> — son schéma électronique (KiCad), puis le <strong>programme du microcontrôleur</strong> qui répond aux exigences du cahier des charges (CDC), et enfin les <strong>tests</strong> qui prouvent que tout marche. Tu y mobilises les quatre compétences du BUT GEII : concevoir (schéma, architecture), implanter (le programme sur la carte), vérifier (les tests) et maintenir (documenter pour qu'un autre puisse dépanner).</p>
+      <div class="box retiens"><p class="box-title">le vocabulaire de la SAÉ</p>
+        <ul>
+          <li><strong>CDC</strong> : cahier des charges, avec ses exigences nommées (EXIG_ALGORITHME_JEU_A, EXIG_TEMPS…).</li>
+          <li><strong>DDC</strong> : dossier de conception — l'architecture matérielle et logicielle.</li>
+          <li><strong>DDV</strong> : dossier de validation — une fiche de test par exigence : action, résultat attendu, résultat obtenu.</li>
+          <li><strong>trame</strong> : un court message texte (ASCII) terminé par CR LF, par exemple <code>A314</code>.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="carte">
+      <h2><span class="n">2</span>la carte, bloc par bloc</h2>
+      <p>Ton schéma est découpé en blocs — acquisition, traitement, action, énergie — autour du microcontrôleur. Fais tourner la carte, clique sur les étiquettes : chacune explique un composant de ton schéma.</p>
+      <div class="v3d" data-model="jrc">
+        <script type="application/json">{
+          "title": "la carte module joueur du JRC",
+          "intro": "Les composants viennent de ton schéma KiCad ; leur place sur la carte est une illustration. Les LEDs montrent la trame A314 : LED 3 rouge, les autres bleues.",
+          "view": [0.25, 0.95, 1.05],
+          "tour": ["hs_usb", "hs_cy7", "hs_mcu", "hs_quartz", "hs_boutons", "hs_leds", "hs_resistances", "hs_etat", "hs_buzzer", "hs_reset", "hs_connecteur"],
+          "hotspots": {
+            "hs_usb": {"t": "connecteur USB-B (J3)", "d": "Un seul câble pour deux choses : les 5 V qui alimentent toute la carte, et les données du PC."},
+            "hs_cy7": {"t": "CY7C65213 (IC3) : USB ↔ série", "d": "Il traduit l'USB en liaison série. Le PC voit un simple port COM ; le microcontrôleur ne voit que deux fils, RX (PD0) et TX (PD1), à 115 200 bauds. Rien à programmer côté USB."},
+            "hs_mcu": {"t": "ATmega328P (IC1)", "d": "Le cerveau : 32 ko de mémoire programme, 2 ko de RAM, 1 ko d'EEPROM. Il exécute ton programme à 16 MHz et se programme comme une Arduino Uno."},
+            "hs_quartz": {"t": "quartz 16 MHz (Y2)", "d": "Il cadence le microcontrôleur à ±50 ppm près (0,005 %) : le chronomètre du jeu est bien plus précis que les 0,1 % exigés par le CDC."},
+            "hs_boutons": {"t": "les 4 boutons de jeu (SW1 à SW4)", "d": "Un appui relie la broche au +5 V ; une résistance de 100 kΩ la tire vers la masse au repos. Appuyé = HIGH : pinMode(…, INPUT), jamais INPUT_PULLUP."},
+            "hs_leds": {"t": "les LEDs RGB de jeu (U1, U2, U3, U5)", "d": "Anode commune reliée au +5 V : une couleur s'allume quand sa broche est à LOW. Trois broches par LED, douze en tout."},
+            "hs_resistances": {"t": "une résistance par couleur", "d": "Rouge 2,2 kΩ, vert 6,8 kΩ, bleu 1,2 kΩ : des valeurs différentes pour équilibrer la luminosité. À courant égal, le vert paraît bien plus lumineux ; le bleu a une tension de seuil plus élevée."},
+            "hs_etat": {"t": "la LED d'état (U6)", "d": "Le voyant « prêt » : verte quand la carte attend un ordre, éteinte pendant un jeu. Broche A5 (PC5), allumée au niveau bas."},
+            "hs_buzzer": {"t": "le buzzer piézo (X1)", "d": "Commandé par la broche 9 (PB1, sortie OC1A) à travers un condensateur de 1 µF : 880 Hz pour un bon appui, 110 Hz pour une erreur."},
+            "hs_reset": {"t": "le bouton reset (S1)", "d": "Câblé sur la broche RESET : il redémarre la puce sans passer par le programme."},
+            "hs_connecteur": {"t": "le connecteur J1", "d": "RX, TX, RESET et GND : un accès direct à la liaison série et au reset. Les diodes BAT54S et le condensateur voisins transforment le signal DTR de l'USB en impulsion de reset."}
+          }
+        }</script>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>bloc</th><th>composants</th><th>son rôle</th></tr></thead>
+        <tbody>
+          <tr><td><strong>énergie</strong></td><td>USB-B (J3), condensateurs de découplage</td><td>le 5 V du câble USB alimente directement toute la carte</td></tr>
+          <tr><td><strong>liaison</strong></td><td>CY7C65213 (IC3)</td><td>USB côté PC, série RX/TX côté microcontrôleur, à 115 200 bauds</td></tr>
+          <tr><td><strong>traitement</strong></td><td>ATmega328P (IC1), quartz 16 MHz (Y2)</td><td>exécute le programme ; EEPROM pour le numéro de série</td></tr>
+          <tr><td><strong>acquisition</strong></td><td>4 boutons (SW1–SW4) + 100 kΩ, bouton reset (S1)</td><td>appuyé = 5 V sur la broche ; le reset redémarre la puce</td></tr>
+          <tr><td><strong>action</strong></td><td>4 LEDs RGB + 12 résistances, LED d'état (U6), buzzer (X1)</td><td>montrer la LED à viser, signaler prêt/occupé, sonner bon/mauvais</td></tr>
+        </tbody>
+      </table></div>
+      <div class="box attention"><p class="box-title">les deux règles électriques à ne jamais oublier</p>
+        <ul>
+          <li><strong>LED allumée = LOW.</strong> Les LEDs sont à anode commune : le courant passe du +5 V vers la broche quand celle-ci est à 0.</li>
+          <li><strong>Bouton appuyé = HIGH.</strong> La carte a déjà ses résistances de rappel : <code>pinMode(…, INPUT)</code>, jamais <code>INPUT_PULLUP</code>.</li>
+        </ul>
+      </div>
+      <p>Un détail important du schéma : la ligne <strong>DTR</strong> du CY7C65213 est reliée au RESET (par un condensateur et deux diodes BAT54S). Résultat : <strong>chaque ouverture du port COM redémarre la carte</strong>. Le logiciel du PC doit donc attendre 1 à 2 secondes après l'ouverture avant d'envoyer sa première trame. C'est aussi ce qui permet de téléverser un programme depuis l'IDE Arduino, comme sur une Uno.</p>
+      <figure class="fig sae-fig">
+        <div class="fig-inner" style="padding:8px"><a href="../../assets/img/sae5-schema.webp" title="ouvrir le schéma en grand"><img src="../../assets/img/sae5-schema.webp" width="2400" height="1697" alt="Schéma électronique KiCad du module joueur, en quatre blocs : acquisition (boutons, reset, CY7C65213, USB), traitement (ATmega328P, quartz), action (quatre LEDs RGB et leurs résistances, buzzer) et énergie (LED d'état)." loading="lazy"></a></div>
+        <figcaption><b>Figure 2 —</b> ton schéma KiCad (clique pour l'agrandir). Repère les quatre blocs : acquisition en haut à gauche, traitement au centre, action à droite, énergie en bas.</figcaption>
+      </figure>
+    </section>
+
+    <section id="dialogue">
+      <h2><span class="n">3</span>le dialogue PC ↔ carte</h2>
+      <p>Le PC et la carte se parlent par de courtes <strong>trames de texte</strong> terminées par CR LF (retour chariot, saut de ligne). Quatre ordres suffisent :</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>trame</th><th>exemple</th><th>ce que fait la carte</th></tr></thead>
+        <tbody>
+          <tr><td><code>R</code></td><td><code>R</code></td><td>arrête le jeu, éteint les LEDs, remet les compteurs à 0</td></tr>
+          <tr><td><code>A n c1 c2</code></td><td><code>A314</code></td><td>jeu A : appuyer sur le bouton 3, sa LED en rouge, les autres en bleu</td></tr>
+          <tr><td><code>B c1 c2</code></td><td><code>B20</code></td><td>jeu B : 20 tirages, LED à viser en vert, les autres éteintes</td></tr>
+          <tr><td><code>V i</code></td><td><code>V1</code></td><td>renvoie une valeur : 0 numéro de série, 1 dernier temps (ms), 2 appuis incorrects, 3 appuis valides, 4 temps moyen</td></tr>
+        </tbody>
+      </table></div>
+      <p>Les couleurs tiennent sur <strong>3 bits</strong>, un par canal : 1 = rouge, 2 = vert, 4 = bleu. Les autres s'obtiennent en additionnant : 3 = jaune (rouge + vert), 5 = magenta, 6 = cyan, 7 = blanc, 0 = éteint. Le programme teste chaque bit avec un ET logique : <code>couleur &amp; 1</code>, <code>couleur &amp; 2</code>, <code>couleur &amp; 4</code>.</p>
+      <div class="lab" data-widget="jrc-trame">
+        <div class="lab-head"><h4>ce que la carte comprend</h4><span class="tag green">simulation</span></div>
+        <p class="small">Tape une trame ou choisis un exemple : la carte la découpe, convertit les chiffres, la vérifie, puis appelle le bon algorithme. Essaie aussi des trames fausses.</p>
+      </div>
+      <div class="box astuce"><p class="box-title">pourquoi « − '0' » ?</p><p>La trame arrive en texte : le caractère <code>'3'</code> vaut 51 en ASCII, pas 3. Comme les chiffres se suivent dans la table ASCII (<code>'0'</code> = 48), <code>trame[1] - '0'</code> fait 51 − 48 = 3 : c'est la conversion d'un chiffre écrit en nombre.</p></div>
+    </section>
+
+    <section id="logiciel">
+      <h2><span class="n">4</span>le logiciel en couches</h2>
+      <p>Le programme est rangé en <strong>quatre couches</strong>, et chaque couche n'appelle que celle du dessous. Les algorithmes disent « allume la LED 3 en rouge » ; seul le pilote sait que cela veut dire « mettre la broche 11 à LOW ».</p>
+      <figure class="fig">
+        <div class="fig-inner">
+          <svg viewBox="0 0 760 290" role="img" aria-label="Quatre couches empilées : programme principal, algorithmes, pilotes, matériel ; chaque couche appelle celle du dessous.">
+            <g class="svg-ink">
+              <rect x="60" y="14" width="640" height="54" rx="10"/><rect x="60" y="82" width="640" height="54" rx="10"/><rect x="60" y="150" width="640" height="54" rx="10"/><rect x="60" y="218" width="640" height="54" rx="10" fill="#f7efe9"/>
+            </g>
+            <g stroke="#ff6f1e" stroke-width="2.4" fill="none" stroke-linecap="round"><path d="M30 40 L30 248"/><path d="M24 238 L30 250 L36 238"/></g>
+            <g class="svg-txt"><text x="80" y="38" style="font-weight:600">programme principal</text><text x="80" y="57" style="font-size:12.5px;fill:rgba(43,26,7,.7)">setup() : ports, liaison série, AlgorithmeReset() · loop() : Algorithme() en boucle</text>
+              <text x="80" y="106" style="font-weight:600">algorithmes (les exigences du CDC)</text><text x="80" y="125" style="font-size:12.5px;fill:rgba(43,26,7,.7)">AlgorithmeReset · AlgorithmeJeuA · AlgorithmeJeuB · AlgorithmeInformation · TirerAuSort</text>
+              <text x="80" y="174" style="font-weight:600">pilotes (les seuls à toucher aux broches)</text><text x="80" y="193" style="font-size:12.5px;fill:rgba(43,26,7,.7)">PiloterLedJeu · PiloterLedEtat · PiloterBuzzer · AcquerirBoutonJeu · RecevoirTrame · EnvoyerTrame · LireChronometre</text>
+              <text x="80" y="242" style="font-weight:600">matériel</text><text x="80" y="261" style="font-size:12.5px;fill:rgba(43,26,7,.7)">broches, registres, USART, timers, EEPROM de l'ATmega328P</text></g>
+            <text class="svg-hand" x="22" y="282" text-anchor="start">appelle</text>
+          </svg>
+        </div>
+        <figcaption><b>Figure 3 —</b> l'architecture en couches. On teste chaque pilote seul sur la carte avant d'écrire les algorithmes ; si une broche change sur le PCB, seul le pilote est à modifier.</figcaption>
+      </figure>
+      <p>Le programme principal ne fait qu'une chose à la fois, mais d'autres ressources du microcontrôleur travaillent <strong>en parallèle</strong> grâce aux <dfn>interruptions</dfn> — le matériel met le programme en pause quelques microsecondes pour exécuter une petite fonction, puis le programme reprend là où il en était.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>besoin</th><th>architecture du dossier (C et registres)</th><th>dans ton sketch Arduino</th></tr></thead>
+        <tbody>
+          <tr><td>une base de temps de 1 ms</td><td>Timer2 + interruption toutes les 1 ms (et surveillance des boutons)</td><td><code>millis()</code>, tenu à jour par une interruption du Timer0</td></tr>
+          <tr><td>ne perdre aucun caractère reçu</td><td>USART0 + interruption qui range chaque caractère dans une file</td><td><code>Serial</code> : sa file de réception de 64 octets se remplit seule, même pendant un jeu</td></tr>
+          <tr><td>faire sonner le buzzer sans bloquer</td><td>Timer1, sortie OC1A (broche 9)</td><td><code>tone()</code> et <code>noTone()</code> : le son continue pendant que le programme surveille les boutons</td></tr>
+          <tr><td>garder le numéro de série hors tension</td><td>EEPROM</td><td><code>EEPROM.get()</code></td></tr>
+        </tbody>
+      </table></div>
+      <p class="small">Mêmes idées, deux façons de faire : le dossier décrit une version en C « registres », ton sketch utilise les fonctions Arduino qui font ce travail pour toi.</p>
+    </section>
+
+    <section id="jeu-a">
+      <h2><span class="n">5</span>le jeu A : un test de réaction</h2>
+      <p>Le jeu A mesure le temps de réaction sur <strong>un seul appui</strong>, avec une limite de 2 secondes (exigence EXIG_ALGORITHME_JEU_A). Pour la trame <code>A314</code>, la carte :</p>
+      <ol>
+        <li>éteint la LED d'état (elle est occupée) ;</li>
+        <li>allume la LED 3 en rouge (c1) et les trois autres en bleu (c2) ;</li>
+        <li>lance un chronomètre ;</li>
+        <li>tant qu'un <strong>mauvais</strong> bouton est appuyé : buzzer à 110 Hz, et un appui incorrect de plus ;</li>
+        <li>quand le <strong>bon</strong> bouton est appuyé : le chronomètre s'arrête, buzzer à 880 Hz tant que le bouton reste enfoncé ;</li>
+        <li>sans bon appui au bout de 2 s : le temps est figé à 2000 ms ;</li>
+        <li>range le temps dans <code>dernier_temps</code> et les erreurs dans <code>nb_appui_incorrect</code> ;</li>
+        <li>éteint les 4 LEDs de jeu et rallume la LED d'état.</li>
+      </ol>
+      <p>Le jeu A ne renvoie rien au PC : c'est la trame <code>V1</code> qui permet ensuite de lire <code>dernier_temps</code>, et <code>V2</code> le nombre d'appuis incorrects.</p>
+      <figure class="fig">
+        <div class="fig-inner">
+          <svg viewBox="0 0 760 520" role="img" aria-label="Algorigramme du jeu A : préparer, puis une boucle qui teste dans l'ordre trame R reçue, temps dépassé, bon bouton, mauvais bouton ; enfin ranger le temps et éteindre les LEDs.">
+            <defs><marker id="fl" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 L10 5 L0 10 z" fill="#171717"/></marker></defs>
+            <g class="svg-ink" marker-end="url(#fl)"><path d="M230 46 L230 66"/><path d="M230 126 L230 148"/><path d="M230 196 L230 218"/><path d="M230 266 L230 288"/><path d="M230 336 L230 358"/><path d="M230 406 L230 424"/></g>
+            <g class="svg-ink">
+              <rect x="150" y="10" width="160" height="36" rx="18"/>
+              <rect x="110" y="66" width="240" height="60" rx="8"/>
+              <path d="M230 148 L330 172 L230 196 L130 172 Z"/><path d="M230 218 L330 242 L230 266 L130 242 Z"/><path d="M230 288 L330 312 L230 336 L130 312 Z"/><path d="M230 358 L330 382 L230 406 L130 382 Z"/>
+              <rect x="110" y="424" width="240" height="64" rx="8"/>
+              <rect x="430" y="150" width="200" height="44" rx="8"/><rect x="430" y="220" width="200" height="44" rx="8"/><rect x="430" y="290" width="200" height="44" rx="8"/><rect x="430" y="360" width="200" height="44" rx="8"/>
+            </g>
+            <g class="svg-ink" marker-end="url(#fl)"><path d="M330 172 L428 172"/><path d="M330 242 L428 242"/><path d="M330 312 L428 312"/><path d="M330 382 L428 382"/></g>
+            <g class="svg-ink"><path d="M630 242 L700 242 L700 456 L352 456" marker-end="url(#fl)"/><path d="M630 312 L700 312"/><path d="M630 382 L660 382 L660 140 L230 140"/><path d="M230 406 L230 414 L80 414 L80 140 L228 140" marker-end="url(#fl)"/></g>
+            <g class="svg-txt" text-anchor="middle">
+              <text x="230" y="33">A314 reçue</text>
+              <text x="230" y="91">éteindre la LED d'état ; LED n en c1,</text><text x="230" y="110">les autres en c2 ; démarrer le chrono</text>
+              <text x="230" y="177">trame R reçue ?</text><text x="230" y="247">temps ≥ 2000 ms ?</text><text x="230" y="317">bon bouton n ?</text><text x="230" y="387">mauvais bouton ?</text>
+              <text x="530" y="177">quitter (Algorithme() fera le reset)</text>
+              <text x="530" y="247">t = 2000 ms</text>
+              <text x="530" y="306">buzzer 880 Hz jusqu'au</text><text x="530" y="323">relâchement</text>
+              <text x="530" y="376">+1 erreur ; buzzer 110 Hz</text><text x="530" y="393">jusqu'au relâchement</text>
+              <text x="230" y="450">dernier_temps = t ; LEDs de jeu éteintes ;</text><text x="230" y="470">LED d'état verte</text>
+            </g>
+            <g class="svg-txt" style="font-size:12.5px;fill:#ce500a"><text x="340" y="166">oui</text><text x="340" y="236">oui</text><text x="340" y="306">oui</text><text x="340" y="376">oui</text><text x="238" y="212">non</text><text x="238" y="282">non</text><text x="238" y="352">non</text><text x="88" y="408">non : on reboucle</text></g>
+            <text class="svg-hand" x="560" y="510" text-anchor="middle">trois tests à chaque tour, dans cet ordre</text>
+          </svg>
+        </div>
+        <figcaption><b>Figure 4 —</b> l'algorigramme du jeu A. La boucle tourne des milliers de fois par seconde ; l'ordre des tests compte : d'abord la trame R, puis le temps, puis le bon bouton, puis les mauvais.</figcaption>
+      </figure>
+      <div class="lab" data-widget="jrc-jeu-a">
+        <div class="lab-head"><h4>joue au jeu A</h4><span class="tag green">simulation</span></div>
+        <p class="small">La même logique que le programme de la carte, anti-rebond de 20 ms compris. Choisis la trame, envoie-la, puis appuie (clic, doigt, ou touches 1 à 4). Le son est désactivé par défaut.</p>
+      </div>
+      <figure class="fig">
+        <div class="fig-inner">
+          <svg viewBox="0 0 760 220" role="img" aria-label="Chronogramme de l'exemple A314 : erreur sur le bouton 2 vers 180 ms avec buzzer à 110 Hz, bon appui sur le bouton 3 à 412 ms avec buzzer à 880 Hz, fin du jeu au relâchement.">
+            <g class="svg-ink"><path d="M120 190 L740 190"/><path d="M120 186 L120 194 M244 186 L244 194 M368 186 L368 194 M492 186 L492 194 M616 186 L616 194 M740 186 L740 194"/></g>
+            <g class="svg-txt" text-anchor="middle" style="font-size:12px"><text x="120" y="208">0</text><text x="244" y="208">200</text><text x="368" y="208">400</text><text x="492" y="208">600 ms</text><text x="740" y="208">1000</text></g>
+            <g class="svg-txt" style="font-size:13px"><text x="10" y="34">LED d'état</text><text x="10" y="74">bouton 2</text><text x="10" y="114">bouton 3</text><text x="10" y="154">buzzer</text></g>
+            <path d="M120 22 L120 40 L470 40 L470 22 L740 22" stroke="#22c55e" stroke-width="3" fill="none"/>
+            <path d="M120 80 L232 80 L232 62 L306 62 L306 80 L740 80" stroke="#171717" stroke-width="2.2" fill="none"/>
+            <path d="M120 120 L375 120 L375 102 L468 102 L468 120 L740 120" stroke="#171717" stroke-width="2.2" fill="none"/>
+            <rect x="232" y="140" width="80" height="22" rx="4" fill="#ce500a" opacity=".85"/><rect x="375" y="140" width="94" height="22" rx="4" fill="#ff6f1e" opacity=".85"/>
+            <g class="svg-txt" style="font-size:12px;fill:#fff" text-anchor="middle"><text x="272" y="156">110 Hz</text><text x="422" y="156">880 Hz</text></g>
+            <path d="M375 92 L375 186" stroke="#ff6f1e" stroke-dasharray="4 4"/><text class="svg-hand" x="380" y="96">412 ms : dernier_temps</text>
+            <text class="svg-hand" x="236" y="56">erreur : +1</text>
+          </svg>
+        </div>
+        <figcaption><b>Figure 5 —</b> l'exemple de bout en bout : erreur sur le bouton 2 (son grave), bon appui sur le 3 à 412 ms (son aigu jusqu'au relâchement), puis la LED d'état redevient verte. Ensuite, <code>V1</code> répond 412 et <code>V2</code> répond 1.</figcaption>
+      </figure>
+      <div class="box terrain"><p class="box-title">pourquoi attendre 20 ms ?</p><p>Quand on appuie ou relâche un bouton mécanique, le contact s'ouvre et se ferme plusieurs fois pendant quelques millisecondes : ce sont les <strong>rebonds</strong>. Sans filtre, un seul appui sur un mauvais bouton compterait trois ou quatre erreurs. La carte considère donc un bouton comme relâché seulement après 20 ms sans contact.</p></div>
+    </section>
+
+    <section id="tester">
+      <h2><span class="n">6</span>tester et valider</h2>
+      <p>Le moniteur série de l'IDE Arduino joue le rôle du PC : réglé sur <strong>115 200 bauds</strong> et <strong>« Both NL &amp; CR »</strong> (sinon la carte ne voit jamais la fin de la trame), tu tapes les trames, la carte répond. Coche chaque test réussi : ce sont aussi les lignes de ta fiche de test EXIG_ALGORITHME_JEU_A pour le DDV (action, résultat attendu, résultat obtenu).</p>
+      <ul class="checklist" data-id="sae5-tests">
+        <li><input type="checkbox"><label>Au démarrage : LED d'état verte, les 4 LEDs de jeu éteintes.</label></li>
+        <li><input type="checkbox"><label><code>A314</code> : LED d'état éteinte, LED 3 rouge, LEDs 1, 2 et 4 bleues.</label></li>
+        <li><input type="checkbox"><label>Appui sur le bouton 3 : son aigu (880 Hz) tant qu'on appuie, puis LEDs éteintes et LED d'état verte.</label></li>
+        <li><input type="checkbox"><label><code>V1</code> : la carte répond le temps de réaction en ms, entre 0 et 2000.</label></li>
+        <li><input type="checkbox"><label><code>A314</code>, appui sur le 2 puis sur le 3 : son grave puis aigu ; <code>V2</code> répond 1.</label></li>
+        <li><input type="checkbox"><label><code>A314</code> sans toucher : au bout de 2 s tout s'éteint ; <code>V1</code> répond 2000.</label></li>
+        <li><input type="checkbox"><label>Bouton 1 maintenu pendant un jeu <code>A314</code> : son grave, puis fin du jeu à 2 s même sans relâcher.</label></li>
+        <li><input type="checkbox"><label><code>A314</code> puis <code>R</code> avant 2 s : le jeu s'arrête, tout s'éteint, LED d'état verte ; <code>V1</code> répond 0.</label></li>
+        <li><input type="checkbox"><label><code>A514</code> (le bouton 5 n'existe pas) : il ne se passe rien.</label></li>
+        <li><input type="checkbox"><label><code>A100</code> à <code>A170</code> : la LED 1 prend les 8 couleurs du CDC ; idem pour les LEDs 2, 3 et 4.</label></li>
+      </ul>
+      <p class="small">Si une LED montre la mauvaise couleur ou si un bouton ne réagit pas, compare d'abord ses broches au tableau du brochage : c'est presque toujours un numéro de broche inversé.</p>
+    </section>
+
+    <section id="jeu-b">
+      <h2><span class="n">7</span>et le jeu B ?</h2>
+      <p>La trame <code>B c1 c2</code> lance une série de <strong>20 tirages</strong> : à chaque tirage, une LED est tirée au sort (jamais deux fois la même d'affilée, c'est le rôle de <code>TirerAuSort(precedent)</code>), allumée en c1, les autres en c2. Le jeu B, lui, <strong>cumule</strong> les appuis valides et incorrects et calcule un temps moyen, que le PC lit avec <code>V3</code>, <code>V2</code> et <code>V4</code>. Il réutilise exactement les mêmes pilotes que le jeu A : c'est tout l'intérêt de l'architecture en couches. Vérifie les détails (durée, fin de partie) dans ton CDC avant de le coder.</p>
+    </section>
+
+    <div class="box retiens">
+      <p class="box-title">à retenir</p>
+      <ul>
+        <li>Le PC commande, la carte obéit : trames ASCII + CR LF à 115 200 bauds (R, A n c1 c2, B c1 c2, V i) ; ouvrir le port COM redémarre la carte (DTR → RESET).</li>
+        <li>CY7C65213 = USB ↔ série ; ATmega328P à 16 MHz programmé comme une Uno ; 4 boutons + 4 LEDs RGB + LED d'état + buzzer.</li>
+        <li>LED allumée = LOW (anode commune) ; bouton appuyé = HIGH (rappel de 100 kΩ, jamais INPUT_PULLUP).</li>
+        <li>Couleur sur 3 bits : 1 rouge, 2 vert, 4 bleu ; on teste avec couleur &amp; 1, &amp; 2, &amp; 4.</li>
+        <li>Quatre couches : principal → algorithmes → pilotes → matériel ; seuls les pilotes touchent aux broches.</li>
+        <li>Jeu A : à chaque tour, R ? puis temps ≥ 2 s ? puis bon bouton ? puis mauvais bouton ? ; anti-rebond de 20 ms ; résultats lus par V1 et V2.</li>
+      </ul>
+    </div>
+
+    <section class="quiz" data-quiz="but3-sae5" id="quiz">
+      <header><h3>quiz éclair</h3><span class="tag">7 questions</span></header>
+      <div class="q" data-a="b"><p>1. Pourquoi la carte redémarre-t-elle quand le PC ouvre le port COM ?</p><div class="opts">
+        <label><input type="radio" value="a"> c'est un bug du CY7C65213</label><label><input type="radio" value="b"> la ligne DTR est reliée au RESET</label><label><input type="radio" value="c"> l'USB coupe l'alimentation</label></div>
+        <p class="explain">C'est voulu : DTR provoque un reset (comme sur une Arduino Uno). Le PC doit attendre 1 à 2 s avant d'envoyer sa première trame.</p></div>
+      <div class="q" data-a="b"><p>2. Une couleur d'une LED de jeu s'allume quand sa broche est…</p><div class="opts">
+        <label><input type="radio" value="a"> à HIGH</label><label><input type="radio" value="b"> à LOW</label><label><input type="radio" value="c"> en entrée</label></div>
+        <p class="explain">Anode commune au +5 V : le courant passe quand la broche est à 0 V.</p></div>
+      <div class="q" data-a="c"><p>3. La trame A276 donne…</p><div class="opts">
+        <label><input type="radio" value="a"> LED 2 verte, les autres en bleu</label><label><input type="radio" value="b"> LED 7 en bleu</label><label><input type="radio" value="c"> LED 2 en blanc, les autres en cyan</label></div>
+        <p class="explain">n = 2, c1 = 7 (blanc), c2 = 6 (cyan = vert + bleu).</p></div>
+      <div class="q" data-a="a"><p>4. Le code couleur 5 correspond à…</p><div class="opts">
+        <label><input type="radio" value="a"> magenta (rouge + bleu)</label><label><input type="radio" value="b"> cyan (vert + bleu)</label><label><input type="radio" value="c"> jaune (rouge + vert)</label></div>
+        <p class="explain">5 = 4 + 1 = 101 en binaire : bleu et rouge allumés.</p></div>
+      <div class="q" data-a="b"><p>5. Après A314, le joueur ne touche à rien. Que répond V1 ?</p><div class="opts">
+        <label><input type="radio" value="a"> 0</label><label><input type="radio" value="b"> 2000</label><label><input type="radio" value="c"> rien, la carte reste bloquée</label></div>
+        <p class="explain">Sans bon appui au bout de 2 s, le temps est figé à 2000 ms.</p></div>
+      <div class="q" data-a="b"><p>6. Pourquoi attendre 20 ms sans contact avant de déclarer un bouton relâché ?</p><div class="opts">
+        <label><input type="radio" value="a"> pour économiser l'énergie</label><label><input type="radio" value="b"> pour filtrer les rebonds mécaniques du contact</label><label><input type="radio" value="c"> pour laisser le buzzer finir sa note</label></div>
+        <p class="explain">Sans anti-rebond, un seul appui compterait plusieurs erreurs.</p></div>
+      <div class="q" data-a="c"><p>7. Dans l'architecture, qui a le droit d'écrire digitalWrite ?</p><div class="opts">
+        <label><input type="radio" value="a"> AlgorithmeJeuA</label><label><input type="radio" value="b"> loop()</label><label><input type="radio" value="c"> seulement les pilotes</label></div>
+        <p class="explain">Les algorithmes appellent les pilotes ; si une broche change, on ne modifie que le pilote.</p></div>
+      <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+    </section>
+
+    <div class="pager" style="margin-top:34px;padding:0"><a class="prev" href="../index.html"><span class="k">← mes cours BUT3</span><span class="t">toutes mes pages du semestre 5</span></a><a class="next" href="jeu-a.html"><span class="k">page suivante →</span><span class="t">coder le jeu A, pas à pas</span></a></div>
+  </article>
+</div>
+</main>
+</body>
+</html>

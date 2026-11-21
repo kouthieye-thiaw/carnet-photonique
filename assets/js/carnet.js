@@ -35,7 +35,7 @@
   const allPages = [];
   MAP.modules.forEach(m => m.pages.forEach((p, i) => allPages.push({ ...p, module: m, index: i, file: p.id + ".html" })));
   const pageInfo = allPages.find(p => p.id === PAGE_ID);
-  const titleOf = id => { const p = allPages.find(x => x.id === id); if (p) return p.title; const t = MAP.tools.find(x => x.id === id); if (t) return t.title; return id === "general" ? "notes générales" : id; };
+  const titleOf = id => { const p = allPages.find(x => x.id === id); if (p) return p.title; const t = MAP.tools.find(x => x.id === id); if (t) return t.title; const b = (MAP.but3 || []).find(x => x.id === id); if (b) return b.title; return id === "general" ? "notes générales" : id; };
 
   function toast(msg) {
     let t = $(".toast"); if (!t) { t = h("div", { class: "toast", role: "status", "aria-live": "polite" }); body.appendChild(t); }
@@ -336,9 +336,21 @@
   /* ---------- code : coloration + bouton copier ---------- */
   const PY_KW = "False|None|True|and|as|assert|async|await|break|class|continue|def|del|elif|else|except|finally|for|from|global|if|import|in|is|lambda|nonlocal|not|or|pass|raise|return|try|while|with|yield|match|case";
   const PY_BI = "print|range|len|int|float|str|list|dict|set|tuple|abs|min|max|sum|open|round|enumerate|zip|isinstance|super|self|bool|sorted|any|all|map|filter|type|bytes|bytearray|hex|bin|repr|iter|next";
+  const C_KW = "void|int|char|const|static|unsigned|signed|long|short|float|double|bool|boolean|byte|uint8_t|uint16_t|uint32_t|int8_t|int16_t|int32_t|if|else|for|while|do|return|break|continue|switch|case|default|true|false|HIGH|LOW|INPUT|OUTPUT|INPUT_PULLUP|sizeof|struct|enum|typedef|volatile";
+  const C_BI = "digitalWrite|digitalRead|pinMode|tone|noTone|millis|micros|delay|Serial|EEPROM|utoa|itoa|random|randomSeed|analogRead|strcpy|strlen";
   function highlight(code, lang) {
     if (lang === "python" || lang === "py") {
       const re = new RegExp(`(#[^\\n]*)|((?:[rbfRBF]{0,2})(?:"""[\\s\\S]*?"""|'''[\\s\\S]*?'''|"(?:\\\\.|[^"\\\\\\n])*"|'(?:\\\\.|[^'\\\\\\n])*'))|(@[\\w.]+)|(\\b\\d[\\d_]*\\.?\\d*(?:[eE][+-]?\\d+)?j?\\b|\\b0x[0-9a-fA-F_]+\\b)|\\b(${PY_KW})\\b|\\b(${PY_BI})\\b|\\b([A-Za-z_]\\w*)(?=\\()`, "g");
+      let out = "", last = 0, m;
+      while ((m = re.exec(code))) {
+        out += esc(code.slice(last, m.index)); const t = esc(m[0]);
+        out += m[1] ? `<span class="tok-c">${t}</span>` : m[2] ? `<span class="tok-s">${t}</span>` : m[3] ? `<span class="tok-d">${t}</span>` : m[4] ? `<span class="tok-n">${t}</span>` : m[5] ? `<span class="tok-k">${t}</span>` : m[6] ? `<span class="tok-b">${t}</span>` : `<span class="tok-f">${t}</span>`;
+        last = m.index + m[0].length;
+      }
+      return out + esc(code.slice(last));
+    }
+    if (lang === "c" || lang === "cpp" || lang === "arduino") {
+      const re = new RegExp(`(\\/\\/[^\\n]*|\\/\\*[\\s\\S]*?\\*\\/)|("(?:\\\\.|[^"\\\\\\n])*"|'(?:\\\\.|[^'\\\\\\n])')|(^[ \\t]*#\\s*\\w+)|(\\b0x[0-9a-fA-F]+[uUlL]*\\b|\\b\\d+\\.?\\d*(?:[eE][+-]?\\d+)?[uUlLfF]*\\b)|\\b(${C_KW})\\b|\\b(${C_BI})\\b|\\b([A-Za-z_]\\w*)(?=\\s*\\()`, "gm");
       let out = "", last = 0, m;
       while ((m = re.exec(code))) {
         out += esc(code.slice(last, m.index)); const t = esc(m[0]);

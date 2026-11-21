@@ -136,6 +136,8 @@ window.CARNET_MAP = {
     { id: "labo", title: "labo python", file: "labo.html", sticker: "framboise", desc: "exercices python dans le navigateur, corrigés automatiquement." }
   ],
   but3: [
+    { id: "but3/sae5", title: "SAÉ 5 · le jeu de rapidité collaboratif", file: "but3/sae5/index.html", desc: "la carte module joueur en 3D, les trames, le logiciel en couches et le jeu A jouable." },
+    { id: "but3/sae5-jeu-a", title: "SAÉ 5 · coder le jeu A", file: "but3/sae5/jeu-a.html", desc: "le squelette du programme et dix étapes pour le coder toi-même, testées sur la carte." },
     { id: "but3/revision-s5", title: "révision S5 · maintenance & probas-stats", file: "but3/revision-s5-maintenance-maths.html", desc: "fiches de cours, TD corrigés, exercices d'annales." },
     { id: "but3/fiche-maintenance", title: "fiche maintenance S5", file: "but3/fiche-maintenance-s5.html", desc: "pièces de rechange, Wilson, point de commande, Weibull." },
     { id: "but3/cem", title: "CEM · révision interactive", file: "but3/cem/index.html", desc: "compatibilité électromagnétique : cours, exercices, labos." },
