@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>rayons, miroirs & lentilles · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="decouvrir/rayons-lentilles">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>rayons, miroirs &amp; lentilles</h1>
+    <span class="hand">les gestes de base, en douceur</span>
+    <p class="lead">Réfléchir, plier, concentrer, rendre parallèle : avec deux lois et trois rayons, tu sais prévoir ce que fait n'importe quelle lentille. Et tu comprends les deux gestes que tu feras toute ta carrière : <mark>collimater et focaliser</mark>.</p>
+    <span class="sticker" data-s="etoile" style="--r:10deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>prévoir le trajet d'un rayon : réflexion, réfraction, réflexion totale ;</li>
+          <li>reconnaître une lentille convergente ou divergente et définir sa focale ;</li>
+          <li>trouver l'image donnée par une lentille avec trois rayons, puis avec une formule ;</li>
+          <li>collimater et focaliser un faisceau, et expliquer un élargisseur de faisceau ;</li>
+          <li>estimer les pertes d'une surface non traitée et pourquoi les réflexions gênent un laser.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>tout droit… jusqu'à la frontière</h2>
+      <p>Dans un milieu uniforme, la lumière va en ligne droite. À la frontière entre deux milieux (air et verre, par exemple), elle se partage : une partie est <strong>réfléchie</strong>, comme une balle sur un mur, et le reste entre dans le second milieu en changeant de direction : c'est la <dfn data-g="refraction">réfraction</dfn>.</p>
+      <figure class="fig">
+        <div class="fig-inner">
+          <svg viewBox="0 0 760 230" role="img" aria-label="Un rayon arrive sur une surface air-verre : une partie est réfléchie avec le même angle, une partie est réfractée en se rapprochant de la normale.">
+            <rect x="0" y="120" width="760" height="110" fill="#bfe0ff" opacity=".35"/>
+            <path class="svg-ink" d="M0 120 L760 120"/>
+            <path class="svg-ink" d="M380 20 L380 220" stroke-dasharray="5 5"/>
+            <g stroke="#e2372b" stroke-width="3" fill="none" stroke-linecap="round"><path d="M230 30 L380 120"/><path d="M380 120 L455 165 L500 192"/></g>
+            <path d="M380 120 L530 30" stroke="#e2372b" stroke-width="1.8" fill="none" opacity=".55"/>
+            <g class="svg-txt"><text x="190" y="24">rayon incident</text><text x="520" y="24">rayon réfléchi (même angle)</text><text x="505" y="210">rayon réfracté</text><text x="20" y="110">air, n = 1</text><text x="20" y="145">verre, n = 1,5</text><text x="388" y="36">normale</text></g>
+            <text class="svg-hand" x="330" y="96">θ₁</text><text class="svg-hand" x="392" y="178">θ₂ &lt; θ₁</text>
+          </svg>
+        </div>
+        <figcaption><b>Figure 1 —</b> les angles se mesurent toujours par rapport à la <b>normale</b> (la perpendiculaire à la surface). En entrant dans le verre, plus « lent », le rayon se rapproche de la normale.</figcaption>
+      </figure>
+      <p>Pourquoi le rayon plie-t-il ? Image classique : une voiture qui passe en biais du bitume au sable. La roue qui touche le sable en premier ralentit d'abord, la voiture pivote. La lumière fait pareil en entrant dans un milieu où elle va moins vite (d'<dfn data-g="indice-refraction">indice</dfn> plus grand). Une seule loi décrit tout cela :</p>
+      <div class="formule">
+        <span class="f-name">loi de Snell-Descartes</span>
+        <div class="f-eq">\[ n_1\sin\theta_1 = n_2\sin\theta_2 \]</div>
+        <div class="f-where"><b>n₁, n₂</b> indices des deux milieux (air 1, eau 1,33, verre ≈ 1,5) · <b>θ₁, θ₂</b> angles par rapport à la normale.</div>
+      </div>
+      <div class="lab" data-widget="snell">
+        <div class="lab-head"><h4>un rayon à travers une interface</h4><span class="tag green">simulation</span></div>
+        <p class="small">Commence par air → verre et augmente l'angle : le rayon réfracté plie toujours moins que l'incident. Puis passe en verre → air et dépasse 42° : que devient le rayon réfracté ?</p>
+      </div>
+
+      <h2><span class="n">2</span>la réflexion totale : le piège qui guide</h2>
+      <p>Quand la lumière va d'un milieu <strong>plus</strong> réfringent vers un milieu <strong>moins</strong> réfringent (verre → air), le rayon réfracté s'écarte de la normale. Au-delà d'un angle limite, l'<strong>angle critique</strong>, il ne peut plus sortir : 100 % de la lumière est réfléchie, sans aucun miroir. C'est la <dfn data-g="reflexion-totale">réflexion totale interne</dfn> — l'éclat d'un diamant, les prismes des jumelles, et surtout <strong>le principe de la fibre optique</strong>.</p>
+      <div class="formule">
+        <span class="f-name">angle critique</span>
+        <div class="f-eq">\[ \sin\theta_c = \frac{n_2}{n_1} \qquad (n_1 > n_2) \]</div>
+        <div class="f-where">Verre (1,5) vers air : θ<sub>c</sub> ≈ 41,8°. Plus l'écart d'indice est grand, plus θ<sub>c</sub> est petit.</div>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>l'eau vers l'air</h4></div>
+        <p>Une lampe au fond d'une piscine (eau, n = 1,333). Au-delà de quel angle d'incidence la lumière ne sort-elle plus de l'eau ?</p>
+        <div class="check-row" data-answer="48.6" data-tol="0.005" data-hint="arcsin(1/1,333)">
+          <input type="text" inputmode="decimal" placeholder="°" aria-label="angle critique en degrés"><span>°</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">3</span>deux familles de lentilles</h2>
+      <p>Une lentille, c'est un morceau de verre aux faces courbes : chaque rayon la traverse en subissant deux réfractions. Si elle est plus épaisse au centre, elle fait <strong>converger</strong> les rayons ; plus épaisse au bord, elle les fait <strong>diverger</strong>.</p>
+      <figure class="fig">
+        <div class="fig-inner">
+          <svg viewBox="0 0 760 200" role="img" aria-label="Des rayons parallèles traversent une lentille convergente et se croisent au foyer F' situé à la distance focale f.">
+            <path class="svg-ink" d="M20 100 L740 100" stroke-dasharray="6 5" opacity=".5"/>
+            <path d="M300 20 Q 330 100 300 180 Q 270 100 300 20 Z" fill="#bfe0ff" fill-opacity=".45" stroke="#3b82f6" stroke-width="2"/>
+            <g stroke="#e2372b" stroke-width="2.4" fill="none"><path d="M40 50 L300 50 L520 100 L700 141"/><path d="M40 75 L300 75 L520 100 L700 120"/><path d="M40 100 L700 100"/><path d="M40 125 L300 125 L520 100 L700 80"/><path d="M40 150 L300 150 L520 100 L700 59"/></g>
+            <circle cx="520" cy="100" r="5" fill="#171717"/>
+            <path class="svg-ink" d="M300 186 L520 186"/><path class="svg-ink" d="M300 180 L300 192 M520 180 L520 192"/>
+            <g class="svg-txt"><text x="528" y="92">F'</text><text x="395" y="180" text-anchor="middle">focale f</text><text x="40" y="30">faisceau parallèle</text></g>
+            <text class="svg-hand" x="600" y="34">tout passe par le foyer</text>
+          </svg>
+        </div>
+        <figcaption><b>Figure 2 —</b> une lentille convergente concentre un faisceau parallèle en son <b>foyer image F'</b>. La distance lentille–foyer est la <b>focale f</b>.</figcaption>
+      </figure>
+      <p>La <dfn data-g="focale">focale</dfn> f caractérise la lentille : courte focale = lentille « forte ». Les opticiens parlent plutôt de <strong>vergence</strong>, l'inverse de la focale en mètres, en dioptries : une lentille de 100 mm vaut 10 dioptries. Deux lentilles accolées ? Leurs vergences s'additionnent.</p>
+
+      <h2><span class="n">4</span>trouver l'image avec trois rayons</h2>
+      <p>Pour savoir où une lentille forme l'image d'un objet, inutile de suivre tous les rayons : trois suffisent, et leurs règles sont simples.</p>
+      <ol>
+        <li>Un rayon <strong>parallèle à l'axe</strong> ressort en passant par le foyer F'.</li>
+        <li>Un rayon qui passe par le <strong>centre</strong> de la lentille n'est pas dévié.</li>
+        <li>Un rayon qui passe par le <strong>foyer objet F</strong> ressort parallèle à l'axe.</li>
+      </ol>
+      <p>Là où ils se croisent, il y a l'image. Si l'objet est plus près de la lentille que F, les rayons ne se croisent plus après la lentille : c'est leur prolongement qui se croise, avant — on obtient une image <em>virtuelle</em>, droite et agrandie : une loupe.</p>
+      <div class="lab" data-widget="lentille">
+        <div class="lab-head"><h4>l'image d'une lentille, rayon par rayon</h4><span class="tag green">simulation</span></div>
+        <p class="small">Rapproche l'objet du foyer : l'image s'éloigne et grandit. Place-le exactement au foyer, puis entre le foyer et la lentille. Note la position de l'image quand l'objet est à 2f.</p>
+      </div>
+      <div class="formule">
+        <span class="f-name">relation de conjugaison (forme « distances positives »)</span>
+        <div class="f-eq">\[ \frac{1}{d_o} + \frac{1}{d_i} = \frac{1}{f} \qquad\qquad G = -\frac{d_i}{d_o} \]</div>
+        <div class="f-where"><b>d<sub>o</sub></b> distance objet–lentille · <b>d<sub>i</sub></b> distance lentille–image (négative si l'image est virtuelle) · <b>G</b> grandissement : négatif = image renversée.</div>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>où est l'image ?</h4></div>
+        <p>Un objet est à 150 mm d'une lentille de focale 100 mm. À quelle distance derrière la lentille se forme l'image ?</p>
+        <div class="check-row" data-answer="300" data-tol="0.01" data-hint="1/dᵢ = 1/100 − 1/150">
+          <input type="text" inputmode="decimal" placeholder="mm" aria-label="distance de l'image en millimètres"><span>mm</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">5</span>collimater et focaliser : les deux gestes du métier</h2>
+      <p>Une diode laser émet un faisceau très divergent (10 à 40°). Pour en faire un faisceau parallèle, on place la puce exactement <strong>au foyer</strong> d'une lentille : les rayons ressortent parallèles — c'est la <dfn data-g="collimation">collimation</dfn>. À l'inverse, pour concentrer un faisceau parallèle (sur un détecteur, dans une fibre), on le fait passer par une lentille : il converge en F'. C'est la <strong>focalisation</strong>.</p>
+      <p>Pour agrandir un faisceau, on enchaîne deux lentilles qui partagent le même foyer : c'est l'<strong>élargisseur de Kepler</strong>. Le diamètre est multiplié par f₂/f₁, et la divergence divisée d'autant. Pourquoi agrandir ? Parce qu'un faisceau plus large se focalise ensuite en une tache plus petite, et diverge moins sur une longue distance.</p>
+      <div class="box terrain"><p class="box-title">sur le terrain : collimater une diode</p>
+        <ol>
+          <li>Diode allumée au plus faible courant utile, lunettes adaptées, faisceau dirigé vers un mur à quelques mètres (carte IR si invisible).</li>
+          <li>Déplace la lentille (souvent vissée dans un tube) par petits pas : la tache sur le mur rétrécit, passe par un minimum, puis regrossit.</li>
+          <li>Le bon réglage : la tache a <strong>la même taille</strong> à 30 cm et sur le mur au loin. Ensuite, on bloque la lentille (contre-écrou, colle).</li>
+          <li>La tache d'une diode reste elliptique : c'est normal, l'émission n'est pas symétrique (voir <a href="../lasers/diode-laser.html">la diode laser</a>).</li>
+        </ol>
+      </div>
+
+      <h2><span class="n">6</span>4 % par face : les pertes cachées</h2>
+      <p>Même un verre parfaitement transparent renvoie environ <strong>4 % de la lumière à chaque surface</strong> (air/verre). Une lentille non traitée en perd donc environ 8 %, un objectif de six lentilles près de 40 % ! D'où les <dfn data-g="traitement-ar">traitements antireflet</dfn>, qui descendent sous 0,5 % par face.</p>
+      <p>Pour un laser, ces réflexions ont un autre défaut : renvoyées dans la cavité, elles le perturbent (bruit, sauts de longueur d'onde). On incline légèrement les surfaces, on utilise des connecteurs de fibre polis en angle (APC) et, dans les cas sensibles, un <dfn data-g="isolateur">isolateur optique</dfn>.</p>
+      <div class="box attention"><p class="box-title">le réflexe sécurité</p><p>Chaque surface renvoie un peu de faisceau, souvent dans une direction inattendue. Avant d'allumer, cherche où partent les réflexions (carte IR) et bloque-les avec un écran mat : la plupart des accidents laser viennent d'un reflet, pas du faisceau principal.</p></div>
+
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Angles mesurés depuis la normale ; n₁ sin θ₁ = n₂ sin θ₂ ; en entrant dans un milieu plus réfringent, le rayon se rapproche de la normale.</li>
+          <li>Réflexion totale si n₁ &gt; n₂ et θ &gt; θ<sub>c</sub>, avec sin θ<sub>c</sub> = n₂/n₁ (verre/air : 41,8°) : c'est le principe de la fibre.</li>
+          <li>Trois rayons : parallèle → par F' ; par le centre → tout droit ; par F → parallèle. Formule : 1/d<sub>o</sub> + 1/d<sub>i</sub> = 1/f.</li>
+          <li>Source au foyer = faisceau collimaté ; faisceau parallèle = focalisé en F' ; élargisseur : D × f₂/f₁.</li>
+          <li>≈ 4 % réfléchis par surface non traitée ; les reflets perturbent les lasers et sont la première cause d'accident.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="decouvrir-lentilles">
+        <header><h3>quiz éclair</h3><span class="tag">5 questions</span></header>
+        <div class="q" data-a="a"><p>1. Un rayon passe de l'air dans le verre. Il…</p><div class="opts">
+          <label><input type="radio" value="a"> se rapproche de la normale</label><label><input type="radio" value="b"> s'écarte de la normale</label><label><input type="radio" value="c"> ne change pas de direction, quel que soit l'angle</label></div>
+          <p class="explain">Le verre est plus réfringent (n = 1,5) : θ₂ &lt; θ₁. (En incidence normale, θ = 0, il ne dévie pas.)</p></div>
+        <div class="q" data-a="c"><p>2. La réflexion totale interne se produit…</p><div class="opts">
+          <label><input type="radio" value="a"> de l'air vers le verre, sous tous les angles</label><label><input type="radio" value="b"> seulement avec un traitement métallique</label><label><input type="radio" value="c"> du verre vers l'air, au-delà de l'angle critique</label></div>
+          <p class="explain">Il faut aller vers un milieu moins réfringent (sin θ<sub>c</sub> = n₂/n₁ &lt; 1) et dépasser θ<sub>c</sub>.</p></div>
+        <div class="q" data-a="b"><p>3. Pour obtenir un faisceau parallèle à partir d'une diode, on place la puce…</p><div class="opts">
+          <label><input type="radio" value="a"> à deux focales de la lentille</label><label><input type="radio" value="b"> au foyer de la lentille</label><label><input type="radio" value="c"> collée contre la lentille</label></div>
+          <p class="explain">Une source au foyer objet donne des rayons parallèles en sortie : c'est la collimation.</p></div>
+        <div class="q" data-a="b"><p>4. Un objet est à 2f d'une lentille convergente. L'image est…</p><div class="opts">
+          <label><input type="radio" value="a"> à l'infini</label><label><input type="radio" value="b"> à 2f, renversée, de même taille</label><label><input type="radio" value="c"> virtuelle et agrandie</label></div>
+          <p class="explain">1/2f + 1/dᵢ = 1/f donne dᵢ = 2f, et G = −1.</p></div>
+        <div class="q" data-a="c"><p>5. Un élargisseur de faisceau associe une lentille de 50 mm puis une de 200 mm. Le faisceau sort…</p><div class="opts">
+          <label><input type="radio" value="a"> 4 fois plus petit</label><label><input type="radio" value="b"> de même diamètre, mais plus divergent</label><label><input type="radio" value="c"> 4 fois plus large et 4 fois moins divergent</label></div>
+          <p class="explain">Grandissement f₂/f₁ = 200/50 = 4 sur le diamètre ; la divergence est divisée par 4.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

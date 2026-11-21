@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>entraînement · carnet photonique</title>
+<meta name="description" content="52 types d'exercices de technicien opto-électronique aux valeurs tirées au sort, avec exemples résolus, entraînement mélangé et répétition espacée.">
+<link rel="icon" href="assets/img/favicon.svg">
+<link rel="stylesheet" href="assets/css/carnet.css">
+<script defer src="assets/js/site-map.js"></script>
+<script defer src="assets/js/carnet.js"></script>
+</head>
+<body data-notes="entrainement">
+<main>
+<div class="wrap">
+  <header class="tool-hero" style="position:relative">
+    <h1>entraînement</h1>
+    <span class="hand">des exercices neufs, à chaque fois</span>
+    <p class="lead">Les calculs que fait un technicien opto-électronique — optique, fibres, diodes laser, photodétection, électronique, régulation, mesure, sécurité — avec des <mark>valeurs tirées au sort</mark> : impossible de les apprendre par cœur, il faut savoir les faire. Chaque réussite revient plus tard, au bon moment.</p>
+    <span class="sticker" data-s="cle" style="--r:10deg;top:30px;right:0"></span>
+  </header>
+
+  <section class="section" style="margin-top:28px">
+    <div class="two-col">
+      <div class="box retiens">
+        <p class="box-title">comment ça marche</p>
+        <ol>
+          <li><strong>Exemple résolu</strong> : la première fois, tu lis une solution complète en te demandant pourquoi chaque étape est là.</li>
+          <li><strong>Exemple à compléter</strong> : la fois suivante, les premières étapes sont faites, tu termines.</li>
+          <li><strong>Seul</strong> : ensuite, énoncé nu. Deux réussites seules d'affilée = maîtrisé ; l'exercice revient alors de plus en plus tard.</li>
+        </ol>
+        <p class="small">Indique ta confiance avant de vérifier : une réussite « au hasard » revient vite, une réussite « sûre » s'éloigne.</p>
+      </div>
+      <div class="box terrain">
+        <p class="box-title">pourquoi mélanger les thèmes ?</p>
+        <p>En atelier, personne ne te dit « ceci est un exercice sur la loi de Snell ». En mode <strong>mélangé</strong>, tu dois d'abord <em>reconnaître</em> la relation à utiliser, puis calculer. C'est plus dur sur le moment, mais ce qu'on retient et ce qu'on sait réutiliser progressent nettement (<a href="methode.html#entremeler">entremêlement</a>).</p>
+        <p class="small">Découvre un nouveau type « un thème à la fois », puis repasse en mélangé dès que tu en connais deux ou trois.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="serie">
+    <div class="sec-head"><h2>lancer une série</h2><span class="hand sm">dix minutes suffisent</span></div>
+    <div class="chips" data-c="themes" role="group" aria-label="choisir les thèmes"></div>
+    <div class="train-cfg">
+      <label class="field">mode<select data-c="mode"><option value="melange">mélangé (recommandé)</option><option value="bloc">un thème à la fois (découverte)</option></select></label>
+      <label class="field">nombre d'exercices<select data-c="n"><option value="5">5</option><option value="10" selected>10</option><option value="20">20</option></select></label>
+      <button class="pill" type="button" data-c="go">commencer →</button>
+    </div>
+    <p class="small" data-c="info"></p>
+    <div data-c="player"></div>
+  </section>
+
+  <section class="section" id="catalogue">
+    <div class="sec-head"><h2>tous les exercices</h2><span class="hand sm">et où j'en suis</span></div>
+    <div data-c="catalogue"></div>
+  </section>
+</div>
+</main>
+<script type="module" src="assets/js/pages/entrainement-page.js"></script>
+</body>
+</html>

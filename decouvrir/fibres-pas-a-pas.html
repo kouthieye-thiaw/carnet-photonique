@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>les fibres optiques, pas à pas · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="decouvrir/fibres-pas-a-pas">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>les fibres optiques, pas à pas</h1>
+    <span class="hand">un fil de verre plus fin qu'un cheveu</span>
+    <p class="lead">La fibre transporte la lumière sur des kilomètres en perdant moins de 5 % par kilomètre. Pour un technicien, c'est un outil de tous les jours — et un objet fragile : <mark>une poussière de quelques microns suffit</mark> à ruiner une mesure ou à brûler un connecteur.</p>
+    <span class="sticker" data-s="fusee" style="--r:-10deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>expliquer pourquoi la lumière reste dans une fibre (cœur, gaine, réflexion totale, ouverture numérique) ;</li>
+          <li>choisir entre monomode et multimode, et lire « 9/125 » ou « 50/125 » sur un câble ;</li>
+          <li>reconnaître les connecteurs (FC, SC, LC ; UPC bleu, APC vert) et éviter l'erreur qui abîme tout ;</li>
+          <li>faire le bilan de puissance d'une liaison, en décibels ;</li>
+          <li>inspecter, nettoyer et mesurer une fibre, en sécurité.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>un tuyau pour la lumière</h2>
+      <p>Une fibre optique est un fil de silice (du verre très pur) fait de deux couches. Au centre, le <strong>cœur</strong>, d'indice un peu plus élevé ; autour, la <strong>gaine optique</strong>, d'indice un peu plus faible. Un rayon qui frappe la frontière sous un angle assez rasant est totalement réfléchi (<a href="rayons-lentilles.html">réflexion totale</a>), rebondit vers l'autre bord, et ainsi de suite sur des kilomètres.</p>
+      <figure class="fig">
+        <div class="fig-inner">
+          <svg viewBox="0 0 760 210" role="img" aria-label="Coupe longitudinale d'une fibre : un rayon rebondit entre le cœur et la gaine par réflexion totale. Un second rayon, trop incliné, sort du cœur.">
+            <rect x="20" y="40" width="720" height="130" rx="8" fill="#f7efe9" stroke="#171717" stroke-width="1.5"/>
+            <rect x="20" y="85" width="720" height="40" fill="#bfe0ff" fill-opacity=".55" stroke="#3b82f6" stroke-width="1.2"/>
+            <path d="M0 115 L60 92 L150 125 L240 85 L330 125 L420 85 L510 125 L600 85 L690 125 L740 106" stroke="#e2372b" stroke-width="2.6" fill="none" stroke-linejoin="round"/>
+            <path d="M0 70 L60 100 L105 125 L150 160 L175 185" stroke="#e2372b" stroke-width="1.8" fill="none" stroke-dasharray="5 4" opacity=".7"/>
+            <g class="svg-txt"><text x="610" y="78">gaine (n₂ un peu plus petit)</text><text x="610" y="148">cœur (n₁)</text></g>
+            <text class="svg-hand" x="190" y="200">trop incliné : il s'échappe</text>
+            <text class="svg-hand" x="330" y="30">guidé par réflexion totale</text>
+          </svg>
+        </div>
+        <figcaption><b>Figure 1 —</b> les rayons qui entrent dans le cône d'acceptance restent piégés ; les autres fuient dans la gaine. Dans la réalité, l'écart d'indice est minuscule (environ 0,4 %).</figcaption>
+      </figure>
+      <p>Les rayons n'entrent dans la fibre que s'ils arrivent dans un cône assez étroit : son demi-angle est fixé par l'<dfn data-g="ouverture-numerique">ouverture numérique</dfn> (ON), de 0,1 à 0,2 pour les fibres en silice. C'est pourquoi on injecte la lumière avec une lentille qui focalise le faisceau sur le cœur, sous un angle doux.</p>
+      <div class="formule">
+        <span class="f-name">ouverture numérique</span>
+        <div class="f-eq">\[ ON = \sin\theta_a = \sqrt{n_1^2 - n_2^2} \]</div>
+        <div class="f-where"><b>θ<sub>a</sub></b> demi-angle maximal d'entrée dans l'air · <b>n₁, n₂</b> indices du cœur et de la gaine. ON = 0,12 → θ<sub>a</sub> ≈ 7°.</div>
+      </div>
+      <div class="v3d" data-model="fibre">
+        <script type="application/json">{
+          "title": "une fibre monomode et son connecteur SC/APC",
+          "intro": "Une fibre dénudée comme avant une soudure. Le faisceau rouge animé représente la lumière guidée dans le cœur. Échelle exagérée pour la lisibilité : tourne autour, puis clique sur chaque étiquette.",
+          "view": [0.5, 0.45, 1.25],
+          "tour": ["hs_coeur", "hs_gaine_optique", "hs_revetement", "hs_tampon", "hs_aramide", "hs_gaine", "hs_connecteur", "hs_ferrule"],
+          "hotspots": {
+            "hs_coeur": {"t": "le cœur (8 à 9 µm)", "d": "Silice légèrement dopée, d'indice un peu plus élevé : c'est là que voyage la lumière. Environ dix fois plus fin qu'un cheveu."},
+            "hs_gaine_optique": {"t": "la gaine optique (125 µm)", "d": "Silice d'indice légèrement plus faible : elle assure la réflexion totale. Son diamètre de 125 µm est le même pour presque toutes les fibres, ce qui permet de les aligner dans les connecteurs et les soudeuses."},
+            "hs_revetement": {"t": "le revêtement (250 µm)", "d": "Polymère qui protège le verre des rayures et de l'humidité. Coloré pour identifier les fibres d'un câble. On le retire avant une soudure."},
+            "hs_tampon": {"t": "le tampon serré (900 µm)", "d": "Gaine plastique des cordons de brassage : elle facilite la manipulation et la pose des connecteurs."},
+            "hs_aramide": {"t": "les fils d'aramide", "d": "Fibres de renfort qui encaissent la traction : on ne tire jamais une fibre par le verre."},
+            "hs_gaine": {"t": "la gaine extérieure jaune", "d": "Jaune = monomode ; orange = multimode OM1/OM2 ; aqua = OM3/OM4. Respecte le rayon de courbure minimal (souvent 30 mm)."},
+            "hs_connecteur": {"t": "connecteur SC/APC (vert)", "d": "Vert = APC (poli en angle), bleu = UPC (poli droit). Jamais un APC face à un UPC."},
+            "hs_ferrule": {"t": "la ferrule polie à 8°", "d": "Cylindre de céramique qui centre la fibre au micron près. Toute poussière ici = pertes, voire brûlure : inspecter et nettoyer avant chaque connexion."}
+          }
+        }</script>
+      </div>
+
+      <h2><span class="n">2</span>monomode ou multimode ?</h2>
+      <p>Tout dépend de la taille du cœur. Dans un cœur large (50 ou 62,5 µm), la lumière peut suivre de nombreux chemins différents, appelés modes : c'est une fibre <dfn data-g="multimode">multimode</dfn>. Dans un cœur très fin (8 à 9 µm), un seul chemin est possible : fibre <dfn data-g="monomode">monomode</dfn>.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th></th><th>monomode (« 9/125 »)</th><th>multimode (« 50/125 », « 62,5/125 »)</th></tr></thead>
+        <tbody>
+          <tr><td>cœur / gaine</td><td>≈ 9 µm / 125 µm</td><td>50 ou 62,5 µm / 125 µm</td></tr>
+          <tr><td>couleur de la gaine</td><td>jaune</td><td>orange (OM1, OM2), aqua (OM3, OM4)</td></tr>
+          <tr><td>longueurs d'onde</td><td>1310, 1550 nm (lasers)</td><td>850 nm (VCSEL, LED)</td></tr>
+          <tr><td>distance typique</td><td>de quelques km à des milliers de km</td><td>quelques centaines de mètres</td></tr>
+          <tr><td>injecter la lumière</td><td>délicat : il faut viser un cœur de 9 µm</td><td>facile : grand cœur, grande ouverture</td></tr>
+        </tbody>
+      </table></div>
+      <p>Pourquoi le multimode ne va-t-il pas loin ? Les différents chemins n'ont pas la même longueur : une impulsion lumineuse arrive « étalée », et à haut débit les impulsions se mélangent. En monomode, ce problème disparaît.</p>
+
+      <h2><span class="n">3</span>les connecteurs : la ferrule fait tout</h2>
+      <p>Raccorder deux fibres, c'est aligner deux cœurs de 9 µm face à face, à moins d'un micron près. Le connecteur s'en charge grâce à sa <dfn data-g="ferrule">ferrule</dfn>, un petit cylindre de céramique percé au centre. Les formes les plus courantes : <strong>FC</strong> (vissé, en laboratoire), <strong>SC</strong> (carré, clipsé), <strong>LC</strong> (petit, clipsé, très courant en télécom et data centers).</p>
+      <p>La face de la ferrule est polie de deux façons. <strong>UPC</strong> (connecteur bleu) : face droite et bombée. <strong>APC</strong> (connecteur vert) : face inclinée de 8°, ce qui renvoie la petite réflexion hors du cœur. Les lasers et les mesures sensibles préfèrent l'<dfn data-g="apc-connecteur">APC</dfn>.</p>
+      <div class="box attention"><p class="box-title">l'erreur qui coûte cher</p><p>Ne jamais brancher un connecteur <strong>APC (vert)</strong> sur un <strong>UPC (bleu)</strong>. Les faces ne se touchent pas correctement : pertes de plusieurs dB, mesures fausses, et risque d'abîmer les deux faces — avec une ferrule à 200 € et un laser derrière.</p></div>
+
+      <h2><span class="n">4</span>les pertes, en décibels</h2>
+      <p>Une liaison se calcule en <a href="../maths/unites-db.html">décibels</a>, parce qu'ainsi toutes les pertes s'additionnent. Ordres de grandeur à connaître :</p>
+      <ul>
+        <li>fibre monomode : environ <strong>0,35 dB/km à 1310 nm</strong> et <strong>0,2 dB/km à 1550 nm</strong> ; multimode à 850 nm : 2 à 3 dB/km ;</li>
+        <li>une connexion propre : 0,2 à 0,5 dB ; une soudure par fusion (<dfn data-g="epissure">épissure</dfn>) : moins de 0,1 dB ;</li>
+        <li>une courbure trop serrée : de quelques dixièmes à plusieurs dB, surtout à 1550 nm.</li>
+      </ul>
+      <div class="formule">
+        <span class="f-name">bilan de liaison</span>
+        <div class="f-eq">\[ P_{\text{reçue}}\,[\text{dBm}] = P_{\text{émise}}\,[\text{dBm}] - \alpha L - \textstyle\sum \text{pertes} \]</div>
+        <div class="f-where"><b>α</b> atténuation en dB/km · <b>L</b> longueur en km. La liaison fonctionne si la puissance reçue dépasse la sensibilité du récepteur, avec une marge (souvent 3 dB) pour le vieillissement et les connecteurs sales.</div>
+      </div>
+      <div class="lab" data-widget="budget-fibre">
+        <div class="lab-head"><h4>la puissance le long de la liaison</h4><span class="tag green">simulation</span></div>
+        <p class="small">Allonge la fibre jusqu'à ce que la marge devienne insuffisante. Passe de 1550 à 1310 nm, puis au multimode à 850 nm : la portée change du tout au tout.</p>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>ton premier bilan</h4></div>
+        <p>Un émetteur injecte 0 dBm dans 20 km de fibre à 1550 nm (0,2 dB/km), avec 2 connecteurs à 0,5 dB et 2 soudures à 0,1 dB. Quelle puissance arrive au bout ?</p>
+        <div class="check-row" data-answer="-5.2" data-tol="0.005" data-abs="0.05" data-hint="0 − 20 × 0,2 − 2 × 0,5 − 2 × 0,1">
+          <input type="text" inputmode="decimal" placeholder="dBm" aria-label="puissance reçue en dBm"><span>dBm</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">5</span>les gestes : inspecter, nettoyer, mesurer</h2>
+      <p>La règle d'or, inscrite dans la norme IEC 61300-3-35 : <strong>inspecter, nettoyer, inspecter, connecter</strong>. Un microscope de connecteur montre la face de la ferrule ; la moindre poussière sur le cœur fait perdre de la lumière et, avec un laser de puissance, peut carboniser la face.</p>
+      <ul>
+        <li><strong>Nettoyer</strong> : stylo nettoyeur à cassette (« clic ») ou lingette non pelucheuse ; alcool isopropylique si la saleté est grasse, en finissant toujours à sec. Remettre les bouchons tout de suite.</li>
+        <li><strong>Mesurer une puissance</strong> : un <dfn data-g="puissance-metre">puissance-mètre</dfn> fibré, réglé sur la bonne longueur d'onde (sinon la lecture est fausse : voir <a href="mesurer-lumiere.html">mesurer la lumière</a>).</li>
+        <li><strong>Trouver un défaut</strong> : un localisateur visuel (laser rouge à 650 nm) fait briller une cassure ou une courbure serrée à travers la gaine. Sur une longue liaison, un <dfn data-g="otdr">réflectomètre (OTDR)</dfn> envoie des impulsions et analyse la lumière renvoyée pour localiser connecteurs, soudures et coupures, à quelques mètres près.</li>
+      </ul>
+      <div class="box attention"><p class="box-title">sécurité fibre</p>
+        <ul>
+          <li>Ne jamais regarder dans une fibre ou un connecteur, même si « rien n'est branché » : la lumière est souvent infrarouge et invisible.</li>
+          <li>Les éclats de fibre clivée sont presque invisibles et se plantent dans la peau : on les ramasse avec du ruban adhésif et on les jette dans un récipient dédié. Pas de nourriture sur le poste.</li>
+          <li>L'alcool isopropylique est inflammable : petite quantité, loin des sources de chaleur.</li>
+        </ul>
+      </div>
+      <div class="box terrain"><p class="box-title">sur le terrain</p><p>Dans un atelier de modules laser fibrés, une bonne partie des « pannes » vient de connecteurs sales ou mal accouplés. Avant de soupçonner le laser ou l'électronique, le réflexe du technicien : inspecter les deux faces, nettoyer, re-mesurer. Cinq minutes qui évitent des heures de diagnostic.</p></div>
+
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Cœur d'indice un peu plus élevé que la gaine (125 µm) ; guidage par réflexion totale ; ON = √(n₁² − n₂²), soit 0,1 à 0,2 en silice.</li>
+          <li>Monomode (jaune, cœur ≈ 9 µm, 1310/1550 nm, longues distances) ; multimode (orange/aqua, 50 ou 62,5 µm, 850 nm, courtes distances).</li>
+          <li>FC, SC, LC ; UPC bleu, APC vert (poli à 8°) ; jamais APC contre UPC.</li>
+          <li>En dB tout s'additionne : 0,35 dB/km à 1310, 0,2 dB/km à 1550 nm, connecteur 0,2–0,5 dB, soudure &lt; 0,1 dB ; garder ≈ 3 dB de marge.</li>
+          <li>Inspecter, nettoyer, inspecter, connecter ; ne jamais regarder dans une fibre ; éclats ramassés au ruban adhésif.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="decouvrir-fibres">
+        <header><h3>quiz éclair</h3><span class="tag">5 questions</span></header>
+        <div class="q" data-a="b"><p>1. Dans une fibre, la lumière reste dans le cœur grâce…</p><div class="opts">
+          <label><input type="radio" value="a"> à un revêtement métallique miroir</label><label><input type="radio" value="b"> à la réflexion totale, car le cœur a un indice un peu plus élevé que la gaine</label><label><input type="radio" value="c"> à l'absorption de la gaine</label></div>
+          <p class="explain">n₁ (cœur) &gt; n₂ (gaine) : au-delà de l'angle critique, tout est réfléchi.</p></div>
+        <div class="q" data-a="c"><p>2. Un câble jaune marqué « 9/125 » est…</p><div class="opts">
+          <label><input type="radio" value="a"> un multimode de 9 mm</label><label><input type="radio" value="b"> un multimode pour 850 nm</label><label><input type="radio" value="c"> un monomode : cœur ≈ 9 µm, gaine 125 µm</label></div>
+          <p class="explain">Jaune et cœur de 9 µm : monomode, fait pour 1310 et 1550 nm.</p></div>
+        <div class="q" data-a="a"><p>3. Tu as un cordon vert (APC) et une traversée bleue (UPC). Tu…</p><div class="opts">
+          <label><input type="radio" value="a"> ne les connectes pas : il te faut le bon cordon</label><label><input type="radio" value="b"> les connectes en serrant fort</label><label><input type="radio" value="c"> les connectes, la perte sera juste un peu plus grande</label></div>
+          <p class="explain">APC contre UPC : contact imparfait, pertes et faces abîmées. On ne mélange jamais.</p></div>
+        <div class="q" data-a="b"><p>4. Pourquoi calcule-t-on les liaisons en dB ?</p><div class="opts">
+          <label><input type="radio" value="a"> parce que c'est plus précis que les milliwatts</label><label><input type="radio" value="b"> parce que les pertes successives s'additionnent au lieu de se multiplier</label><label><input type="radio" value="c"> parce que les fibres ne laissent passer que des dB</label></div>
+          <p class="explain">Une suite de rapports se multiplie ; en logarithme, elle s'additionne : P<sub>reçue</sub> = P<sub>émise</sub> − pertes.</p></div>
+        <div class="q" data-a="c"><p>5. Avant de connecter une fibre à un laser, la bonne séquence est…</p><div class="opts">
+          <label><input type="radio" value="a"> connecter, puis nettoyer si la puissance est faible</label><label><input type="radio" value="b"> souffler dessus pour enlever la poussière</label><label><input type="radio" value="c"> inspecter, nettoyer, inspecter, connecter</label></div>
+          <p class="explain">C'est la règle de la norme IEC 61300-3-35. Souffler dépose de l'humidité et des particules.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

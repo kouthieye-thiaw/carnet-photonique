@@ -5,15 +5,26 @@
 window.CARNET_MAP = {
   owner: {
     name: "Kouthieye Thiaw",
-    role: "étudiant BUT3 GEII · technicien laser & photonique en devenir",
+    role: "étudiant BUT3 GEII · futur technicien opto-électronique",
     carnet: "n° 01",
     github: "https://github.com/kouthieye-thiaw"
   },
   site: {
     title: "carnet photonique",
-    purpose: "bibliothèque d'apprentissage et de développement de compétences : lasers, amplificateurs optiques, électronique d'intégration, maintenance — et un banc de test laser sur Raspberry Pi à construire soi-même."
+    purpose: "bibliothèque d'apprentissage et de développement de compétences pour devenir technicien opto-électronique : optique, lasers, amplificateurs, électronique d'intégration, maintenance — avec des méthodes d'apprentissage validées par la recherche, et un banc de test laser sur Raspberry Pi à construire soi-même."
   },
   modules: [
+    {
+      id: "decouvrir", num: "00", title: "l'optique en partant de zéro", sticker: "etoile",
+      desc: "la lumière sans formules, rayons et lentilles, fibres pas à pas, mesurer la lumière : les bases pour démarrer sans prérequis.",
+      img: "assets/img/mod-decouvrir.webp",
+      pages: [
+        { id: "decouvrir/lumiere-sans-formules", title: "la lumière, sans formules", min: 30 },
+        { id: "decouvrir/rayons-lentilles", title: "rayons, miroirs & lentilles", min: 40 },
+        { id: "decouvrir/fibres-pas-a-pas", title: "les fibres optiques, pas à pas", min: 40 },
+        { id: "decouvrir/mesurer-lumiere", title: "mesurer la lumière", min: 35 }
+      ]
+    },
     {
       id: "maths", num: "01", title: "les maths utiles", sticker: "pi",
       desc: "décibels, exponentielles, complexes, équations différentielles, Fourier, incertitudes : juste ce qu'il faut, appliqué au laser.",
@@ -114,8 +125,12 @@ window.CARNET_MAP = {
     }
   ],
   tools: [
+    { id: "seance", title: "ma séance du jour", file: "seance.html", sticker: "eclair", desc: "20 à 40 min guidées : révisions espacées, entraînement, nouvelle leçon, bilan." },
+    { id: "parcours", title: "mon parcours", file: "parcours.html", sticker: "fusee", desc: "devenir technicien opto-électronique : étapes, liens GEII, compétences." },
+    { id: "methode", title: "la méthode", file: "methode.html", sticker: "fantome", desc: "apprendre vite et pour longtemps : ce que la recherche a prouvé." },
+    { id: "entrainement", title: "entraînement", file: "entrainement.html", sticker: "cle", desc: "52 types d'exercices tirés au sort, mélangés, corrigés pas à pas." },
     { id: "carnet", title: "mon carnet de notes", file: "carnet.html", sticker: "coeur", desc: "toutes tes notes, ton journal de bord, export en markdown." },
-    { id: "fiches", title: "fiches de révision", file: "fiches.html", sticker: "etoile", desc: "cartes recto-verso avec répétition espacée (boîtes de Leitner)." },
+    { id: "fiches", title: "fiches de révision", file: "fiches.html", sticker: "etoile", desc: "cartes recto-verso avec répétition espacée (7 boîtes de Leitner)." },
     { id: "formulaire", title: "le formulaire", file: "formulaire.html", sticker: "pi", desc: "toutes les formules clés, avec unités et ordres de grandeur." },
     { id: "glossaire", title: "glossaire fr / en", file: "glossaire.html", sticker: "photon", desc: "le vocabulaire du métier, en français et en anglais." },
     { id: "labo", title: "labo python", file: "labo.html", sticker: "framboise", desc: "exercices python dans le navigateur, corrigés automatiquement." }

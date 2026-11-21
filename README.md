@@ -1,8 +1,8 @@
 # carnet photonique
 
-**Kouthieye Thiaw** — technicien laser & photonique en devenir · BUT3 GEII
+**Kouthieye Thiaw** — futur technicien opto-électronique · BUT3 GEII
 
-Ma bibliothèque d'apprentissage et de développement de compétences : la physique du laser, les amplificateurs optiques, l'électronique qui fait vivre une diode laser, la maintenance des systèmes — et un **banc de test de diode laser piloté par une Raspberry Pi**, que je construis et que je programme moi-même en Python.
+Ma bibliothèque d'apprentissage et de développement de compétences pour devenir **technicien opto-électronique** : l'optique en partant de zéro, la physique du laser, les amplificateurs optiques, l'électronique qui fait vivre une diode laser, la maintenance des systèmes — avec des **méthodes d'apprentissage validées par la recherche**, et un **banc de test de diode laser piloté par une Raspberry Pi**, que je construis et que je programme moi-même en Python.
 
 **Le site : https://kouthieye-thiaw.github.io/carnet-photonique/**
 
@@ -10,6 +10,7 @@ Ma bibliothèque d'apprentissage et de développement de compétences : la physi
 
 | module | contenu |
 |---|---|
+| 00 · l'optique en partant de zéro | la lumière sans formules, rayons et lentilles, fibres optiques pas à pas, mesurer la lumière |
 | 01 · les maths utiles | décibels, exponentielles, complexes, équations différentielles, Fourier, statistiques et incertitudes |
 | 02 · la physique de la lumière | photon, optique géométrique et ondulatoire, polarisation, émission stimulée, semi-conducteurs, thermique |
 | 03 · le laser, en profondeur | principe, cavité et modes, faisceau gaussien, familles de lasers, diode laser, impulsions, accordabilité, sécurité |
@@ -20,7 +21,16 @@ Ma bibliothèque d'apprentissage et de développement de compétences : la physi
 
 Chaque leçon combine explications, schémas, **simulations interactives** (une quarantaine), **modèles 3D** réalisés avec Blender, exercices corrigés, quiz et encadrés « sur le terrain ».
 
-Les outils : **mon carnet** (notes de chaque leçon, journal de bord, export Markdown, sauvegarde), **fiches de révision** (répétition espacée), **formulaire**, **glossaire français / anglais** et **labo Python** (exercices exécutés dans le navigateur avec Pyodide). La section **mes cours BUT3** rassemble mes pages de révision du semestre 5 (maintenance, probabilités-statistiques, CEM).
+## apprendre vite, et pour longtemps
+
+Le carnet applique les méthodes d'apprentissage les mieux validées par la recherche (sources détaillées dans la page « la méthode ») :
+
+- **un cycle dans chaque leçon** : pré-test avant de lire, pauses rappel toutes les deux sections, rappel libre de mémoire comparé à l'essentiel, quiz avec niveau de confiance ;
+- **la séance du jour** : révisions espacées (questions de quiz, fiches, rappel des leçons à j+1, j+3, j+7, j+16, j+35, j+90), entraînement mélangé, nouvelle leçon du parcours, bilan dans le journal ; tableau de bord (régularité, prévisions, calibration de la confiance) ;
+- **l'entraînement** : 52 types d'exercices de technicien aux valeurs tirées au sort, avec exemple résolu → exemple à compléter → seul, et une étape « quelle relation utiliser ? » en mode mélangé ;
+- **mon parcours** : huit étapes pour devenir technicien opto-électronique, reliées aux cours du BUT GEII, avec une grille de compétences (auto-évaluation comparée aux résultats mesurés).
+
+Les outils : **ma séance du jour**, **mon parcours**, **la méthode**, **entraînement**, **mon carnet** (notes de chaque leçon, journal de bord, export Markdown, sauvegarde), **fiches de révision** (répétition espacée), **formulaire**, **glossaire français / anglais** et **labo Python** (exercices exécutés dans le navigateur avec Pyodide). La section **mes cours BUT3** rassemble mes pages de révision du semestre 5 (maintenance, probabilités-statistiques, CEM).
 
 Les notes, la progression et les scores restent dans le navigateur (stockage local) : rien n'est envoyé sur Internet. Pense à exporter une sauvegarde depuis « mon carnet ».
 
@@ -52,12 +62,13 @@ pytest                         # au départ, seuls les tests du simulateur passe
 
 ```
 index.html            accueil
-maths/ physique/ lasers/ amplis/ electronique/ systemes/ projet/   les leçons
-carnet.html fiches.html formulaire.html glossaire.html labo.html    les outils
+decouvrir/ maths/ physique/ lasers/ amplis/ electronique/ systemes/ projet/   les leçons
+seance.html parcours.html methode.html entrainement.html                       apprendre
+carnet.html fiches.html formulaire.html glossaire.html labo.html               les outils
 but3/                 pages de révision BUT3 (avec une barre de retour vers le carnet)
 assets/css/           charte graphique (carnet.css) et polices
-assets/js/            moteur du site (carnet.js), plan du site, visionneuse 3D, simulations (widgets/)
-assets/data/          glossaire, fiches, exercices du labo
+assets/js/            moteur du site (carnet.js), mémoire et révisions (memoire.js, apprendre.js, entrainement.js), plan du site, visionneuse 3D, simulations (widgets/)
+assets/data/          glossaire, fiches, exercices du labo, générateurs d'exercices, parcours
 assets/models/        modèles 3D (.glb)
 blender/              scripts Blender qui génèrent les modèles et les images
 projet-banc/          kit Python du banc de test

@@ -11,7 +11,7 @@
 <script defer src="assets/js/carnet.js"></script>
 <script defer src="assets/data/fiches.js"></script>
 <style>
-  .leitner { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; max-width: 640px; margin: 18px 0 8px; }
+  .leitner { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; max-width: 760px; margin: 18px 0 8px; }
   .leitner .bx { border: 1.5px solid var(--ink); border-radius: 12px; background: #fff; padding: 10px 8px 8px; text-align: center; font-family: var(--font-geist); }
   .leitner .bx b { display: block; font-family: var(--font-gelica); font-size: 28px; font-weight: 600; color: var(--color-cocoa-ink); line-height: 1.1; }
   .leitner .bx span { font-size: 12.5px; color: var(--ink-soft); }
@@ -23,6 +23,7 @@
   .fc-actions .pill { flex: 1 1 160px; justify-content: center; }
   .flashcard .face .txt b { color: var(--color-cocoa-ink); }
   @media (max-width: 560px) { .flashcard { height: 380px; } .flashcard .face { padding: 20px; } .flashcard .face .txt { font-size: 21px; } .flashcard .face.back .txt { font-size: 18px; } }
+  @media (max-width: 560px) { .leitner { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
 </style>
 </head>
 <body data-notes="fiches">
@@ -31,7 +32,7 @@
   <header class="tool-hero" style="position:relative">
     <h1>fiches de révision</h1>
     <span class="hand">un peu chaque jour, au bon moment</span>
-    <p class="lead">Les fiches que tu connais s'éloignent (boîte suivante : tu la reverras dans 1, 3, 7 puis 14 jours) ; celles que tu rates reviennent en boîte 1. C'est la <mark>répétition espacée</mark> : la façon la plus efficace de retenir à long terme.</p>
+    <p class="lead">Les fiches que tu connais s'éloignent (boîte suivante : tu la reverras dans 1, 3, 7, 16, 35 puis 90 jours) ; celles que tu rates reviennent en boîte 1. Elles sont aussi mêlées aux questions de quiz dans ta <a href="seance.html">séance du jour</a>. C'est la <mark>répétition espacée</mark> : la façon la plus efficace de retenir à long terme.</p>
     <span class="sticker" data-s="etoile" style="--r:12deg;top:30px;right:0"></span>
   </header>
 

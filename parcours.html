@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>mon parcours · carnet photonique</title>
+<meta name="description" content="Devenir technicien opto-électronique avec une formation GEII : le métier, les quatre pôles de compétences, une feuille de route en huit étapes reliée aux cours du BUT GEII, et une grille d'auto-positionnement.">
+<link rel="icon" href="assets/img/favicon.svg">
+<link rel="stylesheet" href="assets/css/carnet.css">
+<style>
+  .poles { display: grid; gap: 14px; grid-template-columns: 1fr; margin-top: 20px; }
+  @media (min-width: 760px) { .poles { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 1100px) { .poles { grid-template-columns: repeat(4, 1fr); } }
+  .pole { border: 1.5px solid var(--ink); border-radius: var(--radius-cards); background: #fff; padding: 18px 20px; }
+  .pole > * + * { margin-top: .55em; }
+  .pole h3 { margin: 0; font-size: 22px; }
+  .pole .geii { font-size: 14.5px; font-family: var(--font-geist); color: var(--ink-soft); border-top: 1px dashed var(--rule-strong); padding-top: 8px; }
+  .pole .geii b { color: var(--color-cocoa-ink); }
+  .pole ul { padding-left: 18px; }
+  .pole li { font-size: 16.5px; }
+  .phases { list-style: none; padding: 0; margin: 22px 0 0; display: grid; gap: 14px; }
+  .phase { border: 1.5px solid var(--ink); border-radius: var(--radius-cards); background: #fff; padding: 20px 22px; scroll-margin-top: calc(var(--header-h) + 16px); }
+  .phase > * + * { margin-top: .7em; }
+  .phase header { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: baseline; }
+  .phase header .num { font-family: var(--font-hand); font-size: 40px; color: var(--accent); line-height: .8; }
+  .phase header h3 { margin: 0; font-size: 26px; }
+  .phase header .progress { margin-left: auto; width: 140px; }
+  .phase .obj { font-size: 17.5px; margin: 0; }
+  .ph-cols { display: grid; gap: 16px; grid-template-columns: 1fr; }
+  @media (min-width: 900px) { .ph-cols { grid-template-columns: 1.3fr 1fr; } }
+  .ph-cols h5 { margin: 0 0 6px; font-family: var(--font-geist); font-size: 13.5px; text-transform: none; letter-spacing: .02em; color: var(--ink-soft); font-weight: 600; }
+  .ph-lecons { list-style: none; padding: 0; margin: 0; display: grid; gap: 4px; }
+  .ph-lecons li { display: flex; gap: 10px; align-items: baseline; font-size: 16.5px; }
+  .ph-lecons .rap { font-family: var(--font-geist); font-size: 12.5px; color: var(--ink-faint); margin-left: auto; white-space: nowrap; }
+  .ph-geii { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; font-size: 16px; }
+  .ph-geii li::before { content: "↔ "; color: var(--accent-deep); }
+  .preuve-box { background: var(--paper-2); border-radius: 10px; padding: 12px 14px; font-size: 16.5px; }
+  .preuve-box b { color: var(--color-cocoa-ink); }
+  .phase.courante { box-shadow: 0 0 0 3px rgba(255, 111, 30, .35); }
+  .comp-list { display: grid; gap: 12px; margin-top: 18px; }
+  .comp { border: 1px solid var(--rule-strong); border-radius: var(--radius-cards); background: #fff; padding: 16px 18px; display: grid; gap: 10px; grid-template-columns: 1fr; }
+  @media (min-width: 900px) { .comp { grid-template-columns: 1.1fr 1.2fr; align-items: center; } }
+  .comp h4 { margin: 0; font-size: 19px; }
+  .comp .d { margin: 4px 0 0; font-size: 15.5px; color: var(--ink-soft); }
+  .comp .pole-tag { font-family: var(--font-geist); font-size: 12.5px; color: var(--accent-deep); }
+  .niv { display: flex; flex-wrap: wrap; gap: 6px; }
+  .niv button { font: 500 13px/1.2 var(--font-geist); padding: 6px 10px; border: 1px solid var(--rule-strong); border-radius: var(--radius-tags); background: var(--paper); color: var(--ink); cursor: pointer; }
+  .niv button[aria-pressed="true"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+  .mesure { display: grid; grid-template-columns: 110px 1fr 48px; gap: 10px; align-items: center; font-family: var(--font-geist); font-size: 13.5px; color: var(--ink-soft); margin-top: 8px; }
+  .mesure .track { height: 10px; border-radius: 5px; background: var(--paper-2); border: 1px solid var(--rule); position: relative; }
+  .mesure .track i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 5px; background: var(--color-cocoa-ink); }
+  .ecart { font-size: 14px; color: var(--accent-deep); margin: 6px 0 0; }
+  .metier-grid { display: grid; gap: 16px; grid-template-columns: 1fr; }
+  @media (min-width: 860px) { .metier-grid { grid-template-columns: 1fr 1fr; } }
+</style>
+<script defer src="assets/js/site-map.js"></script>
+<script defer src="assets/js/carnet.js"></script>
+</head>
+<body data-notes="parcours">
+<main>
+<div class="wrap">
+  <header class="tool-hero" style="position:relative">
+    <h1>devenir technicien opto-électronique</h1>
+    <span class="hand">ton GEII + la lumière = le métier</span>
+    <p class="lead">Tu n'as pas besoin de repartir de zéro : un technicien opto-électronique, c'est <mark>un électronicien qui maîtrise aussi la lumière</mark>. Ton BUT GEII couvre déjà la moitié du métier. Ce parcours t'apporte l'autre moitié, dans l'ordre, et te dit à chaque étape quel cours GEII s'y relie.</p>
+    <span class="sticker" data-s="fusee" style="--r:-10deg;top:30px;right:0"></span>
+  </header>
+
+  <section class="section" id="metier">
+    <div class="sec-head"><h2>le métier</h2><span class="hand sm">ce qu'on attend de toi</span></div>
+    <div class="metier-grid">
+      <div class="prose">
+        <p>Le technicien opto-électronique travaille sur des systèmes où se rencontrent lumière et électronique : diodes et modules laser, amplificateurs à fibre, capteurs et caméras, liaisons optiques, instruments de mesure. On le trouve en <strong>production et test</strong> (caractériser chaque laser qui sort de la ligne), en <strong>R&amp;D</strong> (monter et faire fonctionner les prototypes des ingénieurs), en <strong>intégration</strong> (assembler, aligner, régler) et en <strong>maintenance / SAV</strong> (dépanner chez le client).</p>
+        <p>Les fiches métier (Onisep, technicien en optique de précision ou en photonique) insistent sur trois bases : <strong>physique, électronique, mécanique</strong>, avec une forte demande en <strong>contrôle qualité et métrologie</strong>. Exactement ce que tu vas réunir ici.</p>
+      </div>
+      <div class="box terrain">
+        <p class="box-title">une journée type</p>
+        <ul>
+          <li>Mesurer la courbe L-I-V et le spectre d'une série de diodes, et classer les pièces hors tolérance.</li>
+          <li>Nettoyer et inspecter des connecteurs fibre, souder une fibre, faire un bilan de puissance.</li>
+          <li>Régler une boucle de régulation de température qui oscille.</li>
+          <li>Écrire ou corriger un script Python qui pilote le banc de test.</li>
+          <li>Rédiger le rapport de mesure, ou la procédure pour l'équipe de nuit — parfois en anglais.</li>
+          <li>Tout cela sous lunettes adaptées, avec bracelet antistatique, en respectant la zone laser.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="poles">
+    <div class="sec-head"><h2>quatre pôles, et ton GEII en face</h2><span class="hand sm">le pont entre les deux</span></div>
+    <p class="lead" style="max-width:52em">Le BTS « photonique » rénové organise le métier en quatre pôles. Le BUT GEII (programme national 2022) en a quatre pour le parcours ESE. Ils se répondent presque un à un.</p>
+    <div class="poles" data-c="poles"></div>
+  </section>
+
+  <section class="section" id="etapes">
+    <div class="sec-head"><h2>la feuille de route</h2><span class="hand sm">huit étapes, dans l'ordre</span></div>
+    <p class="lead" style="max-width:52em">Ta <a href="seance.html">séance du jour</a> te propose les nouvelles leçons dans cet ordre. Chaque étape se termine par une <strong>preuve</strong> : quelque chose de concret à faire ou à montrer, à garder pour ton portfolio et tes entretiens de stage.</p>
+    <ol class="phases" data-c="phases"></ol>
+  </section>
+
+  <section class="section" id="competences">
+    <div class="sec-head"><h2>ma grille de compétences</h2><span class="hand sm">ce que je pense vs ce que je montre</span></div>
+    <p class="lead" style="max-width:52em">Pour chaque compétence, situe-toi honnêtement. À côté, la barre « mesuré » se calcule avec tes leçons (rappels réussis), tes quiz et tes exercices. Un grand écart entre les deux est une information précieuse : c'est là que tu te surestimes… ou que tu te sous-estimes.</p>
+    <div class="comp-list" data-c="competences"></div>
+    <p class="small" style="margin-top:14px">Le « mesuré » compte pour 60 % les leçons liées (lue 1/3, comprise 2/3, maîtrisée 3/3) et pour 40 % les exercices liés (part des types d'exercices maîtrisés).</p>
+  </section>
+
+  <section class="section" id="stage">
+    <div class="two-col">
+      <div class="box retiens">
+        <p class="box-title">prêt pour un stage en photonique ?</p>
+        <ul class="checklist" data-id="parcours-stage">
+          <li><input type="checkbox"><label>Je sais expliquer en 2 minutes comment fonctionne une diode laser et comment on la pilote.</label></li>
+          <li><input type="checkbox"><label>J'ai mesuré (ou simulé) une courbe L-I-V et j'en ai tiré seuil et rendement.</label></li>
+          <li><input type="checkbox"><label>Je connais les classes laser, les EMP et je sais choisir une lunette.</label></li>
+          <li><input type="checkbox"><label>Je sais nettoyer, inspecter et connecter une fibre (APC / UPC).</label></li>
+          <li><input type="checkbox"><label>Je sais exprimer un résultat avec son incertitude élargie.</label></li>
+          <li><input type="checkbox"><label>J'ai un dépôt GitHub avec le code de mon banc et un rapport.</label></li>
+          <li><input type="checkbox"><label>Je connais le vocabulaire en anglais (<a href="glossaire.html">glossaire</a>).</label></li>
+        </ul>
+      </div>
+      <div class="box terrain">
+        <p class="box-title">en entretien, on te demandera…</p>
+        <ul>
+          <li>« Comment mesurez-vous le seuil d'une diode laser ? » → <a href="lasers/diode-laser.html">la diode laser</a>, <a href="projet/protocoles.html">protocoles</a></li>
+          <li>« La puissance a chuté de 30 % : que faites-vous ? » → <a href="systemes/diagnostic.html">diagnostic</a></li>
+          <li>« Pourquoi un connecteur APC ? » → <a href="decouvrir/fibres-pas-a-pas.html">les fibres pas à pas</a></li>
+          <li>« Comment régulez-vous la température d'une diode ? » → <a href="electronique/tec-pid.html">TEC &amp; PID</a></li>
+          <li>« Quelle incertitude sur votre mesure ? » → <a href="systemes/metrologie.html">métrologie</a></li>
+        </ul>
+        <p class="small">Entraîne-toi à répondre à voix haute, sans notes : c'est de la pratique de récupération, et c'est exactement l'épreuve de l'entretien.</p>
+      </div>
+    </div>
+  </section>
+
+  <p class="small" style="margin:8px 0 0">Sources : fiches Onisep « technicien/ne en optique de précision » et « BTS photonique : technologies et sciences de la lumière » ; programme national du BUT GEII (arrêté du 15 avril 2022).</p>
+</div>
+</main>
+<script type="module" src="assets/js/pages/parcours-page.js"></script>
+</body>
+</html>

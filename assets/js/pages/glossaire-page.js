@@ -4,7 +4,7 @@
   const K = window.Carnet, G = window.CARNET_GLOSSAIRE;
   if (!K || !G) return;
   const { MAP, esc, $, norm } = K;
-  const NOMS = { maths: "maths", physique: "physique", lasers: "lasers", amplis: "amplis", electronique: "électronique", systemes: "systèmes", projet: "projet" };
+  const NOMS = { decouvrir: "débuter", maths: "maths", physique: "physique", lasers: "lasers", amplis: "amplis", electronique: "électronique", systemes: "systèmes", projet: "projet" };
   const modTitle = m => { const x = MAP.modules.find(mm => mm.id === m); return x ? x.num + " · " + x.title : (NOMS[m] || m); };
   const st = { q: "", m: "" };
   const items = G.slice().sort((a, b) => norm(a.fr).localeCompare(norm(b.fr), "fr"));

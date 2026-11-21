@@ -14,5 +14,6 @@ run fibre.py   --glb assets/models/fibre.glb   --png assets/img/mod-systemes.png
 run gauss.py   --glb assets/models/gauss.glb   --png assets/img/mod-maths.png       --samples "$S" --size 1000x620
 run prisme.py  --png assets/img/mod-physique.png --samples "$S" --size 1000x620
 run banc.py    --glb assets/models/banc.glb    --png assets/img/mod-projet.png --png2 assets/img/mod-electronique.png --samples "$S" --size 1000x620
+run lentille.py --png assets/img/mod-decouvrir.png --samples "$S" --size 1000x620
 run hero.py    --png assets/img/hero.png --samples "$S" --size 1400x1100
 echo "terminé."

@@ -1,5 +1,22 @@
 /* Fiches de révision du carnet photonique (recto : q, verso : r — HTML simple autorisé). m : module. */
 window.CARNET_FICHES = [
+  // ---------------------------------------------------------------- 00 débuter en optique
+  { id: "de-01", m: "decouvrir", q: "Rayon, onde, photon : quel modèle pour aligner un faisceau ? pour une interférence ? pour une photodiode ?", r: "Aligner → <b>rayon</b> ; interférence, couleur, polarisation → <b>onde</b> ; émission et détection → <b>photon</b>." },
+  { id: "de-02", m: "decouvrir", q: "Bornes du visible ; trois longueurs d'onde infrarouges du métier ?", r: "Visible ≈ <b>400 à 700 nm</b> ; 850 nm (liaisons courtes), <b>1310</b> et <b>1550 nm</b> (fibre), 980 et 1064 nm (pompage, découpe)." },
+  { id: "de-03", m: "decouvrir", q: "Énergie d'un photon à 620 nm, de tête ?", r: "E (eV) ≈ 1240 / λ (nm) = <b>2 eV</b>." },
+  { id: "de-04", m: "decouvrir", q: "Pourquoi une photodiode en silicium ne détecte-t-elle pas 1550 nm ?", r: "Le photon (0,8 eV) a moins d'énergie que le gap du silicium (1,12 eV) : <b>pas absorbé</b>. Il faut de l'InGaAs ou du germanium." },
+  { id: "de-05", m: "decouvrir", q: "Pourquoi le proche infrarouge est-il particulièrement dangereux pour l'œil ?", r: "Entre 400 et 1400 nm il <b>atteint la rétine</b>, focalisé par l'œil, et il est invisible : <b>aucun réflexe de clignement</b>." },
+  { id: "de-06", m: "decouvrir", q: "Loi de Snell-Descartes ; depuis où mesure-t-on les angles ?", r: "<b>n₁ sin θ₁ = n₂ sin θ₂</b>, angles mesurés depuis la <b>normale</b> à la surface." },
+  { id: "de-07", m: "decouvrir", q: "Conditions de la réflexion totale interne ?", r: "Aller vers un milieu <b>moins réfringent</b> (n₁ &gt; n₂) et dépasser l'angle critique : sin θ<sub>c</sub> = n₂/n₁ (verre/air : 41,8°)." },
+  { id: "de-08", m: "decouvrir", q: "Les trois rayons particuliers d'une lentille convergente ?", r: "Parallèle à l'axe → ressort par <b>F'</b> ; par le <b>centre</b> → non dévié ; par <b>F</b> → ressort parallèle à l'axe." },
+  { id: "de-09", m: "decouvrir", q: "Comment collimater une diode laser ?", r: "Placer la puce au <b>foyer</b> de la lentille ; le réglage est bon quand la tache a la <b>même taille de près et de loin</b>." },
+  { id: "de-10", m: "decouvrir", q: "Que fait un élargisseur avec f₁ = 25 mm puis f₂ = 100 mm ?", r: "Diamètre <b>×4</b>, divergence <b>÷4</b> ; lentilles espacées de f₁ + f₂ = 125 mm." },
+  { id: "de-11", m: "decouvrir", q: "Monomode ou multimode : cœur, couleur, longueur d'onde ?", r: "Monomode : cœur ≈ <b>9 µm</b>, gaine jaune, 1310/1550 nm. Multimode : <b>50 ou 62,5 µm</b>, orange ou aqua, 850 nm, courtes distances." },
+  { id: "de-12", m: "decouvrir", q: "Connecteurs UPC et APC : couleurs, différence, règle d'or ?", r: "UPC <b>bleu</b> (poli droit), APC <b>vert</b> (poli à 8°, moins de réflexion). <b>Jamais un APC contre un UPC.</b>" },
+  { id: "de-13", m: "decouvrir", q: "Atténuation d'une fibre monomode à 1310 et 1550 nm ? Perte d'un connecteur, d'une soudure ?", r: "≈ <b>0,35</b> et <b>0,2 dB/km</b> ; connecteur 0,2 à 0,5 dB ; soudure par fusion &lt; 0,1 dB." },
+  { id: "de-14", m: "decouvrir", q: "La règle avant de connecter une fibre ?", r: "<b>Inspecter, nettoyer, inspecter, connecter</b> (norme IEC 61300-3-35)." },
+  { id: "de-15", m: "decouvrir", q: "Tête à photodiode ou tête thermique : qui fait quoi ?", r: "Photodiode : <b>sensible et rapide</b>, dépend de λ, sature vite. Thermique : <b>réponse plate en λ, forte puissance</b>, lente." },
+  { id: "de-16", m: "decouvrir", q: "Premier réflexe avant de lire un puissance-mètre à photodiode ?", r: "<b>Régler la longueur d'onde</b> (l'appareil divise le courant par R(λ)) ; puis vérifier saturation, zéro et centrage." },
   // ---------------------------------------------------------------- 01 maths
   { id: "ma-01", m: "maths", q: "Que vaut +3 dB en rapport de puissance ? Et −10 dB ?", r: "+3 dB ≈ <b>×2</b> (exactement ×1,995) ; −10 dB = <b>÷10</b>." },
   { id: "ma-02", m: "maths", q: "Convertir 5 mW en dBm.", r: "10·log<sub>10</sub>(5) ≈ <b>7 dBm</b>." },

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>mesurer la lumière · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="decouvrir/mesurer-lumiere">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>mesurer la lumière</h1>
+    <span class="hand">puissance, spectre, faisceau, temps</span>
+    <p class="lead">Un technicien opto-électronique passe une bonne partie de ses journées à mesurer. Quatre questions, quatre familles d'instruments — et une poignée d'erreurs classiques qui faussent tout. <mark>Connaître ces pièges, c'est déjà être fiable.</mark></p>
+    <span class="sticker" data-s="cle" style="--r:12deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>choisir l'instrument selon la question : combien ? quelle couleur ? quelle forme ? comment ça varie ?</li>
+          <li>utiliser un puissance-mètre sans les erreurs classiques (longueur d'onde, saturation, lumière parasite) ;</li>
+          <li>expliquer pourquoi un détecteur en silicium ne voit pas 1550 nm ;</li>
+          <li>passer des watts aux W/cm², et ne pas confondre watts et lumens ;</li>
+          <li>appliquer une check-list avant toute mesure.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>quatre questions, quatre instruments</h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>la question</th><th>l'instrument</th><th>ce qu'il donne</th></tr></thead>
+        <tbody>
+          <tr><td><strong>combien ?</strong></td><td><dfn data-g="puissance-metre">puissance-mètre</dfn> (tête photodiode ou thermique)</td><td>une puissance en mW ou en dBm</td></tr>
+          <tr><td><strong>quelle couleur ?</strong></td><td>spectromètre, <dfn data-g="osa">analyseur de spectre optique</dfn>, <dfn data-g="lambdametre">lambdamètre</dfn></td><td>le spectre, la longueur d'onde centrale, la largeur</td></tr>
+          <tr><td><strong>quelle forme ?</strong></td><td><dfn data-g="analyseur-faisceau">analyseur de faisceau</dfn> (caméra ou fente balayée)</td><td>le profil, le diamètre, l'ellipticité, le M²</td></tr>
+          <tr><td><strong>comment ça varie ?</strong></td><td><dfn data-g="photodiode">photodiode</dfn> rapide + oscilloscope</td><td>impulsions, modulation, bruit, temps de montée</td></tr>
+          <tr><td><strong>où est le faisceau ?</strong></td><td>carte infrarouge, viseur IR</td><td>la position d'un faisceau invisible, sans risque</td></tr>
+        </tbody>
+      </table></div>
+      <p>Réflexe de pro : avant de brancher quoi que ce soit, formule la question en une phrase. « Je veux la puissance à 1550 nm en sortie de fibre » désigne déjà l'instrument, la tête, le réglage et l'adaptateur.</p>
+
+      <h2><span class="n">2</span>le puissance-mètre : deux familles de têtes</h2>
+      <p>Les <strong>têtes à photodiode</strong> convertissent les photons en courant (voir <a href="../electronique/photodetection.html">photodiode &amp; TIA</a>). Elles sont très sensibles (du nanowatt au milliwatt) et rapides, mais leur <dfn data-g="responsivite">sensibilité</dfn> dépend fortement de la longueur d'onde, et elles saturent vite : au-delà de quelques mW, il faut un atténuateur. Silicium de 400 à 1100 nm ; germanium ou InGaAs dans l'infrarouge (800 à 1700 nm environ).</p>
+      <p>Les <strong>têtes thermiques</strong> (thermopiles) absorbent la lumière et mesurent l'échauffement. Leur réponse est presque plate en longueur d'onde et elles acceptent des watts, voire des kilowatts ; en échange, elles sont lentes (quelques secondes) et peu sensibles en dessous du milliwatt.</p>
+      <div class="lab" data-widget="sensibilite-lambda">
+        <div class="lab-head"><h4>ce que voit chaque photodiode</h4><span class="tag green">simulation</span></div>
+        <p class="small">Choisis la tête, la vraie longueur d'onde du laser et celle réglée sur l'appareil. Essaie un laser à 1550 nm sur une tête silicium, puis une tête InGaAs réglée sur 1310 nm.</p>
+      </div>
+
+      <h2><span class="n">3</span>l'erreur la plus fréquente : la longueur d'onde réglée</h2>
+      <p>Une tête à photodiode mesure un <em>courant</em>. Pour afficher des watts, l'appareil divise ce courant par la sensibilité qu'il croit être la bonne : celle de la longueur d'onde que tu as réglée. Si le réglage est faux, la lecture est fausse — souvent de 10 à 50 %, parfois bien plus.</p>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>corriger une lecture</h4></div>
+        <p>Une tête InGaAs est restée réglée sur 1310 nm (sensibilité 0,85 A/W), mais le laser émet à 1550 nm (0,95 A/W). L'appareil affiche 1,00 mW. Quelle est la vraie puissance ?</p>
+        <div class="check-row" data-answer="0.895" data-tol="0.01" data-hint="courant = 1 mW × 0,85 A/W ; puis divise par 0,95 A/W">
+          <input type="text" inputmode="decimal" placeholder="mW" aria-label="vraie puissance en milliwatts"><span>mW</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+      <div class="box attention"><p class="box-title">les autres pièges classiques</p>
+        <ul>
+          <li><strong>La saturation</strong> : au-delà de sa plage, la tête n'est plus linéaire (et peut être abîmée). Si doubler la puissance ne double pas la lecture, tu satures.</li>
+          <li><strong>La lumière parasite</strong> : éclairage de la salle, écran, reflet. On fait un « zéro » faisceau coupé, et on protège la tête.</li>
+          <li><strong>Le faisceau qui déborde</strong> : s'il est plus grand que la surface sensible, une partie n'est pas comptée. Centre et vérifie la taille.</li>
+          <li><strong>La réflexion renvoyée au laser</strong> : une tête bien en face renvoie de la lumière dans la diode ; incline-la légèrement.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">4</span>watts, dBm, W/cm²… et lumens</h2>
+      <p>Les techniciens opto travaillent en <strong>radiométrie</strong> : de l'énergie et des watts, quelle que soit la longueur d'onde. La <strong>photométrie</strong> (lumen, lux, candela) pondère la lumière par la sensibilité de l'œil humain : utile pour l'éclairage, inutilisable pour un laser infrarouge. Un laser de 1 W à 1550 nm produit… 0 lumen.</p>
+      <div class="formule">
+        <span class="f-name">éclairement (densité de puissance)</span>
+        <div class="f-eq">\[ E = \frac{P}{S} \qquad\qquad S = \frac{\pi d^2}{4} \]</div>
+        <div class="f-where"><b>P</b> puissance (W) · <b>S</b> surface éclairée · <b>d</b> diamètre du faisceau. En sécurité laser, on compare E à l'exposition maximale permise (<dfn data-g="emp">EMP</dfn>). Pour un faisceau gaussien, le centre est environ deux fois plus intense que la moyenne P/S.</div>
+      </div>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>une densité de puissance</h4></div>
+        <p>Un faisceau de 5 mW a un diamètre de 2 mm (profil supposé uniforme). Quelle est son éclairement, en W/cm² ?</p>
+        <div class="check-row" data-answer="0.159" data-tol="0.01" data-hint="surface = π × (0,2 cm)² / 4 = 0,0314 cm²">
+          <input type="text" inputmode="decimal" placeholder="W/cm²" aria-label="éclairement en watts par centimètre carré"><span>W/cm²</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">5</span>le spectre et le faisceau</h2>
+      <p>Un <strong>spectromètre</strong> compact disperse la lumière avec un réseau sur une barrette de pixels : rapide, bon marché, résolution de l'ordre du nanomètre. Un <strong>analyseur de spectre optique (OSA)</strong>, l'instrument des télécoms, descend vers quelques centièmes de nanomètre et mesure aussi le bruit d'un amplificateur. Un <strong>lambdamètre</strong> donne la longueur d'onde d'un laser monomode avec une grande précision, grâce à un interféromètre.</p>
+      <p>Pour la <strong>forme du faisceau</strong>, on utilise une caméra (silicium jusqu'à 1100 nm environ, InGaAs au-delà) ou un appareil à fente balayée. Le diamètre se calcule selon une méthode normalisée (ISO 11146, méthode des moments « D4σ ») : c'est ce que fera le logiciel de <a href="../projet/code-3-analyse.html">ton banc</a>. Toujours avec une atténuation suffisante : une caméra saturée donne un diamètre faux.</p>
+
+      <h2><span class="n">6</span>la mesure dans le temps</h2>
+      <p>Une photodiode rapide reliée à un oscilloscope montre comment la puissance varie : impulsions, modulation d'un laser télécom, oscillations d'une régulation, bruit. Deux règles : la bande passante de la chaîne (photodiode, amplificateur, câble, oscilloscope) doit dépasser celle du signal, et une sortie prévue pour 50 Ω doit être terminée sur 50 Ω, sous peine de rebonds et de mesures fausses.</p>
+      <div class="box terrain"><p class="box-title">ma check-list avant toute mesure</p>
+        <ul class="checklist" data-id="decouvrir-checklist-mesure">
+          <li><input type="checkbox"><label>Laser stabilisé (temps de chauffe, température régulée) et lunettes adaptées.</label></li>
+          <li><input type="checkbox"><label>Instrument allumé depuis assez longtemps, zéro fait faisceau coupé.</label></li>
+          <li><input type="checkbox"><label>Longueur d'onde réglée, gamme et atténuateur adaptés (pas de saturation).</label></li>
+          <li><input type="checkbox"><label>Faisceau centré, entièrement sur la surface sensible ; connecteurs inspectés et nettoyés.</label></li>
+          <li><input type="checkbox"><label>Lumière parasite et reflets maîtrisés.</label></li>
+          <li><input type="checkbox"><label>Conditions notées : date, courant, température, instrument et numéro de série.</label></li>
+        </ul>
+      </div>
+
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Combien → puissance-mètre ; quelle couleur → spectromètre, OSA, lambdamètre ; quelle forme → analyseur de faisceau ; comment ça varie → photodiode + oscilloscope.</li>
+          <li>Tête photodiode : sensible, rapide, dépend de λ, sature ; tête thermique : plate en λ, forte puissance, lente.</li>
+          <li>Silicium ≈ 400–1100 nm ; InGaAs et germanium dans l'infrarouge (jusqu'à ≈ 1700 nm).</li>
+          <li>Premier réflexe : régler la longueur d'onde ; puis vérifier saturation, lumière parasite, centrage.</li>
+          <li>Radiométrie (W) pour les lasers, jamais les lumens ; éclairement E = P/S, à comparer à l'EMP.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="decouvrir-mesurer">
+        <header><h3>quiz éclair</h3><span class="tag">5 questions</span></header>
+        <div class="q" data-a="c"><p>1. Tu veux connaître la longueur d'onde exacte d'un laser monomode. Tu prends…</p><div class="opts">
+          <label><input type="radio" value="a"> un puissance-mètre</label><label><input type="radio" value="b"> une caméra</label><label><input type="radio" value="c"> un lambdamètre (ou un OSA)</label></div>
+          <p class="explain">Le lambdamètre mesure la longueur d'onde avec précision ; l'OSA montre tout le spectre.</p></div>
+        <div class="q" data-a="b"><p>2. Une tête silicium mesure un laser à 1550 nm. Elle affiche…</p><div class="opts">
+          <label><input type="radio" value="a"> la bonne valeur si on règle 1550 nm</label><label><input type="radio" value="b"> presque rien : le silicium ne détecte pas au-delà de ≈ 1100 nm</label><label><input type="radio" value="c"> le double de la vraie valeur</label></div>
+          <p class="explain">À 1550 nm, le photon (0,8 eV) n'a pas assez d'énergie pour franchir le gap du silicium (1,12 eV).</p></div>
+        <div class="q" data-a="a"><p>3. Tu doubles la puissance du laser mais la lecture n'augmente que de 20 %. Le plus probable ?</p><div class="opts">
+          <label><input type="radio" value="a"> la tête sature : il faut un atténuateur</label><label><input type="radio" value="b"> le laser est cassé</label><label><input type="radio" value="c"> c'est normal pour une photodiode</label></div>
+          <p class="explain">Une photodiode est linéaire dans sa plage ; au-delà, la lecture plafonne.</p></div>
+        <div class="q" data-a="c"><p>4. Pour mesurer 5 W en continu à 1064 nm, la meilleure tête est…</p><div class="opts">
+          <label><input type="radio" value="a"> une photodiode silicium sans atténuateur</label><label><input type="radio" value="b"> une photodiode InGaAs</label><label><input type="radio" value="c"> une tête thermique (thermopile)</label></div>
+          <p class="explain">Plusieurs watts : seule une tête thermique (ou un fort atténuateur calibré) convient.</p></div>
+        <div class="q" data-a="b"><p>5. Un laser de 1 W à 1550 nm produit…</p><div class="opts">
+          <label><input type="radio" value="a"> environ 683 lumens</label><label><input type="radio" value="b"> 0 lumen : l'œil n'y est pas sensible</label><label><input type="radio" value="c"> 1 lux</label></div>
+          <p class="explain">Les lumens pondèrent par la sensibilité de l'œil, nulle dans l'infrarouge. On parle en watts.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>la méthode · carnet photonique</title>
+<meta name="description" content="Apprendre vite et pour longtemps : pratique de récupération, espacement, entremêlement, exemples résolus, pré-test, calibration — ce que la recherche a prouvé, et comment le carnet l'applique.">
+<link rel="icon" href="assets/img/favicon.svg">
+<link rel="stylesheet" href="assets/css/carnet.css">
+<style>
+  .m-grid { display: grid; gap: 16px; grid-template-columns: 1fr; margin-top: 22px; }
+  @media (min-width: 860px) { .m-grid { grid-template-columns: 1fr 1fr; } }
+  .m-card { border: 1.5px solid var(--ink); border-radius: var(--radius-cards); background: #fff; padding: 22px 24px; scroll-margin-top: calc(var(--header-h) + 16px); }
+  .m-card > * + * { margin-top: .65em; }
+  .m-card h3 { margin: 0; font-size: 24px; }
+  .m-card .m-k { font-family: var(--font-hand); font-size: 22px; color: var(--accent); display: block; line-height: 1; }
+  .m-card p, .m-card li { font-size: 17.5px; line-height: 1.55; }
+  .m-card .preuve { font-size: 15.5px; color: var(--ink-soft); border-left: 3px solid var(--rule-strong); padding-left: 12px; }
+  .m-card .ici { font-size: 16px; background: var(--paper-2); border-radius: 10px; padding: 10px 14px; }
+  .m-card .ici b { color: var(--color-cocoa-ink); }
+  .cycle-big { list-style: none; padding: 0; counter-reset: c; display: grid; gap: 10px; }
+  .cycle-big li { counter-increment: c; position: relative; padding: 14px 16px 14px 62px; border: 1.5px solid var(--ink); border-radius: var(--radius-cards); background: #fff; }
+  .cycle-big li::before { content: counter(c); position: absolute; left: 16px; top: 14px; width: 32px; height: 32px; border-radius: 50%; border: 1.5px solid var(--ink); display: grid; place-items: center; font: 600 15px/1 var(--font-geist); background: var(--paper-2); }
+  .cycle-big b { font-family: var(--font-gelica); font-variation-settings: var(--soft); font-size: 19px; color: var(--color-cocoa-ink); }
+  .sources li { font-size: 15.5px; line-height: 1.5; margin-top: 6px; }
+  .sources a { font-size: 14px; }
+  article.prose { max-width: 860px; }
+  .prose section { scroll-margin-top: calc(var(--header-h) + 16px); }
+</style>
+<script defer src="assets/js/site-map.js"></script>
+<script defer src="assets/js/carnet.js"></script>
+</head>
+<body data-notes="methode">
+<main>
+<div class="wrap">
+  <header class="tool-hero" style="position:relative">
+    <h1>apprendre vite, et pour longtemps</h1>
+    <span class="hand">ce que la recherche sait vraiment</span>
+    <p class="lead">Apprendre « en un temps record » ne veut pas dire lire plus vite. Cela veut dire <mark>arrêter de perdre du temps</mark> avec ce qui ne marche pas, et mettre ses heures là où la mémoire se construit. Les méthodes qui marchent sont connues, testées des centaines de fois — et le carnet les applique pour toi.</p>
+    <span class="sticker" data-s="etoile" style="--r:12deg;top:30px;right:0"></span>
+  </header>
+
+  <article class="prose" style="margin-top:30px">
+    <section id="illusion">
+      <h2><span class="n">1</span>l'illusion qui coûte le plus cher</h2>
+      <p>Relire son cours donne une sensation agréable : tout paraît clair, familier. Mais <strong>reconnaître</strong> une information n'est pas savoir la <strong>retrouver</strong> seul, devant un banc qui ne marche pas. Après une relecture, on surestime systématiquement ce qu'on saura plus tard ; c'est une <em>illusion de compétence</em>.</p>
+      <p>À l'inverse, les méthodes efficaces paraissent plus dures sur le moment : chercher dans sa mémoire, mélanger les sujets, attendre avant de réviser. Le psychologue Robert Bjork parle de <dfn>difficultés désirables</dfn> : un effort qui ralentit l'apprentissage apparent, mais améliore nettement ce qui reste des semaines plus tard.</p>
+      <div class="box attention"><p class="box-title">la règle à garder en tête</p><p>Si une séance te paraît facile et confortable, demande-toi si tu es en train d'apprendre… ou de relire ce que tu reconnais déjà.</p></div>
+    </section>
+
+    <section id="oubli">
+      <h2><span class="n">2</span>la courbe de l'oubli</h2>
+      <p>Depuis Hermann Ebbinghaus (1885), on sait que l'on oublie vite après une première étude, puis de moins en moins vite. Chaque rappel réussi rend le souvenir plus <strong>stable</strong> — et un rappel fait au moment où l'on commence à oublier le stabilise davantage qu'un rappel fait juste après. Compare trois façons d'utiliser quatre passages :</p>
+      <div class="lab" data-widget="oubli">
+        <div class="lab-head"><h4>une lecture, relire d'affilée, ou espacer</h4><span class="tag green">simulation</span></div>
+        <p class="small">Déplace le jour de l'examen. Même nombre de passages pour « relire » et « espacer » : seule leur date change.</p>
+      </div>
+    </section>
+
+    <section id="methodes">
+      <h2><span class="n">3</span>les méthodes qui marchent</h2>
+      <p>En 2013, une équipe menée par John Dunlosky a passé au crible dix techniques d'étude. Deux obtiennent la note « utilité élevée » : <strong>se tester</strong> et <strong>espacer</strong>. Trois ont une utilité « modérée » : <strong>entremêler</strong>, <strong>se demander pourquoi</strong> et <strong>s'expliquer</strong>. Le carnet en ajoute quelques-unes, issues d'autres travaux solides.</p>
+
+      <div class="m-grid">
+        <div class="m-card" id="recuperation">
+          <span class="m-k">la plus puissante</span><h3>se tester plutôt que relire</h3>
+          <p>Chaque fois que tu vas <em>chercher</em> une information dans ta mémoire, tu renforces le chemin qui y mène. C'est la <strong>pratique de récupération</strong> (ou effet de test) : un test n'est pas seulement une mesure, c'est un exercice d'apprentissage.</p>
+          <p class="preuve">Roediger et Karpicke (2006) : une semaine plus tard, des étudiants qui s'étaient testés retenaient nettement plus que ceux qui avaient relu le même temps. Se tester bat même la construction d'une carte mentale (Karpicke et Blunt, 2011). La méta-analyse de Rowland (2014) chiffre l'avantage à environ un demi-écart-type (g ≈ 0,5) ; il se retrouve en classe, dans de nombreuses matières (Adesope et coll., 2017).</p>
+          <p class="ici"><b>dans le carnet :</b> pauses rappel, rappel libre en fin de leçon, quiz, fiches, rappel des leçons dans la séance du jour.</p>
+        </div>
+        <div class="m-card" id="espacer">
+          <span class="m-k">l'autre pilier</span><h3>espacer les révisions</h3>
+          <p>À temps égal, répartir l'étude sur plusieurs jours laisse un souvenir beaucoup plus durable que tout concentrer en une fois (le bachotage). Et plus on veut retenir longtemps, plus les écarts entre révisions doivent grandir.</p>
+          <p class="preuve">L'effet d'espacement est l'un des plus robustes de la psychologie (synthèse de Cepeda et coll., 2006 ; écarts optimaux, 2008). Le <em>réapprentissage successif</em> — se tester jusqu'à réussir, puis recommencer quelques jours plus tard — donne de très bons résultats à l'université pour peu de temps en plus (Rawson et Dunlosky, 2011, 2013). Une méta-analyse française confirme l'intérêt d'espacer les tests eux-mêmes (Latimier, Peyre et Ramus, 2021).</p>
+          <p class="ici"><b>dans le carnet :</b> la séance du jour ; rappel des leçons à j+1, j+3, j+7, j+16, j+35, j+90 ; questions et exercices dont l'intervalle grandit à chaque réussite.</p>
+        </div>
+        <div class="m-card" id="entremeler">
+          <span class="m-k">pour savoir choisir</span><h3>entremêler les sujets</h3>
+          <p>Faire dix exercices du même type d'affilée donne l'impression de maîtriser. Mais au travail, personne ne te dit quelle formule utiliser. Mélanger les types oblige à <strong>reconnaître</strong> le bon outil avant de calculer : c'est précisément la compétence d'un technicien.</p>
+          <p class="preuve">Rohrer et Taylor (2007) : avec des exercices mélangés, l'entraînement paraît plus dur, mais les résultats au test final, une semaine plus tard, sont bien meilleurs. La méta-analyse de Brunmair et Richter (2019) trouve un effet moyen modéré (g ≈ 0,42), plus fort quand les catégories se ressemblent.</p>
+          <p class="ici"><b>dans le carnet :</b> l'entraînement mélangé commence par « quelle relation vas-tu utiliser ? » ; les fiches et les questions de quiz sont mélangées dans la séance.</p>
+        </div>
+        <div class="m-card" id="expliquer">
+          <span class="m-k">pour comprendre</span><h3>se demander pourquoi, et l'expliquer</h3>
+          <p>Se demander « pourquoi est-ce vrai ? » et s'expliquer chaque étape relie l'information nouvelle à ce qu'on sait déjà. Préparer une explication pour quelqu'un d'autre pousse à organiser ses idées et révèle les trous.</p>
+          <p class="preuve">Auto-explication : Chi et coll. (1994). Interrogation élaborative et auto-explication : utilité « modérée » chez Dunlosky et coll. (2013). Apprendre en s'attendant à enseigner : Nestojko et coll. (2014) ; enseigner réellement : Fiorella et Mayer (2013). La « technique Feynman » est un nom populaire pour ce mélange ; elle n'a pas été testée sous ce nom, mais ses ingrédients, oui.</p>
+          <p class="ici"><b>dans le carnet :</b> le défi « explique-la simplement » après chaque rappel libre, les pauses rappel « avec tes mots », tes notes.</p>
+        </div>
+        <div class="m-card" id="exemples">
+          <span class="m-k">pour débuter</span><h3>des exemples résolus, puis seul</h3>
+          <p>Quand on découvre un type de problème, étudier une solution complète est plus efficace que chercher à l'aveugle : la mémoire de travail n'est pas saturée. Puis on retire progressivement l'aide — jusqu'à résoudre seul.</p>
+          <p class="preuve">Effet de l'exemple résolu et théorie de la charge cognitive (Sweller et coll., 1998) ; estompage progressif (Renkl et Atkinson, 2003). Attention : pour quelqu'un qui sait déjà faire, les exemples deviennent inutiles, voire gênants (effet de renversement d'expertise, Kalyuga et coll., 2003).</p>
+          <p class="ici"><b>dans le carnet :</b> chaque exercice commence par un exemple résolu, puis « à compléter », puis seul — avec un bouton « je sais déjà faire ».</p>
+        </div>
+        <div class="m-card" id="pretest">
+          <span class="m-k">contre-intuitif</span><h3>deviner avant d'apprendre</h3>
+          <p>Essayer de répondre à une question <em>avant</em> d'avoir appris la réponse — et se tromper — améliore la mémorisation de la bonne réponse quand on la découvre ensuite. L'erreur prépare le terrain : on lit en cherchant.</p>
+          <p class="preuve">Effet de pré-test : Richland, Kornell et Kao (2009) ; Kornell, Hays et Bjork (2009), « les tentatives de rappel infructueuses améliorent l'apprentissage ultérieur ».</p>
+          <p class="ici"><b>dans le carnet :</b> le bloc « avant de lire : devine ! » de chaque leçon ; le quiz final te montre ce que tu avais parié.</p>
+        </div>
+        <div class="m-card" id="calibration">
+          <span class="m-k">savoir ce qu'on sait</span><h3>la calibration de la confiance</h3>
+          <p>Un bon technicien sait distinguer « je sais » de « je crois savoir ». Dire sa confiance avant de vérifier entraîne cette lucidité, et permet au carnet de mieux planifier : une réussite « au hasard » revient vite, une réussite « sûre » s'éloigne.</p>
+          <p class="preuve">Nos jugements d'apprentissage sont peu fiables, surtout après une relecture (Koriat et Bjork, 2005) ; s'auto-tester les rend plus justes.</p>
+          <p class="ici"><b>dans le carnet :</b> les boutons « sûr / hésitant / au hasard » ; ta courbe de calibration dans la séance du jour.</p>
+        </div>
+        <div class="m-card" id="hypercorrection">
+          <span class="m-k">l'erreur précieuse</span><h3>les erreurs « sûres »</h3>
+          <p>Paradoxe : une erreur commise en étant <em>sûr de soi</em>, une fois corrigée, est mieux retenue qu'une erreur faite en hésitant. La surprise attire l'attention sur la correction.</p>
+          <p class="preuve">Effet d'hypercorrection : Butterfield et Metcalfe (2001).</p>
+          <p class="ici"><b>dans le carnet :</b> le marqueur ⚡ « erreur sûre » ; ces questions reviennent vite dans ta séance.</p>
+        </div>
+        <div class="m-card" id="double-codage">
+          <span class="m-k">voir et dire</span><h3>des mots et des images</h3>
+          <p>Associer une explication verbale et une représentation visuelle (schéma, simulation, modèle 3D) donne deux chemins vers le même souvenir. Le mieux : <strong>dessiner toi-même</strong> le schéma de mémoire.</p>
+          <p class="preuve">Double codage (Paivio) ; principes de l'apprentissage multimédia (Mayer). À ne pas confondre avec les « styles d'apprentissage » (visuel, auditif…), une idée populaire que les études n'ont pas confirmée (Pashler et coll., 2008).</p>
+          <p class="ici"><b>dans le carnet :</b> une quarantaine de simulations, des schémas et des modèles 3D ; à chaque rappel libre, ajoute un croquis sur papier.</p>
+        </div>
+        <div class="m-card" id="metacognition">
+          <span class="m-k">piloter son travail</span><h3>finir par un bilan</h3>
+          <p>Deux minutes à la fin de chaque séance : ce que j'ai compris, ce qui reste flou, par quoi je commence demain. Nommer ce qui reste flou transforme un malaise vague en action précise — et c'est la meilleure question à poser à un tuteur ou à un collègue.</p>
+          <p class="ici"><b>dans le carnet :</b> l'étape « bilan » de la séance du jour, enregistrée dans ton journal de bord.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="a-eviter">
+      <h2><span class="n">4</span>ce qui coûte du temps pour peu de résultats</h2>
+      <ul>
+        <li><strong>Relire, surligner, recopier son cours, résumer passivement</strong> : jugés d'utilité faible par Dunlosky et coll. (2013). Pas inutiles pour une première lecture, mais très mauvais comme méthode de révision.</li>
+        <li><strong>Bachoter la veille</strong> : ça marche pour le lendemain… puis tout part. Pour un métier, c'est du temps perdu.</li>
+        <li><strong>Étudier en faisant autre chose</strong> : le multitâche sur ordinateur dégrade l'apprentissage, y compris celui des voisins (Sana, Weston et Cepeda, 2013). Téléphone dans une autre pièce pendant la séance.</li>
+        <li><strong>Chercher « son » style d'apprentissage</strong> : adapter le cours à un style visuel ou auditif n'améliore pas les résultats (Pashler et coll., 2008). Tout le monde gagne à combiner mots et images.</li>
+      </ul>
+      <div class="box terrain" id="sommeil"><p class="box-title">le corps compte aussi</p><p>Le <strong>sommeil</strong> consolide ce qui a été appris dans la journée (Diekelmann et Born, 2010) : une nuit blanche avant un examen sabote le travail des jours précédents. Des séances courtes et quotidiennes, une vraie pause toutes les 30 à 50 minutes, et une heure fixe dans la journée valent mieux que n'importe quelle astuce.</p></div>
+    </section>
+
+    <section id="cycle">
+      <h2><span class="n">5</span>le cycle d'une leçon dans le carnet</h2>
+      <p>Chaque leçon affiche ce cycle sous son titre. Il prend 10 à 15 minutes de plus qu'une simple lecture, et c'est l'investissement le plus rentable de ta journée.</p>
+      <ol class="cycle-big">
+        <li><b>devine</b> — réponds au flair à 3 questions du quiz final, sans chercher (pré-test).</li>
+        <li><b>lis activement</b> — manipule les simulations ; aux pauses rappel, résume en une phrase sans remonter (récupération + tes mots).</li>
+        <li><b>rappel libre</b> — avant de regarder l'encadré « à retenir », écris tout ce dont tu te souviens, puis compare et coche honnêtement.</li>
+        <li><b>quiz</b> — avec ta confiance pour chaque réponse ; lis l'explication de chaque erreur, surtout des erreurs « sûres ».</li>
+        <li><b>révise</b> — la leçon revient dans ta séance du jour à j+1, j+3, j+7… Trois rappels réussis sur trois jours différents : elle passe « maîtrisée ».</li>
+      </ol>
+    </section>
+
+    <section id="routine">
+      <h2><span class="n">6</span>ta routine, et combien de temps ça prend</h2>
+      <p>Le parcours complet représente environ 35 heures de première lecture (leçons et projet). Avec les révisions et l'entraînement, compte à peu près le double : <strong>environ 70 heures</strong>. À raison de 40 minutes par jour, six jours sur sept, cela fait <strong>quatre mois environ</strong> ; à une heure par jour, un peu moins de trois mois. C'est rapide pour un vrai niveau de technicien — à condition de ne sauter ni les révisions ni les rappels.</p>
+      <div class="two-col">
+        <div class="box retiens"><p class="box-title">chaque jour</p><ol><li>Ouvre <a href="seance.html">ta séance du jour</a> et choisis ton temps.</li><li>Fais les étapes dans l'ordre : révisions d'abord, nouveauté ensuite.</li><li>Écris ton bilan en deux minutes.</li></ol></div>
+        <div class="box astuce"><p class="box-title">chaque semaine</p><ol><li>Exporte une sauvegarde depuis <a href="carnet.html#sauvegarde">mon carnet</a>.</li><li>Fais une série d'<a href="entrainement.html">entraînement</a> mélangée sur tous les thèmes vus.</li><li>Mets à jour ta grille de compétences dans <a href="parcours.html#competences">mon parcours</a>.</li></ol></div>
+      </div>
+    </section>
+
+    <section id="sources">
+      <h2><span class="n">7</span>les sources</h2>
+      <p class="small">Chaque référence a un lien de recherche (Google Scholar) pour retrouver l'article.</p>
+      <ul class="sources">
+        <li>Adesope, Trevisan et Sundararajan (2017). Rethinking the use of tests: a meta-analysis of practice testing. <i>Review of Educational Research</i>. <a href="https://scholar.google.com/scholar?q=Rethinking+the+use+of+tests+a+meta-analysis+of+practice+testing">chercher</a></li>
+        <li>Bjork (1994). Memory and metamemory considerations in the training of human beings. In <i>Metacognition: Knowing about knowing</i>, MIT Press. <a href="https://scholar.google.com/scholar?q=Memory+and+metamemory+considerations+in+the+training+of+human+beings">chercher</a></li>
+        <li>Brunmair et Richter (2019). Similarity matters: a meta-analysis of interleaved learning and its moderators. <i>Psychological Bulletin</i>. <a href="https://scholar.google.com/scholar?q=Similarity+matters+a+meta-analysis+of+interleaved+learning+and+its+moderators">chercher</a></li>
+        <li>Butterfield et Metcalfe (2001). Errors committed with high confidence are hypercorrected. <i>Journal of Experimental Psychology: Learning, Memory, and Cognition</i>. <a href="https://scholar.google.com/scholar?q=Errors+committed+with+high+confidence+are+hypercorrected">chercher</a></li>
+        <li>Cepeda, Pashler, Vul, Wixted et Rohrer (2006). Distributed practice in verbal recall tasks: a review and quantitative synthesis. <i>Psychological Bulletin</i>. <a href="https://scholar.google.com/scholar?q=Distributed+practice+in+verbal+recall+tasks+a+review+and+quantitative+synthesis">chercher</a></li>
+        <li>Cepeda, Vul, Rohrer, Wixted et Pashler (2008). Spacing effects in learning: a temporal ridgeline of optimal retention. <i>Psychological Science</i>. <a href="https://scholar.google.com/scholar?q=Spacing+effects+in+learning+a+temporal+ridgeline+of+optimal+retention">chercher</a></li>
+        <li>Chi, de Leeuw, Chiu et LaVancher (1994). Eliciting self-explanations improves understanding. <i>Cognitive Science</i>. <a href="https://scholar.google.com/scholar?q=Eliciting+self-explanations+improves+understanding">chercher</a></li>
+        <li>Diekelmann et Born (2010). The memory function of sleep. <i>Nature Reviews Neuroscience</i>. <a href="https://scholar.google.com/scholar?q=The+memory+function+of+sleep+Diekelmann+Born">chercher</a></li>
+        <li>Dunlosky, Rawson, Marsh, Nathan et Willingham (2013). Improving students' learning with effective learning techniques. <i>Psychological Science in the Public Interest</i>. <a href="https://scholar.google.com/scholar?q=Improving+students+learning+with+effective+learning+techniques">chercher</a></li>
+        <li>Ebbinghaus (1885). <i>Über das Gedächtnis</i> (« De la mémoire »). <a href="https://scholar.google.com/scholar?q=Ebbinghaus+Uber+das+Gedachtnis">chercher</a></li>
+        <li>Fiorella et Mayer (2013). The relative benefits of learning by teaching and teaching expectancy. <i>Contemporary Educational Psychology</i>. <a href="https://scholar.google.com/scholar?q=The+relative+benefits+of+learning+by+teaching+and+teaching+expectancy">chercher</a></li>
+        <li>Kalyuga, Ayres, Chandler et Sweller (2003). The expertise reversal effect. <i>Educational Psychologist</i>. <a href="https://scholar.google.com/scholar?q=The+expertise+reversal+effect+Kalyuga">chercher</a></li>
+        <li>Karpicke et Blunt (2011). Retrieval practice produces more learning than elaborative studying with concept mapping. <i>Science</i>. <a href="https://scholar.google.com/scholar?q=Retrieval+practice+produces+more+learning+than+elaborative+studying+with+concept+mapping">chercher</a></li>
+        <li>Koriat et Bjork (2005). Illusions of competence in monitoring one's knowledge during study. <i>Journal of Experimental Psychology: Learning, Memory, and Cognition</i>. <a href="https://scholar.google.com/scholar?q=Illusions+of+competence+in+monitoring+one%27s+knowledge+during+study">chercher</a></li>
+        <li>Kornell, Hays et Bjork (2009). Unsuccessful retrieval attempts enhance subsequent learning. <i>Journal of Experimental Psychology: Learning, Memory, and Cognition</i>. <a href="https://scholar.google.com/scholar?q=Unsuccessful+retrieval+attempts+enhance+subsequent+learning">chercher</a></li>
+        <li>Latimier, Peyre et Ramus (2021). A meta-analytic review of the benefit of spacing out retrieval practice episodes on retention. <i>Educational Psychology Review</i>. <a href="https://scholar.google.com/scholar?q=A+meta-analytic+review+of+the+benefit+of+spacing+out+retrieval+practice+episodes+on+retention">chercher</a></li>
+        <li>Mayer (2009). <i>Multimedia Learning</i> (2ᵉ éd.). Cambridge University Press. <a href="https://scholar.google.com/scholar?q=Mayer+Multimedia+Learning">chercher</a></li>
+        <li>Nestojko, Bui, Kornell et Bjork (2014). Expecting to teach enhances learning and organization of knowledge in free recall of text passages. <i>Memory &amp; Cognition</i>. <a href="https://scholar.google.com/scholar?q=Expecting+to+teach+enhances+learning+and+organization+of+knowledge+in+free+recall+of+text+passages">chercher</a></li>
+        <li>Paivio (1986). <i>Mental representations: a dual coding approach</i>. Oxford University Press. <a href="https://scholar.google.com/scholar?q=Paivio+Mental+representations+a+dual+coding+approach">chercher</a></li>
+        <li>Pashler, McDaniel, Rohrer et Bjork (2008). Learning styles: concepts and evidence. <i>Psychological Science in the Public Interest</i>. <a href="https://scholar.google.com/scholar?q=Learning+styles+concepts+and+evidence">chercher</a></li>
+        <li>Rawson et Dunlosky (2011). Optimizing schedules of retrieval practice for durable and efficient learning: how much is enough? <i>Journal of Experimental Psychology: General</i>. <a href="https://scholar.google.com/scholar?q=Optimizing+schedules+of+retrieval+practice+for+durable+and+efficient+learning">chercher</a></li>
+        <li>Rawson, Dunlosky et Sciartelli (2013). The power of successive relearning. <i>Educational Psychology Review</i>. <a href="https://scholar.google.com/scholar?q=The+power+of+successive+relearning">chercher</a></li>
+        <li>Renkl et Atkinson (2003). Structuring the transition from example study to problem solving in cognitive skill acquisition. <i>Educational Psychologist</i>. <a href="https://scholar.google.com/scholar?q=Structuring+the+transition+from+example+study+to+problem+solving+in+cognitive+skill+acquisition">chercher</a></li>
+        <li>Richland, Kornell et Kao (2009). The pretesting effect: do unsuccessful retrieval attempts enhance learning? <i>Journal of Experimental Psychology: Applied</i>. <a href="https://scholar.google.com/scholar?q=The+pretesting+effect+do+unsuccessful+retrieval+attempts+enhance+learning">chercher</a></li>
+        <li>Roediger et Karpicke (2006). Test-enhanced learning: taking memory tests improves long-term retention. <i>Psychological Science</i>. <a href="https://scholar.google.com/scholar?q=Test-enhanced+learning+taking+memory+tests+improves+long-term+retention">chercher</a></li>
+        <li>Rohrer et Taylor (2007). The shuffling of mathematics problems improves learning. <i>Instructional Science</i>. <a href="https://scholar.google.com/scholar?q=The+shuffling+of+mathematics+problems+improves+learning">chercher</a></li>
+        <li>Rowland (2014). The effect of testing versus restudy on retention: a meta-analytic review of the testing effect. <i>Psychological Bulletin</i>. <a href="https://scholar.google.com/scholar?q=The+effect+of+testing+versus+restudy+on+retention+a+meta-analytic+review+of+the+testing+effect">chercher</a></li>
+        <li>Sana, Weston et Cepeda (2013). Laptop multitasking hinders classroom learning for both users and nearby peers. <i>Computers &amp; Education</i>. <a href="https://scholar.google.com/scholar?q=Laptop+multitasking+hinders+classroom+learning+for+both+users+and+nearby+peers">chercher</a></li>
+        <li>Sweller, van Merriënboer et Paas (1998). Cognitive architecture and instructional design. <i>Educational Psychology Review</i>. <a href="https://scholar.google.com/scholar?q=Cognitive+architecture+and+instructional+design+Sweller">chercher</a></li>
+      </ul>
+    </section>
+  </article>
+</div>
+</main>
+</body>
+</html>

@@ -62,7 +62,8 @@
     menu: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6.5h16M4 12h11M4 17.5h14"/></svg>`,
     search: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 20 20"/></svg>`,
     pen: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20l4-1 11-11-3-3L5 16l-1 4z"/><path d="M14 7l3 3"/></svg>`,
-    close: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>`
+    close: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>`,
+    seance: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="5" width="16" height="15" rx="2.5"/><path d="M4 10h16M9 3v4M15 3v4"/><path d="M9.5 15l2 2 3.5-4"/></svg>`
   };
   function renderStickers(root = document) {
     $$("[data-s]", root).forEach(el => { if (!el.dataset.done && STICKERS[el.dataset.s]) { el.innerHTML = STICKERS[el.dataset.s]; el.dataset.done = "1"; el.setAttribute("aria-hidden", "true"); } });
@@ -82,9 +83,12 @@
       <div class="header-actions">
         <button class="pill ghost" type="button" data-open="sommaire">${ICON.menu}<span class="lbl">sommaire</span></button>
         <button class="pill ghost icon-pill" type="button" data-open="search" aria-label="rechercher dans le carnet">${ICON.search}</button>
+        <a class="pill ghost seance-pill" href="${url("seance.html")}" title="ma séance du jour">${ICON.seance}<span class="lbl">séance</span><span class="badge-due" hidden></span></a>
         <a class="pill" href="${url("carnet.html")}">${ICON.pen}<span class="lbl">mon carnet</span></a>
       </div><div class="reading-bar" aria-hidden="true"></div>`;
     body.prepend(header);
+    const due = aReviser(), bd = $(".badge-due", header);
+    if (due && bd) { bd.textContent = due > 99 ? "99+" : String(due); bd.hidden = false; $(".seance-pill", header).setAttribute("aria-label", `ma séance du jour : ${due} révision${due > 1 ? "s" : ""} à faire`); }
     body.prepend(h("a", { class: "skip", href: "#contenu" }, "aller au contenu"));
     const bar = $(".reading-bar", header);
     const onScroll = () => {
@@ -365,18 +369,47 @@
   /* ---------- KaTeX à la demande ---------- */
   function loadCSS(href) { return new Promise(r => { const l = h("link", { rel: "stylesheet", href }); l.onload = r; l.onerror = r; document.head.appendChild(l); }); }
   function loadJS(src) { return new Promise((r, j) => { const s = h("script", { src }); s.onload = r; s.onerror = j; document.head.appendChild(s); }); }
-  async function initMath() {
-    const txt = ($("main") || body).innerHTML;
-    if (!/\\\(|\\\[/.test(txt)) return;
-    await loadCSS(url("assets/vendor/katex/katex.min.css"));
-    await loadJS(url("assets/vendor/katex/katex.min.js"));
-    await loadJS(url("assets/vendor/katex/contrib/auto-render.min.js"));
-    window.renderMathInElement($("main") || body, {
+  let katexPret = null;
+  function loadKatex() {
+    if (!katexPret) katexPret = (async () => {
+      await loadCSS(url("assets/vendor/katex/katex.min.css"));
+      await loadJS(url("assets/vendor/katex/katex.min.js"));
+      await loadJS(url("assets/vendor/katex/contrib/auto-render.min.js"));
+    })();
+    return katexPret;
+  }
+  // rend les formules \( \) et \[ \] d'un élément (aussi pour le contenu ajouté après coup)
+  async function renderMath(el) {
+    if (!el || !/\\\(|\\\[/.test(el.innerHTML)) return;
+    await loadKatex();
+    window.renderMathInElement(el, {
       delimiters: [{ left: "\\[", right: "\\]", display: true }, { left: "\\(", right: "\\)", display: false }],
       ignoredTags: ["script", "noscript", "style", "textarea", "pre", "code", "option"], throwOnError: false,
       macros: { "\\dd": "\\mathrm{d}", "\\ee": "\\mathrm{e}", "\\unit": "\\,\\mathrm{#1}" }
     });
+  }
+  async function initMath() {
+    const m = $("main") || body;
+    if (!/\\\(|\\\[/.test(m.innerHTML)) return;
+    await renderMath(m);
     document.dispatchEvent(new CustomEvent("carnet:math"));
+  }
+
+  /* ---------- journal d'activité (carte de chaleur de la séance du jour) ---------- */
+  const cleJour = (t = Date.now()) => { const d = new Date(t); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+  function act(type, n = 1) {
+    const a = store.get("act", {}); const k = cleJour(); const j = a[k] || (a[k] = {});
+    j[type] = (j[type] || 0) + n;
+    const ks = Object.keys(a).sort(); if (ks.length > 420) ks.slice(0, ks.length - 420).forEach(x => delete a[x]);
+    store.set("act", a);
+  }
+  // nombre d'éléments à réviser maintenant (questions, leçons, exercices, fiches déjà vues)
+  function aReviser(t = Date.now()) {
+    let n = 0;
+    ["q:", "lec:"].forEach(p => store.keys(p).forEach(k => { const s = store.get(k, null); if (s && s.n <= t) n++; }));
+    store.keys("ex:").forEach(k => { const s = store.get(k, null); if (s && s.m >= 2 && s.n <= t) n++; });
+    Object.values(store.get("fiches:etat", {})).forEach(s => { if (s && s.n <= t) n++; });
+    return n;
   }
 
   /* ---------- glossaire ---------- */
@@ -423,13 +456,15 @@
       const mast = allPages.filter(p => getStatus(p.id) === "maitrise").length;
       const notes = store.keys("notes:").filter(k => (store.get(k, "") || "").trim()).length;
       const target = lp || allPages.find(p => !getStatus(p.id)) || allPages[0];
-      rs.innerHTML = `<div><span class="hand">${lp ? "on reprend ?" : "par où commencer ?"}</span><h3 style="margin:8px 0 6px">${esc(target.title)}</h3><p class="small" style="margin:0 0 16px">${esc(target.module.num + " · " + target.module.title)}</p><a class="pill" href="${url(target.file)}">${lp ? "reprendre ma lecture" : "commencer"} →</a></div>
-        <div class="stats"><div class="stat"><b>${done}</b><span>leçons ouvertes / ${allPages.length}</span></div><div class="stat"><b>${mast}</b><span>maîtrisées</span></div><div class="stat"><b>${notes}</b><span>pages annotées</span></div></div>`;
+      const due = aReviser();
+      rs.innerHTML = `<div><span class="hand">${lp ? "on reprend ?" : "par où commencer ?"}</span><h3 style="margin:8px 0 6px">${esc(lp ? target.title : "ma séance du jour")}</h3><p class="small" style="margin:0 0 16px">${lp ? esc(target.module.num + " · " + target.module.title) + (due ? ` · <strong>${due} révision${due > 1 ? "s" : ""}</strong> t'attend${due > 1 ? "ent" : ""} d'abord` : "") : "20 à 40 minutes guidées : révisions espacées, entraînement, puis une nouvelle leçon."}</p>
+        <div style="display:flex;flex-wrap:wrap;gap:10px"><a class="pill" href="${url("seance.html")}">ma séance du jour →</a>${lp ? `<a class="pill ghost" href="${url(target.file)}">reprendre ma lecture</a>` : `<a class="pill ghost" href="${url("parcours.html")}">voir mon parcours</a>`}</div></div>
+        <div class="stats"><div class="stat"><b>${due}</b><span>révisions dues</span></div><div class="stat"><b>${done}</b><span>leçons ouvertes / ${allPages.length}</span></div><div class="stat"><b>${mast}</b><span>maîtrisées</span></div><div class="stat"><b>${notes}</b><span>pages annotées</span></div></div>`;
     }
   }
 
   /* ---------- API publique (pages outils) ---------- */
-  window.Carnet = { ROOT, MAP, store, allPages, titleOf, getStatus, setStatus, moduleProgress, exportAllNotes, exportBackup, importBackup, download, toast, renderStickers, esc, h, $, $$, norm, initMath, highlight };
+  window.Carnet = { ROOT, MAP, store, allPages, titleOf, getStatus, setStatus, moduleProgress, exportAllNotes, exportBackup, importBackup, download, toast, renderStickers, esc, h, $, $$, norm, initMath, renderMath, highlight, act, aReviser, cleJour, url };
 
   /* ---------- démarrage ---------- */
   function start() {
@@ -442,6 +477,8 @@
     renderStickers();
     initQuizzes(); initChecks(); initChecklists(); initCode();
     initMath(); initGlossary(); initLazy();
+    // couche « apprendre » : devine, pauses rappel, rappel libre, confiance, révisions espacées
+    if (pageInfo && $(".lesson-hero")) import(url("assets/js/apprendre.js")).then(m => m.default({ page: PAGE_ID, info: pageInfo })).catch(err => console.error(err));
     document.dispatchEvent(new CustomEvent("carnet:ready"));
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();

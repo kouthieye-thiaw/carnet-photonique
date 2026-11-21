@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>la lumière, sans formules · carnet photonique</title>
+<link rel="icon" href="../assets/img/favicon.svg">
+<link rel="stylesheet" href="../assets/css/carnet.css">
+<script defer src="../assets/js/site-map.js"></script>
+<script defer src="../assets/js/carnet.js"></script>
+</head>
+<body data-page="decouvrir/lumiere-sans-formules">
+<main>
+<div class="wrap">
+  <header class="lesson-hero">
+    <h1>la lumière, sans formules</h1>
+    <span class="hand">trois façons de voir la même chose</span>
+    <p class="lead">Avant les équations, il faut des images justes dans la tête. Rayon, onde, photon : trois modèles de la même lumière, chacun utile pour un geste du métier — <mark>aligner, comprendre, mesurer</mark>.</p>
+    <span class="sticker" data-s="photon" style="--r:-12deg;top:30px;right:0"></span>
+  </header>
+  <div class="lesson-body">
+    <nav class="toc" aria-label="sommaire de la leçon"></nav>
+    <article class="prose">
+      <div class="objectives">
+        <h4>à la fin de cette leçon, tu sauras…</h4>
+        <ul>
+          <li>choisir le bon modèle (rayon, onde ou photon) selon la question posée ;</li>
+          <li>situer une longueur d'onde dans le spectre et nommer les longueurs d'onde du métier (visible, 850, 1310, 1550 nm) ;</li>
+          <li>relier couleur, longueur d'onde, fréquence et énergie des photons, sans calcul ;</li>
+          <li>distinguer puissance et énergie, et expliquer pourquoi un petit laser peut être dangereux ;</li>
+          <li>situer chaque partie d'un système opto-électronique dans le reste du carnet.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">1</span>trois modèles pour une seule lumière</h2>
+      <p>Un architecte dessine le même bâtiment en plan, en coupe et en façade : aucun dessin n'est « le vrai », chacun répond à une question. La lumière, c'est pareil. Le physicien a trois dessins à sa disposition, et un bon technicien sait lequel sortir.</p>
+      <figure class="fig">
+        <div class="fig-inner">
+          <svg viewBox="0 0 760 200" role="img" aria-label="Trois représentations de la lumière : des rayons rectilignes, une onde sinusoïdale, des photons comme des grains.">
+            <g class="svg-ink"><rect x="10" y="20" width="230" height="140" rx="12"/><rect x="265" y="20" width="230" height="140" rx="12"/><rect x="520" y="20" width="230" height="140" rx="12"/></g>
+            <g stroke="#e2372b" stroke-width="2.6" fill="none" stroke-linecap="round"><path d="M30 60 L130 90 L220 60"/><path d="M30 120 L220 120"/><path d="M212 116 L220 120 L212 124"/><path d="M212 56 L220 60 L211 65"/></g>
+            <path class="svg-ink" d="M130 70 L130 110" stroke-dasharray="4 4"/>
+            <path d="M280 90 C 300 50, 320 50, 340 90 S 380 130, 400 90 S 440 50, 460 90 S 480 130, 485 110" stroke="#e2372b" stroke-width="2.6" fill="none"/>
+            <path class="svg-ink" d="M340 140 L400 140"/><path class="svg-ink" d="M340 134 L340 146 M400 134 L400 146"/>
+            <g fill="#e2372b"><circle cx="560" cy="70" r="7"/><circle cx="610" cy="100" r="7"/><circle cx="650" cy="62" r="7"/><circle cx="700" cy="110" r="7"/><circle cx="585" cy="125" r="7"/><circle cx="680" cy="80" r="7"/></g>
+            <g class="svg-txt" text-anchor="middle"><text x="125" y="188">rayon : la lumière va tout droit</text><text x="380" y="188">onde : elle vibre (λ)</text><text x="635" y="188">photon : elle arrive par grains</text></g>
+            <text class="svg-hand" x="370" y="132" text-anchor="middle">λ</text>
+          </svg>
+        </div>
+        <figcaption><b>Figure 1 —</b> trois modèles, trois usages. Aucun n'est faux : chacun est la bonne approximation pour une question.</figcaption>
+      </figure>
+      <div class="table-wrap"><table>
+        <thead><tr><th>modèle</th><th>l'idée</th><th>quand t'en servir au banc</th></tr></thead>
+        <tbody>
+          <tr><td><strong>rayon</strong></td><td>la lumière suit des lignes droites, se réfléchit, se plie (réfraction)</td><td>aligner un faisceau, choisir une lentille, comprendre une fibre</td></tr>
+          <tr><td><strong>onde</strong></td><td>une vibration électromagnétique qui se répète tous les λ (la <dfn data-g="longueur-onde">longueur d'onde</dfn>)</td><td>couleur, interférences, diffraction, polarisation, cohérence</td></tr>
+          <tr><td><strong>photon</strong></td><td>des grains d'énergie, d'autant plus énergétiques que λ est courte</td><td>émission d'un laser ou d'une LED, détection par une photodiode, danger pour l'œil</td></tr>
+        </tbody>
+      </table></div>
+
+      <h2><span class="n">2</span>la longueur d'onde, carte d'identité de la lumière</h2>
+      <p>La lumière visible n'est qu'une petite tranche du <dfn data-g="spectre-em">spectre électromagnétique</dfn>, entre 400 nm (violet) et 700 nm environ (rouge). Un nanomètre, c'est un milliardième de mètre : une longueur d'onde visible est <strong>une centaine de fois plus petite que l'épaisseur d'un cheveu</strong>. Au-delà du rouge commence l'<dfn data-g="infrarouge">infrarouge</dfn> — là où travaillent la plupart des lasers industriels et toutes les télécoms.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>longueur d'onde</th><th>où tu la croiseras</th></tr></thead>
+        <tbody>
+          <tr><td class="num">405 nm</td><td>violet : lecteurs Blu-ray, microscopie, gravure</td></tr>
+          <tr><td class="num">532 nm</td><td>vert : pointeurs, alignement, laser Nd:YAG doublé</td></tr>
+          <tr><td class="num">633 – 650 nm</td><td>rouge : laser HeNe, pointeurs, diodes d'alignement, localisateur de défaut fibre</td></tr>
+          <tr><td class="num">780 – 980 nm</td><td>proche infrarouge : diodes de pompage, capteurs, LiDAR (905 nm), liaisons courtes (850 nm)</td></tr>
+          <tr><td class="num">1064 nm</td><td>lasers Nd:YAG et à fibre ytterbium : découpe, marquage</td></tr>
+          <tr><td class="num">1310 et 1550 nm</td><td>télécoms sur fibre : c'est là que la fibre perd le moins (EDFA à 1550 nm)</td></tr>
+        </tbody>
+      </table></div>
+      <div class="lab" data-widget="spectre">
+        <div class="lab-head"><h4>du violet à l'infrarouge</h4><span class="tag green">simulation</span></div>
+        <p class="small">Fais glisser la longueur d'onde de 405 à 1550 nm : regarde la couleur, l'énergie de chaque photon et la sensibilité de l'œil, qui tombe à zéro dans l'infrarouge.</p>
+      </div>
+      <p>Dans le vide, la lumière va à près de 300 000 km/s. Dans la matière, elle ralentit : dans le verre, à environ 200 000 km/s. Ce rapport s'appelle l'<dfn data-g="indice-refraction">indice de réfraction</dfn> n (ici n ≈ 1,5). C'est ce ralentissement qui fait plier les rayons à l'entrée d'une lentille — la prochaine leçon.</p>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>ordre de grandeur</h4></div>
+        <p>Un cheveu fait 70 µm d'épaisseur. Combien de longueurs d'onde de 0,5 µm (vert) tiennent dans cette épaisseur ?</p>
+        <div class="check-row" data-answer="140" data-tol="0.01" data-hint="70 divisé par 0,5">
+          <input type="text" inputmode="decimal" placeholder="ta réponse" aria-label="nombre de longueurs d'onde"><span>longueurs d'onde</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">3</span>couleur, fréquence, énergie : tout est lié</h2>
+      <p>Une seule règle à retenir : <strong>plus la longueur d'onde est courte, plus l'onde vibre vite (fréquence élevée) et plus chaque photon transporte d'énergie.</strong> Un photon ultraviolet peut casser une molécule (coup de soleil) ; un photon à 1550 nm n'a même pas assez d'énergie pour être « vu » par une photodiode en silicium.</p>
+      <div class="box astuce"><p class="box-title">le seul calcul à connaître par cœur</p><p>Énergie d'un photon en électronvolts ≈ <strong>1240 divisé par la longueur d'onde en nanomètres</strong>. Rouge à 620 nm : 2 eV. Télécom à 1550 nm : 0,8 eV. Tu le retrouveras avec la vraie formule dans <a href="../physique/lumiere-photon.html">la lumière : onde et photon</a>.</p></div>
+      <p>Pourquoi c'est important pour toi ? Parce que <strong>chaque matériau a un seuil</strong> : une photodiode en silicium ne détecte rien au-delà de 1100 nm environ ; une diode laser en GaAs émet vers 850 nm. Choisir un détecteur ou une source, c'est d'abord une question de longueur d'onde.</p>
+
+      <h2><span class="n">4</span>puissance et énergie : ce que mesure le technicien</h2>
+      <p>La <strong>puissance</strong> (en watts, souvent en milliwatts) dit combien d'énergie passe chaque seconde : un laser de 1 mW envoie 1 millijoule par seconde. Pour un laser continu, c'est la grandeur qu'on mesure tout le temps, avec un <dfn data-g="puissance-metre">puissance-mètre</dfn>. En télécom, on l'exprime en <dfn data-g="dbm">dBm</dfn> : 1 mW = 0 dBm, 2 mW ≈ 3 dBm, 0,1 mW = −10 dBm (voir <a href="../maths/unites-db.html">les décibels</a>).</p>
+      <p>Ce qui compte aussi, c'est la <strong>concentration</strong> : la même puissance sur une petite surface éclaire beaucoup plus. Un pointeur de 1 mW concentré sur 1 mm² éclaire autant que le plein soleil (environ 1000 W/m²). Et l'œil, comme une loupe, <strong>focalise</strong> un faisceau parallèle en un point minuscule sur la rétine : l'éclairement y devient énorme.</p>
+      <div class="exo">
+        <div class="exo-head"><span class="tag orange">à toi</span><h4>la lumière dans le verre</h4></div>
+        <p>La lumière va à 300 000 km/s dans le vide. À quelle vitesse va-t-elle dans un verre d'indice 1,5 ?</p>
+        <div class="check-row" data-answer="200000" data-tol="0.01" data-hint="vitesse = c / n">
+          <input type="text" inputmode="decimal" placeholder="ta réponse" aria-label="vitesse en kilomètres par seconde"><span>km/s</span><button class="pill small" type="button">vérifier</button>
+        </div>
+      </div>
+
+      <h2><span class="n">5</span>l'infrarouge, le piège invisible</h2>
+      <p>La plupart des lasers du métier émettent dans l'infrarouge : 808, 915, 980, 1064, 1550 nm. Tu ne les vois pas, ton œil ne cligne pas, tu ne sens rien… alors qu'entre 400 et 1400 nm, le faisceau traverse l'œil et se concentre sur la rétine. Au-delà de 1400 nm, il est absorbé à l'avant de l'œil : moins dangereux pour la rétine, mais pas inoffensif à forte puissance.</p>
+      <div class="box attention"><p class="box-title">règles de base, dès aujourd'hui</p>
+        <ul>
+          <li>Ne jamais regarder dans un faisceau ni dans une fibre, même « éteinte » : on ne voit pas l'infrarouge.</li>
+          <li>Repérer le faisceau avec une <strong>carte infrarouge</strong> ou un viseur IR, jamais avec l'œil ; enlever montre et bagues (réflexions).</li>
+          <li>Porter les lunettes adaptées à la longueur d'onde et à la <dfn data-g="classe-laser">classe du laser</dfn> — détails dans <a href="../lasers/securite.html">sécurité laser</a>.</li>
+        </ul>
+      </div>
+
+      <h2><span class="n">6</span>le métier en une image</h2>
+      <p>Presque tout système opto-électronique suit la même chaîne. Garde-la en tête : chaque leçon du carnet en éclaire un maillon.</p>
+      <figure class="fig">
+        <div class="fig-inner">
+          <svg viewBox="0 0 760 150" role="img" aria-label="Chaîne opto-électronique : source, mise en forme, transport, détection, électronique et logiciel.">
+            <g class="svg-ink"><rect x="8" y="40" width="108" height="56" rx="10"/><rect x="134" y="40" width="108" height="56" rx="10"/><rect x="260" y="40" width="108" height="56" rx="10"/><rect x="386" y="40" width="108" height="56" rx="10"/><rect x="512" y="40" width="108" height="56" rx="10"/><rect x="638" y="40" width="114" height="56" rx="10"/></g>
+            <g stroke="#e2372b" stroke-width="2.4" fill="#e2372b"><path d="M116 68 L130 68" /><path d="M242 68 L256 68"/><path d="M368 68 L382 68"/></g>
+            <g stroke="#171717" stroke-width="1.8"><path d="M494 68 L508 68"/><path d="M620 68 L634 68"/></g>
+            <g class="svg-txt" text-anchor="middle"><text x="62" y="73">source</text><text x="188" y="66">mise en</text><text x="188" y="84">forme</text><text x="314" y="73">transport</text><text x="440" y="73">détection</text><text x="566" y="73">électronique</text><text x="695" y="73">logiciel</text></g>
+            <g class="svg-txt" text-anchor="middle" style="font-size:12px;fill:rgba(43,26,7,.62)"><text x="62" y="118">laser, LED</text><text x="188" y="118">lentilles, miroirs</text><text x="314" y="118">air, fibre, ampli</text><text x="440" y="118">photodiode, caméra</text><text x="566" y="118">driver, TIA, CAN</text><text x="695" y="118">python, rapport</text></g>
+            <text class="svg-hand" x="380" y="26" text-anchor="middle">la lumière… puis les électrons</text>
+          </svg>
+        </div>
+        <figcaption><b>Figure 2 —</b> la chaîne : en rouge, le domaine de la lumière ; en noir, celui de ton GEII. Le technicien opto-électronique maîtrise les deux côtés de la photodiode.</figcaption>
+      </figure>
+      <div class="box terrain"><p class="box-title">sur le terrain</p><p>Face à une panne, on remonte cette chaîne maillon par maillon : la source émet-elle ? la lumière arrive-t-elle au détecteur ? le signal électrique est-il correct ? le logiciel lit-il la bonne valeur ? C'est exactement la démarche de <a href="../systemes/diagnostic.html">diagnostic</a> que tu verras plus tard.</p></div>
+
+      <div class="box retiens">
+        <p class="box-title">à retenir</p>
+        <ul>
+          <li>Rayon pour aligner et guider, onde pour la couleur et les interférences, photon pour émettre et détecter.</li>
+          <li>Visible ≈ 400 à 700 nm ; les lasers du métier sont souvent dans l'infrarouge : 850, 980, 1064, 1310, 1550 nm.</li>
+          <li>Plus λ est courte, plus le photon est énergétique : E (eV) ≈ 1240 / λ (nm) ; le silicium ne voit plus au-delà de 1100 nm.</li>
+          <li>Puissance = énergie par seconde (1 mW = 0 dBm) ; concentrée par l'œil sur la rétine, elle devient dangereuse — l'infrarouge ne fait pas cligner.</li>
+          <li>La chaîne : source → mise en forme → transport → détection → électronique → logiciel.</li>
+        </ul>
+      </div>
+      <section class="quiz" data-quiz="decouvrir-lumiere">
+        <header><h3>quiz éclair</h3><span class="tag">5 questions</span></header>
+        <div class="q" data-a="b"><p>1. Pour aligner un faisceau avec deux miroirs, quel modèle est le plus utile ?</p><div class="opts">
+          <label><input type="radio" value="a"> le photon</label><label><input type="radio" value="b"> le rayon</label><label><input type="radio" value="c"> l'onde</label></div>
+          <p class="explain">Aligner, c'est faire suivre au faisceau une ligne droite : le modèle du rayon suffit.</p></div>
+        <div class="q" data-a="c"><p>2. Quelle lumière a les photons les plus énergétiques ?</p><div class="opts">
+          <label><input type="radio" value="a"> 1550 nm</label><label><input type="radio" value="b"> 650 nm</label><label><input type="radio" value="c"> 405 nm</label></div>
+          <p class="explain">La plus courte longueur d'onde : environ 3 eV à 405 nm, contre 0,8 eV à 1550 nm.</p></div>
+        <div class="q" data-a="b"><p>3. Un faisceau infrarouge à 980 nm…</p><div class="opts">
+          <label><input type="radio" value="a"> est sans danger puisqu'il est invisible</label><label><input type="radio" value="b"> peut atteindre la rétine sans déclencher le réflexe de clignement</label><label><input type="radio" value="c"> ne traverse pas l'air</label></div>
+          <p class="explain">Entre 400 et 1400 nm, l'œil focalise le faisceau sur la rétine ; invisible, il ne provoque aucun réflexe de protection.</p></div>
+        <div class="q" data-a="b"><p>4. Les fibres télécom fonctionnent surtout vers…</p><div class="opts">
+          <label><input type="radio" value="a"> 532 nm</label><label><input type="radio" value="b"> 1310 et 1550 nm</label><label><input type="radio" value="c"> 10 µm</label></div>
+          <p class="explain">C'est là que la silice perd le moins de lumière ; les amplificateurs à erbium travaillent vers 1550 nm.</p></div>
+        <div class="q" data-a="a"><p>5. Un laser continu de 1 mW, c'est…</p><div class="opts">
+          <label><input type="radio" value="a"> 1 millijoule d'énergie chaque seconde</label><label><input type="radio" value="b"> 1 joule chaque seconde</label><label><input type="radio" value="c"> 1 millijoule en tout</label></div>
+          <p class="explain">Un watt = un joule par seconde ; 1 mW = 1 mJ par seconde.</p></div>
+        <footer><button class="pill" type="button" data-check>vérifier mes réponses</button><button class="pill ghost" type="button" data-reset>recommencer</button><span class="score"></span></footer>
+      </section>
+    </article>
+  </div>
+</div>
+</main>
+</body>
+</html>

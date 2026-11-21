@@ -1,10 +1,11 @@
-/* Page « fiches » : répétition espacée en 5 boîtes de Leitner. État : store « fiches:etat » = { id: { b, n } }. */
+/* Page « fiches » : répétition espacée en 7 boîtes de Leitner (mêmes délais que la séance du jour).
+   État : store « fiches:etat » = { id: { b, n } }. */
 (function () {
   "use strict";
   const K = window.Carnet, F = window.CARNET_FICHES;
   if (!K || !F) return;
   const { MAP, store, esc, $ } = K;
-  const JOUR = 86400000, DELAI = { 1: 0, 2: 1, 3: 3, 4: 7, 5: 14 }, TAILLE = 20;
+  const JOUR = 86400000, DELAI = { 1: 0, 2: 1, 3: 3, 4: 7, 5: 16, 6: 35, 7: 90 }, TAILLE = 20, NB = 7;
   const nomMod = id => { const m = MAP.modules.find(x => x.id === id); return m ? `${m.num} · ${m.title}` : id; };
   const etat = store.get("fiches:etat", {});
   let mods = store.get("fiches:mods", null) || [...new Set(F.map(f => f.m))];
@@ -30,7 +31,7 @@
   /* ---- résumé des boîtes ---- */
   function resume() {
     const c = choisies(), n = c.length || 1;
-    $('[data-c="boites"]').innerHTML = [1, 2, 3, 4, 5].map(b => {
+    $('[data-c="boites"]').innerHTML = Array.from({ length: NB }, (_, k) => k + 1).map(b => {
       const k = c.filter(f => boite(f) === b).length;
       return `<div class="bx"><b>${k}</b><span>boîte ${b}${b > 1 ? ` · ${DELAI[b]} j` : ""}</span><i style="--p:${Math.round(100 * k / n)}%"></i></div>`;
     }).join("");
@@ -60,9 +61,9 @@
   function repondre(ok) {
     const f = file[i]; if (!f) return;
     if (!carte.classList.contains("flip")) { carte.classList.add("flip"); return; }   // d'abord voir la réponse
-    const b = ok ? Math.min(5, boite(f) + 1) : 1;
+    const b = ok ? Math.min(NB, boite(f) + 1) : 1;
     etat[f.id] = { b, n: Date.now() + DELAI[b] * JOUR - (b === 1 ? 0 : 3600000) };
-    sauver(); vues++; if (ok) sues++;
+    sauver(); K.act && K.act("f"); vues++; if (ok) sues++;
     if (!ok) file.push(f);                     // une fiche ratée revient en fin de séance
     i++;
     if (i >= file.length || vues >= TAILLE * 2) { terminer(); return; }
